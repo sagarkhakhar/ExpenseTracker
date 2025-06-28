@@ -126,18 +126,29 @@ final expenseNotifierProvider =
 class ExpenseStatsNotifier
     extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
   final Ref ref;
+  late final ProviderSubscription<AsyncValue<List<Expense>>> _expensesSub;
+
   ExpenseStatsNotifier(this.ref) : super(const AsyncValue.loading()) {
-    _loadStats();
+    // Listen to changes in the expenses provider
+    _expensesSub = ref.listen<AsyncValue<List<Expense>>>(
+      expenseNotifierProvider,
+      (previous, next) {
+        if (next is AsyncData<List<Expense>>) {
+          state = AsyncValue.data(_calculateStats(next.value ?? []));
+        } else if (next is AsyncError) {
+          state = AsyncValue.error(next.error!, next.stackTrace!);
+        } else {
+          state = const AsyncValue.loading();
+        }
+      },
+      fireImmediately: true, // So it runs on initialization too
+    );
   }
 
-  Future<void> _loadStats() async {
-    state = const AsyncValue.loading();
-    try {
-      final expenses = ref.read(expenseNotifierProvider).value ?? [];
-      state = AsyncValue.data(_calculateStats(expenses));
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
+  @override
+  void dispose() {
+    _expensesSub.close();
+    super.dispose();
   }
 
   Map<String, dynamic> _calculateStats(List<Expense> expenses) {
