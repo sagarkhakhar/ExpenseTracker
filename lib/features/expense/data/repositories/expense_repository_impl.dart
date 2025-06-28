@@ -27,7 +27,7 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
       if (expense != null) {
         return Right(expense.toEntity());
       } else {
-        return Left(DatabaseFailure('Expense not found'));
+        return const Left(DatabaseFailure('Expense not found'));
       }
     } catch (e) {
       return Left(DatabaseFailure('Failed to get expense: ${e.toString()}'));

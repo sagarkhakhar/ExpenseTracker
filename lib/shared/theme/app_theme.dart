@@ -25,7 +25,7 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.radiusL),
-          side: BorderSide(color: AppConstants.borderColor, width: 1),
+          side: const BorderSide(color: AppConstants.borderColor, width: 1),
         ),
         shadowColor: AppConstants.textPrimary.withOpacity(0.1),
       ),
@@ -47,7 +47,7 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppConstants.primaryColor,
-          side: BorderSide(color: AppConstants.primaryColor, width: 1),
+          side: const BorderSide(color: AppConstants.primaryColor, width: 1),
           padding: const EdgeInsets.symmetric(
             horizontal: AppConstants.paddingL,
             vertical: AppConstants.paddingM,
@@ -65,19 +65,19 @@ class AppTheme {
         fillColor: AppConstants.backgroundColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppConstants.radiusM),
-          borderSide: BorderSide(color: AppConstants.borderColor, width: 1),
+          borderSide: const BorderSide(color: AppConstants.borderColor, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppConstants.radiusM),
-          borderSide: BorderSide(color: AppConstants.borderColor, width: 1),
+          borderSide: const BorderSide(color: AppConstants.borderColor, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppConstants.radiusM),
-          borderSide: BorderSide(color: AppConstants.primaryColor, width: 2),
+          borderSide: const BorderSide(color: AppConstants.primaryColor, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppConstants.radiusM),
-          borderSide: BorderSide(color: AppConstants.errorColor, width: 1),
+          borderSide: const BorderSide(color: AppConstants.errorColor, width: 1),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppConstants.paddingM,
@@ -109,7 +109,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(AppConstants.radiusL),
         ),
       ),
-      dividerTheme: DividerThemeData(
+      dividerTheme: const DividerThemeData(
         color: AppConstants.dividerColor,
         thickness: 1,
         space: 1,
@@ -138,7 +138,7 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.radiusL),
-          side: BorderSide(color: const Color(0xFF475569), width: 1),
+          side: const BorderSide(color: Color(0xFF475569), width: 1),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -161,15 +161,15 @@ class AppTheme {
         fillColor: const Color(0xFF334155),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppConstants.radiusM),
-          borderSide: BorderSide(color: const Color(0xFF475569), width: 1),
+          borderSide: const BorderSide(color: Color(0xFF475569), width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppConstants.radiusM),
-          borderSide: BorderSide(color: const Color(0xFF475569), width: 1),
+          borderSide: const BorderSide(color: Color(0xFF475569), width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppConstants.radiusM),
-          borderSide: BorderSide(color: AppConstants.primaryColor, width: 2),
+          borderSide: const BorderSide(color: AppConstants.primaryColor, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppConstants.paddingM,
@@ -180,10 +180,10 @@ class AppTheme {
         ),
         hintStyle: AppTextStyles.body2.copyWith(color: const Color(0xFF64748B)),
       ),
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: const Color(0xFF1E293B),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: Color(0xFF1E293B),
         selectedItemColor: AppConstants.primaryColor,
-        unselectedItemColor: const Color(0xFF64748B),
+        unselectedItemColor: Color(0xFF64748B),
         type: BottomNavigationBarType.fixed,
         elevation: 8,
       ),
@@ -195,8 +195,8 @@ class AppTheme {
           borderRadius: BorderRadius.circular(AppConstants.radiusL),
         ),
       ),
-      dividerTheme: DividerThemeData(
-        color: const Color(0xFF475569),
+      dividerTheme: const DividerThemeData(
+        color: Color(0xFF475569),
         thickness: 1,
         space: 1,
       ),

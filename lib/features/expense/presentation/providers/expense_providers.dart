@@ -69,7 +69,7 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
     required ExpenseType type,
     required DateTime date,
   }) async {
-    final uuid = const Uuid();
+    const uuid = Uuid();
     final now = DateTime.now();
     final expense = Expense(
       id: uuid.v4(),

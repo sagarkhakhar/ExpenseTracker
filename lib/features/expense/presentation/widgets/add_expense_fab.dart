@@ -9,8 +9,8 @@ class AddExpenseFAB extends StatelessWidget {
       onPressed: () {
         Navigator.of(context).pushNamed('/add-expense');
       },
-      child: const Icon(Icons.add),
       tooltip: 'Add Expense',
+      child: const Icon(Icons.add),
     );
   }
 }

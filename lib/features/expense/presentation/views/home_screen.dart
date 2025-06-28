@@ -118,7 +118,7 @@ class ExpenseOverviewTab extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
+                const Icon(
                   Icons.error_outline,
                   size: 64,
                   color: AppConstants.errorColor,
@@ -154,7 +154,7 @@ class ExpenseOverviewTab extends ConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.account_balance_wallet_outlined,
             size: 64,
             color: AppConstants.textTertiary,

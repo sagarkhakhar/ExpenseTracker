@@ -1,7 +1,7 @@
 -- Merging decision tree log ---
 application
-INJECTED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/main/AndroidManifest.xml:2:5-33:19
-INJECTED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/debug/AndroidManifest.xml
+INJECTED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/main/AndroidManifest.xml:2:5-33:19
+INJECTED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/debug/AndroidManifest.xml
 MERGED from [androidx.window:window:1.2.0] /Users/sagark/.gradle/caches/8.10.2/transforms/aed2861b2b6894f7067df3f3f96b791f/transformed/jetified-window-1.2.0/AndroidManifest.xml:22:5-29:19
 MERGED from [androidx.window:window:1.2.0] /Users/sagark/.gradle/caches/8.10.2/transforms/aed2861b2b6894f7067df3f3f96b791f/transformed/jetified-window-1.2.0/AndroidManifest.xml:22:5-29:19
 MERGED from [androidx.core:core:1.13.1] /Users/sagark/.gradle/caches/8.10.2/transforms/dfc2fbca530748e569b0737b09fa016f/transformed/core-1.13.1/AndroidManifest.xml:28:5-89
@@ -15,19 +15,19 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/sagark/.gradle/cache
 MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/sagark/.gradle/caches/8.10.2/transforms/d1d97c503b3a4bd9cc3718f3fd84010a/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:24:5-25:19
 MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/sagark/.gradle/caches/8.10.2/transforms/d1d97c503b3a4bd9cc3718f3fd84010a/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:24:5-25:19
 	android:extractNativeLibs
-		INJECTED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/debug/AndroidManifest.xml
+		INJECTED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/debug/AndroidManifest.xml
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.13.1] /Users/sagark/.gradle/caches/8.10.2/transforms/dfc2fbca530748e569b0737b09fa016f/transformed/core-1.13.1/AndroidManifest.xml:28:18-86
 	android:name
-		INJECTED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/main/AndroidManifest.xml
+		INJECTED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/main/AndroidManifest.xml
 manifest
-ADDED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/main/AndroidManifest.xml:1:1-45:12
-MERGED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/main/AndroidManifest.xml:1:1-45:12
-INJECTED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/debug/AndroidManifest.xml:1:1-7:12
-INJECTED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/debug/AndroidManifest.xml:1:1-7:12
-INJECTED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/debug/AndroidManifest.xml:1:1-7:12
-MERGED from [:integration_test] /Users/sagark/Desktop/ExpenseTracker/build/integration_test/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:7:1-12:12
-MERGED from [:path_provider_android] /Users/sagark/Desktop/ExpenseTracker/build/path_provider_android/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:2:1-7:12
+ADDED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/main/AndroidManifest.xml:1:1-45:12
+MERGED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/main/AndroidManifest.xml:1:1-45:12
+INJECTED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/debug/AndroidManifest.xml:1:1-7:12
+INJECTED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/debug/AndroidManifest.xml:1:1-7:12
+INJECTED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/debug/AndroidManifest.xml:1:1-7:12
+MERGED from [:integration_test] /Users/sagark/root/sagar/pro-dev/ExpenseTracker/build/integration_test/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:7:1-12:12
+MERGED from [:path_provider_android] /Users/sagark/root/sagar/pro-dev/ExpenseTracker/build/path_provider_android/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.fragment:fragment:1.7.1] /Users/sagark/.gradle/caches/8.10.2/transforms/cf3a986fc94dc98dab92da85e4b25558/transformed/fragment-1.7.1/AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.window:window:1.2.0] /Users/sagark/.gradle/caches/8.10.2/transforms/aed2861b2b6894f7067df3f3f96b791f/transformed/jetified-window-1.2.0/AndroidManifest.xml:17:1-31:12
 MERGED from [androidx.window:window-java:1.2.0] /Users/sagark/.gradle/caches/8.10.2/transforms/a2be31f5f98c024d17eda5160252de46/transformed/jetified-window-java-1.2.0/AndroidManifest.xml:17:1-21:12
@@ -60,37 +60,37 @@ MERGED from [androidx.annotation:annotation-experimental:1.4.0] /Users/sagark/.g
 MERGED from [androidx.test.espresso:espresso-idling-resource:3.2.0] /Users/sagark/.gradle/caches/8.10.2/transforms/44455119a54d4c7c6b29c58314f5ed5a/transformed/espresso-idling-resource-3.2.0/AndroidManifest.xml:17:1-24:12
 MERGED from [com.getkeepsafe.relinker:relinker:1.4.5] /Users/sagark/.gradle/caches/8.10.2/transforms/1841dfdc9324175fac5338109cf574de/transformed/jetified-relinker-1.4.5/AndroidManifest.xml:2:1-7:12
 	package
-		INJECTED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/debug/AndroidManifest.xml
+		INJECTED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/debug/AndroidManifest.xml
 	android:versionName
-		INJECTED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/debug/AndroidManifest.xml
+		INJECTED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/debug/AndroidManifest.xml
 	android:versionCode
-		INJECTED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/debug/AndroidManifest.xml
+		INJECTED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/debug/AndroidManifest.xml
 	xmlns:android
-		ADDED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/main/AndroidManifest.xml:1:11-69
+		ADDED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/main/AndroidManifest.xml:1:11-69
 queries
-ADDED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/main/AndroidManifest.xml:39:5-44:15
+ADDED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/main/AndroidManifest.xml:39:5-44:15
 intent#action:name:android.intent.action.PROCESS_TEXT+data:mimeType:text/plain
-ADDED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/main/AndroidManifest.xml:40:9-43:18
+ADDED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/main/AndroidManifest.xml:40:9-43:18
 action#android.intent.action.PROCESS_TEXT
-ADDED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/main/AndroidManifest.xml:41:13-72
+ADDED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/main/AndroidManifest.xml:41:13-72
 	android:name
-		ADDED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/main/AndroidManifest.xml:41:21-70
+		ADDED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/main/AndroidManifest.xml:41:21-70
 data
-ADDED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/main/AndroidManifest.xml:42:13-50
+ADDED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/main/AndroidManifest.xml:42:13-50
 	android:mimeType
-		ADDED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/main/AndroidManifest.xml:42:19-48
+		ADDED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/main/AndroidManifest.xml:42:19-48
 uses-permission#android.permission.INTERNET
-ADDED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/debug/AndroidManifest.xml:6:5-66
+ADDED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/debug/AndroidManifest.xml:6:5-66
 	android:name
-		ADDED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/debug/AndroidManifest.xml:6:22-64
+		ADDED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/debug/AndroidManifest.xml:6:22-64
 uses-sdk
-INJECTED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/debug/AndroidManifest.xml reason: use-sdk injection requested
-INJECTED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/debug/AndroidManifest.xml
-INJECTED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/debug/AndroidManifest.xml
-MERGED from [:integration_test] /Users/sagark/Desktop/ExpenseTracker/build/integration_test/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:10:5-44
-MERGED from [:integration_test] /Users/sagark/Desktop/ExpenseTracker/build/integration_test/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:10:5-44
-MERGED from [:path_provider_android] /Users/sagark/Desktop/ExpenseTracker/build/path_provider_android/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:5:5-44
-MERGED from [:path_provider_android] /Users/sagark/Desktop/ExpenseTracker/build/path_provider_android/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:5:5-44
+INJECTED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/debug/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/debug/AndroidManifest.xml
+INJECTED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/debug/AndroidManifest.xml
+MERGED from [:integration_test] /Users/sagark/root/sagar/pro-dev/ExpenseTracker/build/integration_test/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:10:5-44
+MERGED from [:integration_test] /Users/sagark/root/sagar/pro-dev/ExpenseTracker/build/integration_test/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:10:5-44
+MERGED from [:path_provider_android] /Users/sagark/root/sagar/pro-dev/ExpenseTracker/build/path_provider_android/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:5:5-44
+MERGED from [:path_provider_android] /Users/sagark/root/sagar/pro-dev/ExpenseTracker/build/path_provider_android/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:5:5-44
 MERGED from [androidx.fragment:fragment:1.7.1] /Users/sagark/.gradle/caches/8.10.2/transforms/cf3a986fc94dc98dab92da85e4b25558/transformed/fragment-1.7.1/AndroidManifest.xml:5:5-44
 MERGED from [androidx.fragment:fragment:1.7.1] /Users/sagark/.gradle/caches/8.10.2/transforms/cf3a986fc94dc98dab92da85e4b25558/transformed/fragment-1.7.1/AndroidManifest.xml:5:5-44
 MERGED from [androidx.window:window:1.2.0] /Users/sagark/.gradle/caches/8.10.2/transforms/aed2861b2b6894f7067df3f3f96b791f/transformed/jetified-window-1.2.0/AndroidManifest.xml:20:5-44
@@ -154,9 +154,9 @@ MERGED from [androidx.test.espresso:espresso-idling-resource:3.2.0] /Users/sagar
 MERGED from [com.getkeepsafe.relinker:relinker:1.4.5] /Users/sagark/.gradle/caches/8.10.2/transforms/1841dfdc9324175fac5338109cf574de/transformed/jetified-relinker-1.4.5/AndroidManifest.xml:5:5-43
 MERGED from [com.getkeepsafe.relinker:relinker:1.4.5] /Users/sagark/.gradle/caches/8.10.2/transforms/1841dfdc9324175fac5338109cf574de/transformed/jetified-relinker-1.4.5/AndroidManifest.xml:5:5-43
 	android:targetSdkVersion
-		INJECTED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/debug/AndroidManifest.xml
+		INJECTED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/debug/AndroidManifest.xml
 	android:minSdkVersion
-		INJECTED from /Users/sagark/Desktop/ExpenseTracker/android/app/src/debug/AndroidManifest.xml
+		INJECTED from /Users/sagark/root/sagar/pro-dev/ExpenseTracker/android/app/src/debug/AndroidManifest.xml
 uses-library#androidx.window.extensions
 ADDED from [androidx.window:window:1.2.0] /Users/sagark/.gradle/caches/8.10.2/transforms/aed2861b2b6894f7067df3f3f96b791f/transformed/jetified-window-1.2.0/AndroidManifest.xml:23:9-25:40
 	android:required
