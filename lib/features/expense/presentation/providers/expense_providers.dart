@@ -88,7 +88,6 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
       (failure) => throw Exception(failure.message),
       (_) {
         _loadExpenses();
-        ref.invalidate(expenseStatsNotifierProvider);
       },
     );
   }
@@ -100,7 +99,6 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
       (failure) => throw Exception(failure.message),
       (_) {
         _loadExpenses();
-        ref.invalidate(expenseStatsNotifierProvider);
       },
     );
   }
@@ -112,7 +110,6 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
       (failure) => throw Exception(failure.message),
       (_) {
         _loadExpenses();
-        ref.invalidate(expenseStatsNotifierProvider);
       },
     );
   }
@@ -174,16 +171,22 @@ class ExpenseStatsNotifier
     final totalIncome =
         monthlyIncome.fold(0.0, (sum, expense) => sum + expense.amount);
     final balance = totalIncome - totalExpenses;
-    final categoryBreakdown = <ExpenseCategory, double>{};
+    final categoryExpenseBreakdown = <ExpenseCategory, double>{};
     for (final expense in monthlyExpenses) {
-      categoryBreakdown[expense.category] =
-          (categoryBreakdown[expense.category] ?? 0.0) + expense.amount;
+      categoryExpenseBreakdown[expense.category] =
+          (categoryExpenseBreakdown[expense.category] ?? 0.0) + expense.amount;
+    }
+    final categoryIncomeBreakdown = <ExpenseCategory, double>{};
+    for (final income in monthlyIncome) {
+      categoryIncomeBreakdown[income.category] =
+          (categoryIncomeBreakdown[income.category] ?? 0.0) + income.amount;
     }
     return {
       'totalExpenses': totalExpenses,
       'totalIncome': totalIncome,
       'balance': balance,
-      'categoryBreakdown': categoryBreakdown,
+      'categoryExpenseBreakdown': categoryExpenseBreakdown,
+      'categoryIncomeBreakdown': categoryIncomeBreakdown,
       'expenseCount': monthlyExpenses.length,
       'incomeCount': monthlyIncome.length,
     };
