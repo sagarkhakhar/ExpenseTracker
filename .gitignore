@@ -1,0 +1,49 @@
+# Flutter/Dart/Pub related
+.dart_tool/
+.packages
+.pub/
+build/
+
+# IDEs and editors
+.idea/
+.vscode/
+*.iml
+
+# Flutter generated
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter-versions
+.flutter_export_environment.sh
+
+# Misc
+*.log
+*.tmp
+*.swp
+
+# Platform-specific outputs
+android/.gradle/
+android/captures/
+android/local.properties
+android/GeneratedPluginRegistrant.java
+android/.cxx/
+ios/Pods/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Flutter/app.flx
+ios/Flutter/app.zip
+ios/Flutter/flutter_assets/
+ios/Flutter/flutter_export_environment.sh
+ios/ServiceDefinitions.json
+ios/Runner/GeneratedPluginRegistrant.*
+ios/DerivedData/
+ios/xcuserdata/
+ios/.generated/
+
+# Exceptions for Xcode project files
+!ios/default.mode1v3
+!ios/default.mode2v3
+!ios/default.pbxuser
+!ios/default.perspectivev3 
