@@ -36,10 +36,10 @@ class ExpensePieChart extends StatefulWidget {
   final String title;
 
   const ExpensePieChart({
-    Key? key,
+    super.key,
     required this.categoryBreakdown,
     required this.title,
-  }) : super(key: key);
+  });
 
   @override
   State<ExpensePieChart> createState() => _ExpensePieChartState();
