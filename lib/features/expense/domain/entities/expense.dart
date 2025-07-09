@@ -3,29 +3,7 @@ import 'package:hive/hive.dart';
 
 part 'expense.g.dart';
 
-@HiveType(typeId: 1)
-enum ExpenseCategory {
-  @HiveField(0)
-  food,
-  @HiveField(1)
-  transportation,
-  @HiveField(2)
-  entertainment,
-  @HiveField(3)
-  shopping,
-  @HiveField(4)
-  health,
-  @HiveField(5)
-  education,
-  @HiveField(6)
-  utilities,
-  @HiveField(7)
-  rent,
-  @HiveField(8)
-  insurance,
-  @HiveField(9)
-  other,
-}
+// Remove ExpenseCategory enum and its HiveType
 
 @HiveType(typeId: 2)
 enum ExpenseType {
@@ -40,12 +18,18 @@ class Expense extends Equatable {
   final String title;
   final String description;
   final double amount;
-  final ExpenseCategory category;
+  final String category; // Now a string
   final ExpenseType type;
   final DateTime date;
   final DateTime createdAt;
   final DateTime updatedAt;
   final Map<String, dynamic>? metadata;
+  // Recurring fields
+  final bool isRecurring;
+  final String?
+      recurringFrequency; // e.g., 'daily', 'weekly', 'monthly', 'custom'
+  final DateTime? nextOccurrence;
+  final DateTime? endDate;
 
   const Expense({
     required this.id,
@@ -58,6 +42,10 @@ class Expense extends Equatable {
     required this.createdAt,
     required this.updatedAt,
     this.metadata,
+    this.isRecurring = false,
+    this.recurringFrequency,
+    this.nextOccurrence,
+    this.endDate,
   });
 
   @override
@@ -72,6 +60,10 @@ class Expense extends Equatable {
         createdAt,
         updatedAt,
         metadata,
+        isRecurring,
+        recurringFrequency,
+        nextOccurrence,
+        endDate,
       ];
 
   Expense copyWith({
@@ -79,12 +71,16 @@ class Expense extends Equatable {
     String? title,
     String? description,
     double? amount,
-    ExpenseCategory? category,
+    String? category,
     ExpenseType? type,
     DateTime? date,
     DateTime? createdAt,
     DateTime? updatedAt,
     Map<String, dynamic>? metadata,
+    bool? isRecurring,
+    String? recurringFrequency,
+    DateTime? nextOccurrence,
+    DateTime? endDate,
   }) {
     return Expense(
       id: id ?? this.id,
@@ -97,6 +93,10 @@ class Expense extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       metadata: metadata ?? this.metadata,
+      isRecurring: isRecurring ?? this.isRecurring,
+      recurringFrequency: recurringFrequency ?? this.recurringFrequency,
+      nextOccurrence: nextOccurrence ?? this.nextOccurrence,
+      endDate: endDate ?? this.endDate,
     );
   }
 

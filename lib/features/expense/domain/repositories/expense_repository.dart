@@ -10,7 +10,7 @@ abstract class ExpenseRepository {
     DateTime end,
   );
   Future<Either<Failure, List<Expense>>> getExpensesByCategory(
-    ExpenseCategory category,
+    String category,
   );
   Future<Either<Failure, List<Expense>>> getExpensesByType(ExpenseType type);
   Future<Either<Failure, Expense>> createExpense(Expense expense);
@@ -21,6 +21,6 @@ abstract class ExpenseRepository {
     DateTime end,
   );
   Future<Either<Failure, double>> getTotalIncome(DateTime start, DateTime end);
-  Future<Either<Failure, Map<ExpenseCategory, double>>>
-  getExpensesByCategorySummary(DateTime start, DateTime end);
+  Future<Either<Failure, Map<String, double>>> getExpensesByCategorySummary(
+      DateTime start, DateTime end);
 }

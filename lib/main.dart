@@ -14,13 +14,18 @@ void main() async {
   // Initialize Hive
   await Hive.initFlutter();
   Hive.registerAdapter(ExpenseModelAdapter());
-  Hive.registerAdapter(ExpenseCategoryAdapter());
   Hive.registerAdapter(ExpenseTypeAdapter());
+
+  // Initialize categories
+  final categoryDataSource = CategoryLocalDataSourceImpl();
+  await categoryDataSource.init();
 
   // Seed dummy data if empty
   final dummyDataSource = ExpenseLocalDataSourceImpl();
   await dummyDataSource.init();
   await dummyDataSource.seedDummyDataIfEmpty();
+  // Process recurring entries
+  await dummyDataSource.processRecurringExpenses();
 
   runApp(const ProviderScope(child: ExpenseTrackerApp()));
 }

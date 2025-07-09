@@ -13,7 +13,7 @@ class ExpenseSummaryCard extends StatelessWidget {
     final totalIncome = stats['totalIncome'] ?? 0.0;
     final balance = stats['balance'] ?? 0.0;
     final categoryBreakdown =
-        stats['categoryBreakdown'] as Map<ExpenseCategory, double>? ?? {};
+        stats['categoryBreakdown'] as Map<String, double>? ?? {};
 
     return Card(
       margin: const EdgeInsets.all(AppConstants.paddingM),
@@ -25,20 +25,27 @@ class ExpenseSummaryCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _SummaryTile(
-                  label: 'Expenses',
-                  value: CurrencyUtils.formatCurrency(totalExpenses),
-                  color: AppConstants.errorColor,
+                Expanded(
+                  child: _SummaryTile(
+                    label: 'Expenses',
+                    value:
+                        CurrencyUtils.formatAbbreviatedCurrency(totalExpenses),
+                    color: AppConstants.errorColor,
+                  ),
                 ),
-                _SummaryTile(
-                  label: 'Income',
-                  value: CurrencyUtils.formatCurrency(totalIncome),
-                  color: AppConstants.successColor,
+                Expanded(
+                  child: _SummaryTile(
+                    label: 'Income',
+                    value: CurrencyUtils.formatAbbreviatedCurrency(totalIncome),
+                    color: AppConstants.successColor,
+                  ),
                 ),
-                _SummaryTile(
-                  label: 'Balance',
-                  value: CurrencyUtils.formatCurrency(balance),
-                  color: AppConstants.primaryColor,
+                Expanded(
+                  child: _SummaryTile(
+                    label: 'Balance',
+                    value: CurrencyUtils.formatAbbreviatedCurrency(balance),
+                    color: AppConstants.primaryColor,
+                  ),
                 ),
               ],
             ),
@@ -48,17 +55,16 @@ class ExpenseSummaryCard extends StatelessWidget {
             Wrap(
               spacing: 8,
               runSpacing: 4,
-              children:
-                  categoryBreakdown.entries.map((entry) {
-                    return Chip(
-                      label: Text(
-                        '${entry.key.name}: ${CurrencyUtils.formatCurrency(entry.value)}',
-                      ),
-                      backgroundColor: AppConstants.primaryColor.withOpacity(
-                        0.1,
-                      ),
-                    );
-                  }).toList(),
+              children: categoryBreakdown.entries.map((entry) {
+                return Chip(
+                  label: Text(
+                    '${entry.key}: ${CurrencyUtils.formatCurrency(entry.value)}',
+                  ),
+                  backgroundColor: AppConstants.primaryColor.withOpacity(
+                    0.1,
+                  ),
+                );
+              }).toList(),
             ),
           ],
         ),
@@ -83,7 +89,10 @@ class _SummaryTile extends StatelessWidget {
       children: [
         Text(label, style: AppTextStyles.caption),
         const SizedBox(height: 4),
-        Text(value, style: AppTextStyles.heading3.copyWith(color: color)),
+        Text(value,
+            style: AppTextStyles.heading3.copyWith(color: color),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis),
       ],
     );
   }

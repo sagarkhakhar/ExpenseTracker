@@ -20,8 +20,7 @@ class ExpenseModel extends HiveObject {
   final double amount;
 
   @HiveField(4)
-  @JsonKey(fromJson: _categoryFromJson, toJson: _categoryToJson)
-  final ExpenseCategory category;
+  final String category; // Now a string
 
   @HiveField(5)
   @JsonKey(fromJson: _typeFromJson, toJson: _typeToJson)
@@ -38,6 +37,15 @@ class ExpenseModel extends HiveObject {
 
   @HiveField(9)
   final Map<String, dynamic>? metadata;
+  // Recurring fields
+  @HiveField(10)
+  final bool isRecurring;
+  @HiveField(11)
+  final String? recurringFrequency;
+  @HiveField(12)
+  final DateTime? nextOccurrence;
+  @HiveField(13)
+  final DateTime? endDate;
 
   ExpenseModel({
     required this.id,
@@ -50,7 +58,17 @@ class ExpenseModel extends HiveObject {
     required this.createdAt,
     required this.updatedAt,
     this.metadata,
-  });
+    this.isRecurring = false,
+    this.recurringFrequency,
+    this.nextOccurrence,
+    this.endDate,
+  })  : assert(id != null && id.trim().isNotEmpty, 'ID cannot be empty'),
+        assert(
+            title != null && title.trim().isNotEmpty, 'Title cannot be empty'),
+        assert(category != null && category.trim().isNotEmpty,
+            'Category cannot be empty'),
+        assert(!amount.isNaN && !amount.isInfinite && amount > 0,
+            'Amount must be positive and finite');
 
   factory ExpenseModel.fromJson(Map<String, dynamic> json) =>
       _$ExpenseModelFromJson(json);
@@ -68,6 +86,10 @@ class ExpenseModel extends HiveObject {
       createdAt: expense.createdAt,
       updatedAt: expense.updatedAt,
       metadata: expense.metadata,
+      isRecurring: expense.isRecurring,
+      recurringFrequency: expense.recurringFrequency,
+      nextOccurrence: expense.nextOccurrence,
+      endDate: expense.endDate,
     );
   }
 
@@ -83,18 +105,11 @@ class ExpenseModel extends HiveObject {
       createdAt: createdAt,
       updatedAt: updatedAt,
       metadata: metadata,
+      isRecurring: isRecurring,
+      recurringFrequency: recurringFrequency,
+      nextOccurrence: nextOccurrence,
+      endDate: endDate,
     );
-  }
-
-  static ExpenseCategory _categoryFromJson(String value) {
-    return ExpenseCategory.values.firstWhere(
-      (e) => e.toString().split('.').last == value,
-      orElse: () => ExpenseCategory.other,
-    );
-  }
-
-  static String _categoryToJson(ExpenseCategory category) {
-    return category.toString().split('.').last;
   }
 
   static ExpenseType _typeFromJson(String value) {

@@ -62,4 +62,16 @@ class CurrencyUtils {
   static bool isZero(double amount) {
     return amount == 0;
   }
+
+  static String formatAbbreviatedCurrency(double amount) {
+    if (amount.abs() >= 1e9) {
+      return ' ${(amount / 1e9).toStringAsFixed(2)}B';
+    } else if (amount.abs() >= 1e6) {
+      return ' ${(amount / 1e6).toStringAsFixed(2)}M';
+    } else if (amount.abs() >= 1e3) {
+      return ' ${(amount / 1e3).toStringAsFixed(2)}K';
+    } else {
+      return formatCurrency(amount);
+    }
+  }
 }

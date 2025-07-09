@@ -53,11 +53,11 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
 
   @override
   Future<Either<Failure, List<Expense>>> getExpensesByCategory(
-    ExpenseCategory category,
+    String category,
   ) async {
     try {
       final expenses = await localDataSource.getExpensesByCategory(
-        category.toString().split('.').last,
+        category,
       );
       return Right(expenses.map((model) => model.toEntity()).toList());
     } catch (e) {
@@ -72,9 +72,7 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
     ExpenseType type,
   ) async {
     try {
-      final expenses = await localDataSource.getExpensesByType(
-        type.toString().split('.').last,
-      );
+      final expenses = await localDataSource.getExpensesByType(type);
       return Right(expenses.map((model) => model.toEntity()).toList());
     } catch (e) {
       return Left(
@@ -124,7 +122,7 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
       final expenses = await localDataSource.getExpensesByDateRange(start, end);
       final total = expenses
           .where(
-            (expense) => expense.type.toString().split('.').last == 'expense',
+            (expense) => expense.type == ExpenseType.expense,
           )
           .fold(0.0, (sum, expense) => sum + expense.amount);
       return Right(total);
@@ -144,7 +142,7 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
       final expenses = await localDataSource.getExpensesByDateRange(start, end);
       final total = expenses
           .where(
-            (expense) => expense.type.toString().split('.').last == 'income',
+            (expense) => expense.type == ExpenseType.income,
           )
           .fold(0.0, (sum, expense) => sum + expense.amount);
       return Right(total);
@@ -156,14 +154,14 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
   }
 
   @override
-  Future<Either<Failure, Map<ExpenseCategory, double>>>
-  getExpensesByCategorySummary(DateTime start, DateTime end) async {
+  Future<Either<Failure, Map<String, double>>> getExpensesByCategorySummary(
+      DateTime start, DateTime end) async {
     try {
       final expenses = await localDataSource.getExpensesByDateRange(start, end);
-      final summary = <ExpenseCategory, double>{};
+      final summary = <String, double>{};
 
       for (final expense in expenses) {
-        if (expense.type.toString().split('.').last == 'expense') {
+        if (expense.type == ExpenseType.expense) {
           summary[expense.category] =
               (summary[expense.category] ?? 0.0) + expense.amount;
         }

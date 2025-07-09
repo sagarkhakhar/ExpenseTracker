@@ -2,37 +2,38 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/expense.dart';
+import '../../../../core/utils/currency_utils.dart';
 
-// Fixed color mapping for each category
-const Map<ExpenseCategory, Color> kCategoryColors = {
-  ExpenseCategory.food: Colors.blue,
-  ExpenseCategory.transportation: Colors.red,
-  ExpenseCategory.entertainment: Colors.green,
-  ExpenseCategory.shopping: Colors.orange,
-  ExpenseCategory.health: Colors.purple,
-  ExpenseCategory.education: Colors.teal,
-  ExpenseCategory.utilities: Colors.brown,
-  ExpenseCategory.rent: Colors.pink,
-  ExpenseCategory.insurance: Colors.indigo,
-  ExpenseCategory.other: Colors.cyan,
+// Fixed color mapping for each default category (string)
+const Map<String, Color> kCategoryColors = {
+  'food': Colors.blue,
+  'transportation': Colors.red,
+  'entertainment': Colors.green,
+  'shopping': Colors.orange,
+  'health': Colors.purple,
+  'education': Colors.teal,
+  'utilities': Colors.brown,
+  'rent': Colors.pink,
+  'insurance': Colors.indigo,
+  'other': Colors.cyan,
 };
 
-// Icon mapping for each category
-const Map<ExpenseCategory, IconData> kCategoryIcons = {
-  ExpenseCategory.food: Icons.restaurant,
-  ExpenseCategory.transportation: Icons.directions_car,
-  ExpenseCategory.entertainment: Icons.movie,
-  ExpenseCategory.shopping: Icons.shopping_bag,
-  ExpenseCategory.health: Icons.health_and_safety,
-  ExpenseCategory.education: Icons.school,
-  ExpenseCategory.utilities: Icons.lightbulb,
-  ExpenseCategory.rent: Icons.home,
-  ExpenseCategory.insurance: Icons.security,
-  ExpenseCategory.other: Icons.category,
+// Icon mapping for each default category (string)
+const Map<String, IconData> kCategoryIcons = {
+  'food': Icons.restaurant,
+  'transportation': Icons.directions_car,
+  'entertainment': Icons.movie,
+  'shopping': Icons.shopping_bag,
+  'health': Icons.health_and_safety,
+  'education': Icons.school,
+  'utilities': Icons.lightbulb,
+  'rent': Icons.home,
+  'insurance': Icons.security,
+  'other': Icons.category,
 };
 
 class ExpensePieChart extends StatefulWidget {
-  final Map<ExpenseCategory, double> categoryBreakdown;
+  final Map<String, double> categoryBreakdown;
   final String title;
 
   const ExpensePieChart({
@@ -54,15 +55,21 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
     final currencyFormat = NumberFormat.simpleCurrency(
         locale: Localizations.localeOf(context).toString());
     if (total == 0) {
-      return Column(
-        children: [
-          Text(widget.title, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 16),
-          const Text('No data to display'),
-        ],
+      return SizedBox(
+        height: 120,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(widget.title, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 16),
+            const Text('No data to display'),
+          ],
+        ),
       );
     }
-    final entries = widget.categoryBreakdown.entries.toList();
+    final entries = widget.categoryBreakdown.entries
+        .where((entry) => entry.value.abs() <= 1e7)
+        .toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -119,7 +126,8 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
             itemBuilder: (context, i) {
               final entry = entries[i];
               final percent = (entry.value / total * 100).toStringAsFixed(1);
-              final amount = currencyFormat.format(entry.value);
+              final amount =
+                  CurrencyUtils.formatAbbreviatedCurrency(entry.value);
               final color = kCategoryColors[entry.key] ?? Colors.grey;
               final icon = kCategoryIcons[entry.key] ?? Icons.category;
               final isSelected = i == _touchedIndex;
@@ -149,7 +157,7 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
                         Icon(icon, color: color, size: 20),
                         const SizedBox(width: 6),
                         Text(
-                          '${entry.key.name[0].toUpperCase()}${entry.key.name.substring(1)}',
+                          _capitalize(entry.key),
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium
@@ -180,8 +188,8 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
     );
   }
 
-  Widget _buildTooltip(BuildContext context, ExpenseCategory category,
-      double value, String percent, Color color, NumberFormat currencyFormat) {
+  Widget _buildTooltip(BuildContext context, String category, double value,
+      String percent, Color color, NumberFormat currencyFormat) {
     final icon = kCategoryIcons[category] ?? Icons.category;
     return Card(
       color: color.withOpacity(0.95),
@@ -195,13 +203,13 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
             Icon(icon, color: Colors.white, size: 18),
             const SizedBox(width: 6),
             Text(
-              '${category.name[0].toUpperCase()}${category.name.substring(1)}',
+              _capitalize(category),
               style: const TextStyle(
                   color: Colors.white, fontWeight: FontWeight.bold),
             ),
             const SizedBox(width: 8),
             Text(
-              currencyFormat.format(value),
+              CurrencyUtils.formatAbbreviatedCurrency(value),
               style: const TextStyle(color: Colors.white),
             ),
             const SizedBox(width: 6),
@@ -212,6 +220,161 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
           ],
         ),
       ),
+    );
+  }
+
+  String _capitalize(String s) {
+    if (s.isEmpty) return s;
+    return s[0].toUpperCase() + s.substring(1);
+  }
+}
+
+class ExpenseTrendChart extends StatelessWidget {
+  final Map<DateTime, Map<String, double>> dailyTotals;
+  final String title;
+  final bool showBalance;
+
+  const ExpenseTrendChart({
+    super.key,
+    required this.dailyTotals,
+    this.title = 'Daily Trend',
+    this.showBalance = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (dailyTotals.isEmpty) {
+      return SizedBox(
+        height: 120,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(title, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 16),
+            const Text('No data to display'),
+          ],
+        ),
+      );
+    }
+    final days = dailyTotals.keys.toList()..sort();
+    final expenses =
+        days.map((d) => dailyTotals[d]!['expenses'] ?? 0.0).toList();
+    final income = days.map((d) => dailyTotals[d]!['income'] ?? 0.0).toList();
+    final balance = days.map((d) => dailyTotals[d]!['balance'] ?? 0.0).toList();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(title, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 220,
+          child: LineChart(
+            LineChartData(
+              gridData: FlGridData(show: true),
+              titlesData: FlTitlesData(
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: true, reservedSize: 40),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    interval: (days.length / 6).ceilToDouble(),
+                    getTitlesWidget: (value, meta) {
+                      final idx = value.toInt();
+                      if (idx < 0 || idx >= days.length)
+                        return const SizedBox.shrink();
+                      final d = days[idx];
+                      return Text('${d.day}/${d.month}',
+                          style: const TextStyle(fontSize: 10));
+                    },
+                  ),
+                ),
+                rightTitles:
+                    AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles:
+                    AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              ),
+              borderData: FlBorderData(show: true),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: [
+                    for (int i = 0; i < expenses.length; i++)
+                      FlSpot(i.toDouble(), expenses[i])
+                  ],
+                  isCurved: true,
+                  color: Colors.red,
+                  barWidth: 2,
+                  dotData: FlDotData(show: false),
+                  belowBarData: BarAreaData(show: false),
+                  isStrokeCapRound: true,
+                  dashArray: [4, 2],
+                  // Expenses
+                ),
+                LineChartBarData(
+                  spots: [
+                    for (int i = 0; i < income.length; i++)
+                      FlSpot(i.toDouble(), income[i])
+                  ],
+                  isCurved: true,
+                  color: Colors.green,
+                  barWidth: 2,
+                  dotData: FlDotData(show: false),
+                  belowBarData: BarAreaData(show: false),
+                  isStrokeCapRound: true,
+                  // Income
+                ),
+                if (showBalance)
+                  LineChartBarData(
+                    spots: [
+                      for (int i = 0; i < balance.length; i++)
+                        FlSpot(i.toDouble(), balance[i])
+                    ],
+                    isCurved: true,
+                    color: Colors.blue,
+                    barWidth: 2,
+                    dotData: FlDotData(show: false),
+                    belowBarData: BarAreaData(show: false),
+                    isStrokeCapRound: true,
+                    // Balance
+                  ),
+              ],
+              minY: 0,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _LegendDot(color: Colors.red, label: 'Expenses'),
+            const SizedBox(width: 12),
+            _LegendDot(color: Colors.green, label: 'Income'),
+            if (showBalance) ...[
+              const SizedBox(width: 12),
+              _LegendDot(color: Colors.blue, label: 'Balance'),
+            ],
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _LegendDot extends StatelessWidget {
+  final Color color;
+  final String label;
+  const _LegendDot({required this.color, required this.label});
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        const SizedBox(width: 4),
+        Text(label, style: const TextStyle(fontSize: 12)),
+      ],
     );
   }
 }

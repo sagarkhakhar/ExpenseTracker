@@ -1,4 +1,5 @@
 import '../models/expense_model.dart';
+import '../../domain/entities/expense.dart';
 
 abstract class ExpenseLocalDataSource {
   Future<List<ExpenseModel>> getAllExpenses();
@@ -8,7 +9,7 @@ abstract class ExpenseLocalDataSource {
     DateTime end,
   );
   Future<List<ExpenseModel>> getExpensesByCategory(String category);
-  Future<List<ExpenseModel>> getExpensesByType(String type);
+  Future<List<ExpenseModel>> getExpensesByType(ExpenseType type);
   Future<void> createExpense(ExpenseModel expense);
   Future<void> updateExpense(ExpenseModel expense);
   Future<void> deleteExpense(String id);

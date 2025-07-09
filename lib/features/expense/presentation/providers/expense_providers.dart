@@ -65,9 +65,13 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
     required String title,
     required String description,
     required double amount,
-    required ExpenseCategory category,
+    required String category,
     required ExpenseType type,
     required DateTime date,
+    bool isRecurring = false,
+    String? recurringFrequency,
+    DateTime? nextOccurrence,
+    DateTime? endDate,
   }) async {
     const uuid = Uuid();
     final now = DateTime.now();
@@ -81,6 +85,10 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
       date: date,
       createdAt: now,
       updatedAt: now,
+      isRecurring: isRecurring,
+      recurringFrequency: recurringFrequency,
+      nextOccurrence: nextOccurrence,
+      endDate: endDate,
     );
     final createExpense = await ref.read(createExpenseProvider.future);
     final result = await createExpense(expense);
@@ -171,15 +179,55 @@ class ExpenseStatsNotifier
     final totalIncome =
         monthlyIncome.fold(0.0, (sum, expense) => sum + expense.amount);
     final balance = totalIncome - totalExpenses;
-    final categoryExpenseBreakdown = <ExpenseCategory, double>{};
+    final categoryExpenseBreakdown = <String, double>{};
     for (final expense in monthlyExpenses) {
       categoryExpenseBreakdown[expense.category] =
           (categoryExpenseBreakdown[expense.category] ?? 0.0) + expense.amount;
     }
-    final categoryIncomeBreakdown = <ExpenseCategory, double>{};
+    final categoryIncomeBreakdown = <String, double>{};
     for (final income in monthlyIncome) {
       categoryIncomeBreakdown[income.category] =
           (categoryIncomeBreakdown[income.category] ?? 0.0) + income.amount;
+    }
+    // Daily trend
+    final Map<DateTime, Map<String, double>> dailyTotals = {};
+    for (var d = startOfMonth;
+        !d.isAfter(endOfMonth);
+        d = d.add(const Duration(days: 1))) {
+      final dayExpenses = monthlyExpenses
+          .where((e) =>
+              e.date.year == d.year &&
+              e.date.month == d.month &&
+              e.date.day == d.day)
+          .fold(0.0, (sum, e) => sum + e.amount);
+      final dayIncome = monthlyIncome
+          .where((e) =>
+              e.date.year == d.year &&
+              e.date.month == d.month &&
+              e.date.day == d.day)
+          .fold(0.0, (sum, e) => sum + e.amount);
+      dailyTotals[d] = {
+        'expenses': dayExpenses,
+        'income': dayIncome,
+        'balance': dayIncome - dayExpenses,
+      };
+    }
+    // Weekly trend (weeks start on Monday)
+    final Map<int, Map<String, double>> weeklyTotals = {};
+    for (final e in monthlyExpenses + monthlyIncome) {
+      final week = _weekOfMonth(e.date);
+      weeklyTotals[week] ??= {'expenses': 0.0, 'income': 0.0, 'balance': 0.0};
+      if (e.isExpense) {
+        weeklyTotals[week]!['expenses'] =
+            weeklyTotals[week]!['expenses']! + e.amount;
+      } else {
+        weeklyTotals[week]!['income'] =
+            weeklyTotals[week]!['income']! + e.amount;
+      }
+    }
+    for (final week in weeklyTotals.keys) {
+      final w = weeklyTotals[week]!;
+      w['balance'] = w['income']! - w['expenses']!;
     }
     return {
       'totalExpenses': totalExpenses,
@@ -189,7 +237,15 @@ class ExpenseStatsNotifier
       'categoryIncomeBreakdown': categoryIncomeBreakdown,
       'expenseCount': monthlyExpenses.length,
       'incomeCount': monthlyIncome.length,
+      'dailyTotals': dailyTotals,
+      'weeklyTotals': weeklyTotals,
     };
+  }
+
+  int _weekOfMonth(DateTime date) {
+    final firstDay = DateTime(date.year, date.month, 1);
+    final diff = date.difference(firstDay).inDays;
+    return ((diff + firstDay.weekday - 1) / 7).floor() + 1;
   }
 }
 
@@ -226,7 +282,7 @@ class FilteredExpensesNotifier
     );
   }
 
-  void filterByCategory(ExpenseCategory category) {
+  void filterByCategory(String category) {
     state.whenData((expenses) {
       final filtered =
           expenses.where((expense) => expense.category == category).toList();
@@ -251,4 +307,80 @@ final filteredExpensesNotifierProvider =
     StateNotifierProvider<FilteredExpensesNotifier, AsyncValue<List<Expense>>>(
         (ref) {
   return FilteredExpensesNotifier(ref);
+});
+
+class SmartTipsNotifier extends StateNotifier<AsyncValue<List<String>>> {
+  final Ref ref;
+  late final ProviderSubscription<AsyncValue<Map<String, dynamic>>> _statsSub;
+
+  SmartTipsNotifier(this.ref) : super(const AsyncValue.loading()) {
+    _statsSub = ref.listen<AsyncValue<Map<String, dynamic>>>(
+      expenseStatsNotifierProvider,
+      (prev, next) {
+        if (next is AsyncData<Map<String, dynamic>>) {
+          state = AsyncValue.data(_generateTips(next.value ?? {}));
+        } else if (next is AsyncError) {
+          state = AsyncValue.error(next.error!, next.stackTrace!);
+        } else {
+          state = const AsyncValue.loading();
+        }
+      },
+      fireImmediately: true,
+    );
+  }
+
+  @override
+  void dispose() {
+    _statsSub.close();
+    super.dispose();
+  }
+
+  List<String> _generateTips(Map<String, dynamic> stats) {
+    final tips = <String>[];
+    final totalExpenses = stats['totalExpenses'] as double? ?? 0.0;
+    final totalIncome = stats['totalIncome'] as double? ?? 0.0;
+    final balance = stats['balance'] as double? ?? 0.0;
+    final expenseCount = stats['expenseCount'] as int? ?? 0;
+    final incomeCount = stats['incomeCount'] as int? ?? 0;
+    final categoryExpenseBreakdown =
+        stats['categoryExpenseBreakdown'] as Map<String, double>? ?? {};
+    final now = DateTime.now();
+    // 1. High spending tip
+    if (totalIncome > 0 && totalExpenses > totalIncome * 0.8) {
+      tips.add(
+          "You're spending over 80% of your income. Consider saving more this month.");
+    }
+    // 2. No income tip
+    if (incomeCount == 0) {
+      tips.add(
+          "No income recorded this month. Add your income to track your balance.");
+    }
+    // 3. Category spike tip
+    if (categoryExpenseBreakdown.isNotEmpty) {
+      final maxCat = categoryExpenseBreakdown.entries
+          .reduce((a, b) => a.value > b.value ? a : b);
+      if (maxCat.value > totalExpenses * 0.3) {
+        tips.add(
+            "High spending on '${maxCat.key}': ${maxCat.value.toStringAsFixed(2)} this month.");
+      }
+    }
+    // 4. Low balance tip
+    if (balance < 0) {
+      tips.add(
+          "Your balance is negative. Try to reduce expenses or increase income.");
+    }
+    // 5. Few expenses tip
+    if (expenseCount < 3) {
+      tips.add("Add more expenses to get better insights and tips.");
+    }
+    if (tips.isEmpty) {
+      tips.add("Great job! Your spending is under control this month.");
+    }
+    return tips.take(3).toList();
+  }
+}
+
+final smartTipsNotifierProvider =
+    StateNotifierProvider<SmartTipsNotifier, AsyncValue<List<String>>>((ref) {
+  return SmartTipsNotifier(ref);
 });

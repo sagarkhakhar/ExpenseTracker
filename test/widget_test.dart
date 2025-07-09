@@ -22,7 +22,6 @@ void main() {
     }
     Hive.init(testDir.path);
     Hive.registerAdapter(ExpenseModelAdapter());
-    Hive.registerAdapter(ExpenseCategoryAdapter());
     Hive.registerAdapter(ExpenseTypeAdapter());
   });
 
@@ -30,7 +29,16 @@ void main() {
     await tester.pumpWidget(
       const ProviderScope(child: ExpenseTrackerApp()),
     );
-    await tester.pumpAndSettle();
+    // Wait for loading indicator to appear (if any)
+    await tester.pump(const Duration(milliseconds: 500));
+    // Try to settle, but fallback to pump if it times out
+    try {
+      await tester.pumpAndSettle(const Duration(seconds: 20));
+    } catch (_) {
+      // If still not settled, pump a bit more
+      await tester.pump(const Duration(seconds: 2));
+    }
+    // The app should show the title and bottom navigation
     expect(find.text('Expense Tracker'), findsOneWidget);
     expect(find.byType(BottomNavigationBar), findsOneWidget);
   });

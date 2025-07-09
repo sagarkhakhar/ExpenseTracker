@@ -21,19 +21,23 @@ class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
       title: fields[1] as String,
       description: fields[2] as String,
       amount: fields[3] as double,
-      category: fields[4] as ExpenseCategory,
+      category: fields[4] as String,
       type: fields[5] as ExpenseType,
       date: fields[6] as DateTime,
       createdAt: fields[7] as DateTime,
       updatedAt: fields[8] as DateTime,
       metadata: (fields[9] as Map?)?.cast<String, dynamic>(),
+      isRecurring: fields[10] as bool,
+      recurringFrequency: fields[11] as String?,
+      nextOccurrence: fields[12] as DateTime?,
+      endDate: fields[13] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ExpenseModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -53,7 +57,15 @@ class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
       ..writeByte(8)
       ..write(obj.updatedAt)
       ..writeByte(9)
-      ..write(obj.metadata);
+      ..write(obj.metadata)
+      ..writeByte(10)
+      ..write(obj.isRecurring)
+      ..writeByte(11)
+      ..write(obj.recurringFrequency)
+      ..writeByte(12)
+      ..write(obj.nextOccurrence)
+      ..writeByte(13)
+      ..write(obj.endDate);
   }
 
   @override
@@ -76,12 +88,20 @@ ExpenseModel _$ExpenseModelFromJson(Map<String, dynamic> json) => ExpenseModel(
       title: json['title'] as String,
       description: json['description'] as String,
       amount: (json['amount'] as num).toDouble(),
-      category: ExpenseModel._categoryFromJson(json['category'] as String),
+      category: json['category'] as String,
       type: ExpenseModel._typeFromJson(json['type'] as String),
       date: DateTime.parse(json['date'] as String),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
       metadata: json['metadata'] as Map<String, dynamic>?,
+      isRecurring: json['isRecurring'] as bool? ?? false,
+      recurringFrequency: json['recurringFrequency'] as String?,
+      nextOccurrence: json['nextOccurrence'] == null
+          ? null
+          : DateTime.parse(json['nextOccurrence'] as String),
+      endDate: json['endDate'] == null
+          ? null
+          : DateTime.parse(json['endDate'] as String),
     );
 
 Map<String, dynamic> _$ExpenseModelToJson(ExpenseModel instance) =>
@@ -90,10 +110,14 @@ Map<String, dynamic> _$ExpenseModelToJson(ExpenseModel instance) =>
       'title': instance.title,
       'description': instance.description,
       'amount': instance.amount,
-      'category': ExpenseModel._categoryToJson(instance.category),
+      'category': instance.category,
       'type': ExpenseModel._typeToJson(instance.type),
       'date': instance.date.toIso8601String(),
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
       'metadata': instance.metadata,
+      'isRecurring': instance.isRecurring,
+      'recurringFrequency': instance.recurringFrequency,
+      'nextOccurrence': instance.nextOccurrence?.toIso8601String(),
+      'endDate': instance.endDate?.toIso8601String(),
     };
