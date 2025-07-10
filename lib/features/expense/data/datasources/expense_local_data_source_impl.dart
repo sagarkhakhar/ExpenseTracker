@@ -119,8 +119,9 @@ class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
       DateTime? nextOccurrence,
       DateTime? endDate,
     }) {
-      if (amount.isNaN || amount.isInfinite || amount <= 0 || amount > 1000000)
+      if (amount.isNaN || amount.isInfinite || amount <= 0 || amount > 1000000) {
         return;
+      }
       if (title.trim().isEmpty) return;
       if (category.trim().isEmpty) return;
       dummyExpenses.add(ExpenseModel(

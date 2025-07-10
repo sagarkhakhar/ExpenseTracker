@@ -1,5 +1,5 @@
 # This is a generated file; do not edit or check into version control.
-integration_test=/Users/sagark/root/fluttersdk/packages/integration_test/
+integration_test=/usr/local/Caskroom/flutter/3.13.5/flutter/packages/integration_test/
 path_provider=/Users/sagark/.pub-cache/hosted/pub.dev/path_provider-2.1.5/
 path_provider_android=/Users/sagark/.pub-cache/hosted/pub.dev/path_provider_android-2.2.17/
 path_provider_foundation=/Users/sagark/.pub-cache/hosted/pub.dev/path_provider_foundation-2.4.1/

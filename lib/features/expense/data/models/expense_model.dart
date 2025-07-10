@@ -62,10 +62,10 @@ class ExpenseModel extends HiveObject {
     this.recurringFrequency,
     this.nextOccurrence,
     this.endDate,
-  })  : assert(id != null && id.trim().isNotEmpty, 'ID cannot be empty'),
+  })  : assert(id.trim().isNotEmpty, 'ID cannot be empty'),
         assert(
-            title != null && title.trim().isNotEmpty, 'Title cannot be empty'),
-        assert(category != null && category.trim().isNotEmpty,
+            title.trim().isNotEmpty, 'Title cannot be empty'),
+        assert(category.trim().isNotEmpty,
             'Category cannot be empty'),
         assert(!amount.isNaN && !amount.isInfinite && amount > 0,
             'Amount must be positive and finite');

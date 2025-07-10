@@ -33,6 +33,13 @@ class AppConstants {
   static const double paddingXL = 32.0;
   static const double paddingXXL = 48.0;
 
+  // Common heights/widths for UI consistency
+  static const double height12 = 12.0;
+  static const double width12 = 12.0;
+  static const double height56 = 56.0;
+  static const double height120 = 120.0;
+  static const double height220 = 220.0;
+
   // Border Radius
   static const double radiusS = 4.0;
   static const double radiusM = 8.0;
@@ -56,44 +63,44 @@ class AppConstants {
 
 class AppTextStyles {
   static TextStyle get heading1 => GoogleFonts.inter(
-    fontSize: 32,
-    fontWeight: FontWeight.bold,
-    color: AppConstants.textPrimary,
-  );
+        fontSize: 32,
+        fontWeight: FontWeight.bold,
+        color: AppConstants.textPrimary,
+      );
 
   static TextStyle get heading2 => GoogleFonts.inter(
-    fontSize: 24,
-    fontWeight: FontWeight.w600,
-    color: AppConstants.textPrimary,
-  );
+        fontSize: 24,
+        fontWeight: FontWeight.w600,
+        color: AppConstants.textPrimary,
+      );
 
   static TextStyle get heading3 => GoogleFonts.inter(
-    fontSize: 20,
-    fontWeight: FontWeight.w600,
-    color: AppConstants.textPrimary,
-  );
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        color: AppConstants.textPrimary,
+      );
 
   static TextStyle get body1 => GoogleFonts.inter(
-    fontSize: 16,
-    fontWeight: FontWeight.normal,
-    color: AppConstants.textPrimary,
-  );
+        fontSize: 16,
+        fontWeight: FontWeight.normal,
+        color: AppConstants.textPrimary,
+      );
 
   static TextStyle get body2 => GoogleFonts.inter(
-    fontSize: 14,
-    fontWeight: FontWeight.normal,
-    color: AppConstants.textSecondary,
-  );
+        fontSize: 14,
+        fontWeight: FontWeight.normal,
+        color: AppConstants.textSecondary,
+      );
 
   static TextStyle get caption => GoogleFonts.inter(
-    fontSize: 12,
-    fontWeight: FontWeight.normal,
-    color: AppConstants.textTertiary,
-  );
+        fontSize: 12,
+        fontWeight: FontWeight.normal,
+        color: AppConstants.textTertiary,
+      );
 
   static TextStyle get button => GoogleFonts.inter(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-    color: Colors.white,
-  );
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      );
 }

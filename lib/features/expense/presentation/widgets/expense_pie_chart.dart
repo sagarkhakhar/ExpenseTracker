@@ -1,8 +1,11 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
-import '../../domain/entities/expense.dart';
 import '../../../../core/utils/currency_utils.dart';
+import '../../../../shared/widgets/platform_widgets.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../../../core/constants/app_constants.dart';
 
 // Fixed color mapping for each default category (string)
 const Map<String, Color> kCategoryColors = {
@@ -32,6 +35,7 @@ const Map<String, IconData> kCategoryIcons = {
   'other': Icons.category,
 };
 
+/// Pie chart for expense/income breakdown by category.
 class ExpensePieChart extends StatefulWidget {
   final Map<String, double> categoryBreakdown;
   final String title;
@@ -56,13 +60,13 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
         locale: Localizations.localeOf(context).toString());
     if (total == 0) {
       return SizedBox(
-        height: 120,
+        height: AppConstants.height120,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(widget.title, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 16),
-            const Text('No data to display'),
+            const SizedBox(height: AppConstants.paddingM),
+            Text(AppLocalizations.of(context)!.noData),
           ],
         ),
       );
@@ -74,9 +78,9 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(widget.title, style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppConstants.paddingM),
         SizedBox(
-          height: 220,
+          height: AppConstants.height220,
           child: PieChart(
             PieChartData(
               pieTouchData: PieTouchData(
@@ -96,11 +100,9 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
                   color: color,
                   value: entry.value,
                   title: isTouched ? '' : '$percent%',
-                  radius: isTouched ? 70 : 60,
-                  titleStyle: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
+                  radius: isTouched ? 70.0 : 60.0, // Ensure double
+                  titleStyle: AppTextStyles.caption.copyWith(
+                      color: Colors.white, fontWeight: FontWeight.bold),
                   badgeWidget: isTouched
                       ? _buildTooltip(context, entry.key, entry.value, percent,
                           color, currencyFormat)
@@ -108,21 +110,22 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
                   badgePositionPercentageOffset: 1.2,
                 );
               }),
-              sectionsSpace: 2,
-              centerSpaceRadius: 32,
+              sectionsSpace: 2.0, // Ensure double
+              centerSpaceRadius: 32.0, // Ensure double
             ),
             swapAnimationDuration: const Duration(milliseconds: 600),
             swapAnimationCurve: Curves.easeInOut,
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: AppConstants.paddingL),
         // Horizontal, scrollable legend with icons and tap-to-highlight
         SizedBox(
-          height: 56,
+          height: AppConstants.height56,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: entries.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            separatorBuilder: (_, __) =>
+                const SizedBox(width: AppConstants.paddingM),
             itemBuilder: (context, i) {
               final entry = entries[i];
               final percent = (entry.value / total * 100).toStringAsFixed(1);
@@ -131,55 +134,116 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
               final color = kCategoryColors[entry.key] ?? Colors.grey;
               final icon = kCategoryIcons[entry.key] ?? Icons.category;
               final isSelected = i == _touchedIndex;
-              return Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(24),
-                  onTap: () {
-                    setState(() {
-                      _touchedIndex = i;
-                    });
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                          color: color.withOpacity(isSelected ? 0.9 : 0.5),
-                          width: isSelected ? 2 : 1),
-                      color: isSelected ? color.withOpacity(0.12) : null,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(icon, color: color, size: 20),
-                        const SizedBox(width: 6),
-                        Text(
-                          _capitalize(entry.key),
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
+              return Semantics(
+                label: '${_capitalize(entry.key)}, $amount, $percent%',
+                button: true,
+                child: PlatformWidgets.isIOS
+                    ? GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _touchedIndex = i;
+                          });
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: AppConstants.paddingM,
+                              vertical: AppConstants.paddingS),
+                          decoration: BoxDecoration(
+                            borderRadius:
+                                BorderRadius.circular(AppConstants.radiusL),
+                            border: Border.all(
+                                color: color.withAlpha(
+                                    ((isSelected ? 0.9 : 0.5) * 255).toInt()),
+                                width: isSelected ? 2.0 : 1.0),
+                            color: isSelected
+                                ? color.withAlpha((0.12 * 255).toInt())
+                                : null,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(icon, color: color, size: 20),
+                              const SizedBox(width: AppConstants.paddingS),
+                              Text(
+                                _capitalize(entry.key),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(width: AppConstants.paddingS),
+                              Text(
+                                amount,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                              const SizedBox(width: AppConstants.paddingXS),
+                              Text(
+                                '($percent%)',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(color: Colors.grey[600]),
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(width: 6),
-                        Text(
-                          amount,
-                          style: Theme.of(context).textTheme.bodyMedium,
+                      )
+                    : Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(24),
+                          onTap: () {
+                            setState(() {
+                              _touchedIndex = i;
+                            });
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: AppConstants.paddingM,
+                                vertical: AppConstants.paddingS),
+                            decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.circular(AppConstants.radiusL),
+                              border: Border.all(
+                                  color: color.withAlpha(
+                                      ((isSelected ? 0.9 : 0.5) * 255).toInt()),
+                                  width: isSelected ? 2.0 : 1.0),
+                              color: isSelected
+                                  ? color.withAlpha((0.12 * 255).toInt())
+                                  : null,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(icon, color: color, size: 20),
+                                const SizedBox(width: AppConstants.paddingS),
+                                Text(
+                                  _capitalize(entry.key),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(fontWeight: FontWeight.w600),
+                                ),
+                                const SizedBox(width: AppConstants.paddingS),
+                                Text(
+                                  amount,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                                const SizedBox(width: AppConstants.paddingXS),
+                                Text(
+                                  '($percent%)',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(color: Colors.grey[600]),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '($percent%)',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(color: Colors.grey[600]),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                      ),
               );
             },
           ),
@@ -191,36 +255,79 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
   Widget _buildTooltip(BuildContext context, String category, double value,
       String percent, Color color, NumberFormat currencyFormat) {
     final icon = kCategoryIcons[category] ?? Icons.category;
-    return Card(
-      color: color.withOpacity(0.95),
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    if (PlatformWidgets.isIOS) {
+      return Container(
+        decoration: BoxDecoration(
+          color: color.withAlpha((0.95 * 255).toInt()),
+          borderRadius: BorderRadius.circular(AppConstants.radiusM),
+          boxShadow: [
+            BoxShadow(
+              color: CupertinoColors.systemGrey.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppConstants.paddingM, vertical: AppConstants.paddingS),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, color: Colors.white, size: 18),
-            const SizedBox(width: 6),
+            const SizedBox(width: AppConstants.paddingS),
             Text(
               _capitalize(category),
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold),
+              style: AppTextStyles.caption
+                  .copyWith(color: Colors.white, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: AppConstants.paddingM),
             Text(
               CurrencyUtils.formatAbbreviatedCurrency(value),
-              style: const TextStyle(color: Colors.white),
+              style: AppTextStyles.caption.copyWith(color: Colors.white),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: AppConstants.paddingS),
             Text(
               '($percent%)',
-              style: const TextStyle(color: Colors.white70),
+              style: AppTextStyles.caption.copyWith(color: Colors.white70),
             ),
           ],
         ),
-      ),
-    );
+      );
+    } else {
+      return Card(
+        color: color.withAlpha((0.95 * 255).toInt()),
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppConstants.radiusM)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppConstants.paddingM,
+              vertical: AppConstants.paddingS),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: Colors.white, size: 18),
+              const SizedBox(width: AppConstants.paddingS),
+              Text(
+                _capitalize(category),
+                style: AppTextStyles.caption
+                    .copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(width: AppConstants.paddingM),
+              Text(
+                CurrencyUtils.formatAbbreviatedCurrency(value),
+                style: AppTextStyles.caption.copyWith(color: Colors.white),
+              ),
+              const SizedBox(width: AppConstants.paddingS),
+              Text(
+                '($percent%)',
+                style: AppTextStyles.caption.copyWith(color: Colors.white70),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
   }
 
   String _capitalize(String s) {
@@ -229,6 +336,7 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
   }
 }
 
+/// Line chart for daily expense/income/balance trends.
 class ExpenseTrendChart extends StatelessWidget {
   final Map<DateTime, Map<String, double>> dailyTotals;
   final String title;
@@ -243,15 +351,16 @@ class ExpenseTrendChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     if (dailyTotals.isEmpty) {
       return SizedBox(
-        height: 120,
+        height: AppConstants.height120,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(title, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 16),
-            const Text('No data to display'),
+            const SizedBox(height: AppConstants.paddingM),
+            Text(localizations.noData),
           ],
         ),
       );
@@ -265,14 +374,14 @@ class ExpenseTrendChart extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(title, style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppConstants.paddingM),
         SizedBox(
-          height: 220,
+          height: AppConstants.height220,
           child: LineChart(
             LineChartData(
-              gridData: FlGridData(show: true),
+              gridData: const FlGridData(show: true),
               titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
+                leftTitles: const AxisTitles(
                   sideTitles: SideTitles(showTitles: true, reservedSize: 40),
                 ),
                 bottomTitles: AxisTitles(
@@ -281,18 +390,19 @@ class ExpenseTrendChart extends StatelessWidget {
                     interval: (days.length / 6).ceilToDouble(),
                     getTitlesWidget: (value, meta) {
                       final idx = value.toInt();
-                      if (idx < 0 || idx >= days.length)
+                      if (idx < 0 || idx >= days.length) {
                         return const SizedBox.shrink();
+                      }
                       final d = days[idx];
                       return Text('${d.day}/${d.month}',
-                          style: const TextStyle(fontSize: 10));
+                          style: AppTextStyles.caption);
                     },
                   ),
                 ),
                 rightTitles:
-                    AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 topTitles:
-                    AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
               ),
               borderData: FlBorderData(show: true),
               lineBarsData: [
@@ -304,7 +414,7 @@ class ExpenseTrendChart extends StatelessWidget {
                   isCurved: true,
                   color: Colors.red,
                   barWidth: 2,
-                  dotData: FlDotData(show: false),
+                  dotData: const FlDotData(show: false),
                   belowBarData: BarAreaData(show: false),
                   isStrokeCapRound: true,
                   dashArray: [4, 2],
@@ -318,7 +428,7 @@ class ExpenseTrendChart extends StatelessWidget {
                   isCurved: true,
                   color: Colors.green,
                   barWidth: 2,
-                  dotData: FlDotData(show: false),
+                  dotData: const FlDotData(show: false),
                   belowBarData: BarAreaData(show: false),
                   isStrokeCapRound: true,
                   // Income
@@ -332,7 +442,7 @@ class ExpenseTrendChart extends StatelessWidget {
                     isCurved: true,
                     color: Colors.blue,
                     barWidth: 2,
-                    dotData: FlDotData(show: false),
+                    dotData: const FlDotData(show: false),
                     belowBarData: BarAreaData(show: false),
                     isStrokeCapRound: true,
                     // Balance
@@ -342,16 +452,17 @@ class ExpenseTrendChart extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppConstants.paddingL),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _LegendDot(color: Colors.red, label: 'Expenses'),
-            const SizedBox(width: 12),
-            _LegendDot(color: Colors.green, label: 'Income'),
+            const _LegendDot(color: Colors.red, label: 'Expense'),
+            const SizedBox(width: AppConstants.paddingM),
+            const _LegendDot(color: Colors.green, label: 'Income'),
             if (showBalance) ...[
-              const SizedBox(width: 12),
-              _LegendDot(color: Colors.blue, label: 'Balance'),
+              const SizedBox(width: AppConstants.paddingM),
+              // TODO: Add 'balance' to ARB/localizations if needed
+              const _LegendDot(color: Colors.blue, label: 'Balance'),
             ],
           ],
         ),
@@ -360,6 +471,7 @@ class ExpenseTrendChart extends StatelessWidget {
   }
 }
 
+/// Legend dot for chart legends.
 class _LegendDot extends StatelessWidget {
   final Color color;
   final String label;
@@ -369,11 +481,11 @@ class _LegendDot extends StatelessWidget {
     return Row(
       children: [
         Container(
-            width: 12,
-            height: 12,
+            width: AppConstants.width12,
+            height: AppConstants.height12,
             decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
-        const SizedBox(width: 4),
-        Text(label, style: const TextStyle(fontSize: 12)),
+        const SizedBox(width: AppConstants.paddingXS),
+        Text(label, style: AppTextStyles.caption),
       ],
     );
   }

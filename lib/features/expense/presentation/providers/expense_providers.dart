@@ -309,6 +309,7 @@ final filteredExpensesNotifierProvider =
   return FilteredExpensesNotifier(ref);
 });
 
+/// Notifier for generating smart spending tips based on user stats.
 class SmartTipsNotifier extends StateNotifier<AsyncValue<List<String>>> {
   final Ref ref;
   late final ProviderSubscription<AsyncValue<Map<String, dynamic>>> _statsSub;
@@ -318,7 +319,7 @@ class SmartTipsNotifier extends StateNotifier<AsyncValue<List<String>>> {
       expenseStatsNotifierProvider,
       (prev, next) {
         if (next is AsyncData<Map<String, dynamic>>) {
-          state = AsyncValue.data(_generateTips(next.value ?? {}));
+          state = AsyncValue.data(_generateTipKeys(next.value ?? {}));
         } else if (next is AsyncError) {
           state = AsyncValue.error(next.error!, next.stackTrace!);
         } else {
@@ -335,7 +336,8 @@ class SmartTipsNotifier extends StateNotifier<AsyncValue<List<String>>> {
     super.dispose();
   }
 
-  List<String> _generateTips(Map<String, dynamic> stats) {
+  /// Generates a list of smart tip keys based on stats.
+  List<String> _generateTipKeys(Map<String, dynamic> stats) {
     final tips = <String>[];
     final totalExpenses = stats['totalExpenses'] as double? ?? 0.0;
     final totalIncome = stats['totalIncome'] as double? ?? 0.0;
@@ -344,37 +346,32 @@ class SmartTipsNotifier extends StateNotifier<AsyncValue<List<String>>> {
     final incomeCount = stats['incomeCount'] as int? ?? 0;
     final categoryExpenseBreakdown =
         stats['categoryExpenseBreakdown'] as Map<String, double>? ?? {};
-    final now = DateTime.now();
     // 1. High spending tip
     if (totalIncome > 0 && totalExpenses > totalIncome * 0.8) {
-      tips.add(
-          "You're spending over 80% of your income. Consider saving more this month.");
+      tips.add('tipHighSpending');
     }
     // 2. No income tip
     if (incomeCount == 0) {
-      tips.add(
-          "No income recorded this month. Add your income to track your balance.");
+      tips.add('tipNoIncome');
     }
     // 3. Category spike tip
     if (categoryExpenseBreakdown.isNotEmpty) {
       final maxCat = categoryExpenseBreakdown.entries
           .reduce((a, b) => a.value > b.value ? a : b);
       if (maxCat.value > totalExpenses * 0.3) {
-        tips.add(
-            "High spending on '${maxCat.key}': ${maxCat.value.toStringAsFixed(2)} this month.");
+        tips.add('tipCategorySpike:${maxCat.key}');
       }
     }
     // 4. Low balance tip
     if (balance < 0) {
-      tips.add(
-          "Your balance is negative. Try to reduce expenses or increase income.");
+      tips.add('tipNegativeBalance');
     }
     // 5. Few expenses tip
     if (expenseCount < 3) {
-      tips.add("Add more expenses to get better insights and tips.");
+      tips.add('tipFewExpenses');
     }
     if (tips.isEmpty) {
-      tips.add("Great job! Your spending is under control this month.");
+      tips.add('tipAllGood');
     }
     return tips.take(3).toList();
   }
