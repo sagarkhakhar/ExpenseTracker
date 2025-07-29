@@ -124,6 +124,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 class ExpenseOverviewTab extends ConsumerWidget {
   const ExpenseOverviewTab({super.key});
 
+  /// Navigates to the edit expense screen with the selected expense.
+  /// Handles the navigation logic for editing expenses.
+  void _navigateToEditExpense(BuildContext context, Expense expense) {
+    if (PlatformWidgets.isIOS) {
+      // iOS-style navigation with slide transition
+      Navigator.of(context).push(
+        CupertinoPageRoute(
+          builder: (context) => AddExpenseScreen(expense: expense),
+          fullscreenDialog: false,
+        ),
+      );
+    } else {
+      // Android-style navigation with material transition
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => AddExpenseScreen(expense: expense),
+          fullscreenDialog: false,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context)!;
@@ -208,7 +230,10 @@ class ExpenseOverviewTab extends ConsumerWidget {
               const SizedBox(height: AppConstants.paddingM),
               
               // List of all expenses
-              ExpenseList(expenses: expenses),
+              ExpenseList(
+                expenses: expenses,
+                onExpenseTap: (expense) => _navigateToEditExpense(context, expense),
+              ),
             ],
           ),
         );
