@@ -14,7 +14,7 @@ import '../widgets/add_expense_fab.dart';
 import 'stats_screen.dart';
 import 'add_expense_screen.dart';
 import '../../../../shared/widgets/platform_widgets.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// The main screen of the app that contains the bottom navigation and manages tabs.
 /// This screen acts as a container for the overview and statistics tabs.

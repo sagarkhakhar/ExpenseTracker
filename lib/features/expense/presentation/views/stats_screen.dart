@@ -10,7 +10,7 @@ import '../../../../core/utils/currency_utils.dart';
 import '../../../../shared/widgets/platform_widgets.dart';
 import '../providers/expense_providers.dart';
 import '../widgets/expense_pie_chart.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// The statistics screen that displays detailed financial analysis and charts.
 /// This screen provides insights into spending patterns and financial trends.
@@ -203,9 +203,11 @@ class StatsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: AppConstants.paddingM),
 
-            // Pie chart visualization
-            SizedBox(
-              height: 200,
+            // Pie chart visualization with proper constraints
+            Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.3,
+              ),
               child: ExpensePieChart(
                 categoryBreakdown: categoryData,
                 title: title,
@@ -272,9 +274,9 @@ class StatsScreen extends ConsumerWidget {
                     Row(
                       children: [
                         SizedBox(
-                          width: 60,
+                          width: 80,
                           child: Text(
-                            entry.key.toString().split(' ').first,
+                            _formatDateForTrend(entry.key),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ),
@@ -413,5 +415,37 @@ class StatsScreen extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  /// Formats date for trend display to prevent text wrapping.
+  /// Returns a compact date format suitable for small spaces.
+  String _formatDateForTrend(dynamic dateKey) {
+    if (dateKey is DateTime) {
+      return '${dateKey.month}/${dateKey.day}';
+    } else if (dateKey is String) {
+      // Handle string dates by parsing them
+      try {
+        final date = DateTime.parse(dateKey);
+        return '${date.month}/${date.day}';
+      } catch (e) {
+        // Fallback to original string if parsing fails
+        return dateKey.toString().split(' ').first;
+      }
+    }
+    // Fallback for other types
+    return dateKey.toString().split(' ').first;
+  }
+
+  /// Formats week number for trend display to prevent text wrapping.
+  /// Returns a compact week format suitable for small spaces.
+  String _formatWeekForTrend(dynamic weekKey) {
+    if (weekKey is int) {
+      return 'Week $weekKey';
+    } else if (weekKey is String) {
+      // If it's already a formatted string, return as is
+      return weekKey;
+    }
+    // Fallback for other types
+    return weekKey.toString();
   }
 }

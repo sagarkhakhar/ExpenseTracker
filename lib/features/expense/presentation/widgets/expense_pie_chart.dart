@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/utils/currency_utils.dart';
 import '../../../../shared/widgets/platform_widgets.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../core/constants/app_constants.dart';
 
 // Fixed color mapping for each default category (string)
@@ -79,42 +79,45 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
       children: [
         Text(widget.title, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: AppConstants.paddingM),
-        SizedBox(
-          height: AppConstants.height220,
-          child: PieChart(
-            PieChartData(
-              pieTouchData: PieTouchData(
-                touchCallback: (event, response) {
-                  setState(() {
-                    _touchedIndex =
-                        response?.touchedSection?.touchedSectionIndex;
-                  });
-                },
+        Flexible(
+          child: Container(
+            constraints: const BoxConstraints(maxHeight: 160),
+            child: PieChart(
+              PieChartData(
+                pieTouchData: PieTouchData(
+                  touchCallback: (event, response) {
+                    setState(() {
+                      _touchedIndex =
+                          response?.touchedSection?.touchedSectionIndex;
+                    });
+                  },
+                ),
+                sections: List.generate(entries.length, (i) {
+                  final entry = entries[i];
+                  final percent =
+                      (entry.value / total * 100).toStringAsFixed(1);
+                  final color = kCategoryColors[entry.key] ?? Colors.grey;
+                  final isTouched = i == _touchedIndex;
+                  return PieChartSectionData(
+                    color: color,
+                    value: entry.value,
+                    title: isTouched ? '' : '$percent%',
+                    radius: isTouched ? 70.0 : 60.0, // Ensure double
+                    titleStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                    badgeWidget: isTouched
+                        ? _buildTooltip(context, entry.key, entry.value,
+                            percent, color, currencyFormat)
+                        : null,
+                    badgePositionPercentageOffset: 1.2,
+                  );
+                }),
+                sectionsSpace: 2.0, // Ensure double
+                centerSpaceRadius: 32.0, // Ensure double
               ),
-              sections: List.generate(entries.length, (i) {
-                final entry = entries[i];
-                final percent = (entry.value / total * 100).toStringAsFixed(1);
-                final color = kCategoryColors[entry.key] ?? Colors.grey;
-                final isTouched = i == _touchedIndex;
-                return PieChartSectionData(
-                  color: color,
-                  value: entry.value,
-                  title: isTouched ? '' : '$percent%',
-                  radius: isTouched ? 70.0 : 60.0, // Ensure double
-                  titleStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.white, fontWeight: FontWeight.bold),
-                  badgeWidget: isTouched
-                      ? _buildTooltip(context, entry.key, entry.value, percent,
-                          color, currencyFormat)
-                      : null,
-                  badgePositionPercentageOffset: 1.2,
-                );
-              }),
-              sectionsSpace: 2.0, // Ensure double
-              centerSpaceRadius: 32.0, // Ensure double
+              swapAnimationDuration: const Duration(milliseconds: 600),
+              swapAnimationCurve: Curves.easeInOut,
             ),
-            swapAnimationDuration: const Duration(milliseconds: 600),
-            swapAnimationCurve: Curves.easeInOut,
           ),
         ),
         const SizedBox(height: AppConstants.paddingL),

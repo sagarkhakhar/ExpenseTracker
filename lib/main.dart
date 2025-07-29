@@ -13,7 +13,7 @@ import 'features/expense/presentation/views/add_expense_screen.dart';
 import 'features/expense/domain/entities/expense.dart';
 import 'features/expense/data/datasources/expense_local_data_source_impl.dart';
 import 'shared/widgets/platform_widgets.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
 
 /// Main function that initializes the app and all its dependencies.
 /// This is called when the app starts and sets up everything needed for the app to run.

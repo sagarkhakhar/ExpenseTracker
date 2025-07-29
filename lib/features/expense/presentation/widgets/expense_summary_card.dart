@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/currency_utils.dart';
 import '../../../../shared/widgets/platform_widgets.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// A card widget that displays key financial metrics and summaries.
 /// Shows total expenses, income, balance, and other important financial data.

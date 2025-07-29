@@ -11,7 +11,7 @@ import '../../../../core/utils/date_utils.dart' as app_date_utils;
 import '../../../../shared/widgets/platform_widgets.dart';
 import '../../domain/entities/expense.dart';
 import '../providers/expense_providers.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// A scrollable list widget that displays expense items with interactive features.
 /// This widget handles expense rendering, user interactions, and empty states.

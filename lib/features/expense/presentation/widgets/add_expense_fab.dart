@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../shared/widgets/platform_widgets.dart';
 import '../views/add_expense_screen.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// A floating action button widget that navigates to the add expense screen.
 /// Provides a consistent way to add new expenses throughout the app.
@@ -78,8 +78,6 @@ class _ExtendedAddExpenseFABState extends ConsumerState<ExtendedAddExpenseFAB>
     with SingleTickerProviderStateMixin {
   // Animation controller for the extended FAB
   late AnimationController _animationController;
-  // Animation for the FAB expansion
-  late Animation<double> _animation;
   // Track whether the FAB is expanded
   bool _isExpanded = false;
 
@@ -93,11 +91,7 @@ class _ExtendedAddExpenseFABState extends ConsumerState<ExtendedAddExpenseFAB>
       vsync: this,
     );
 
-    // Create animation curve
-    _animation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
+    // Animation controller is ready for use
   }
 
   @override
