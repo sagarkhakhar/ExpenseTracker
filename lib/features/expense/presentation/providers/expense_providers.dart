@@ -1,3 +1,7 @@
+// This file defines all Riverpod providers and notifiers for the expense feature.
+// It acts as the ViewModel layer in MVVM, exposing state and business logic to the UI.
+// Providers connect the UI to the domain and data layers, enforcing Clean Architecture and SOLID.
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/datasources/expense_local_data_source_impl.dart';
@@ -6,8 +10,11 @@ import '../../domain/entities/expense.dart';
 import '../../domain/usecases/create_expense.dart';
 import '../../domain/usecases/get_all_expenses.dart';
 import '../../domain/usecases/get_expenses_by_date_range.dart';
+import '../../domain/usecases/update_expense.dart';
+import 'package:expense_tracker/core/errors/failures.dart';
 
 // Data Source Provider (async)
+// Provides the local data source (Hive) for dependency injection.
 final expenseLocalDataSourceProvider =
     FutureProvider<ExpenseLocalDataSourceImpl>((ref) async {
   final dataSource = ExpenseLocalDataSourceImpl();
@@ -16,6 +23,7 @@ final expenseLocalDataSourceProvider =
 });
 
 // Repository Provider (async)
+// Provides the repository implementation for dependency injection.
 final expenseRepositoryProvider =
     FutureProvider<ExpenseRepositoryImpl>((ref) async {
   final dataSource = await ref.watch(expenseLocalDataSourceProvider.future);
@@ -23,6 +31,7 @@ final expenseRepositoryProvider =
 });
 
 // Use Cases Providers (async)
+// Each use case is provided as a dependency for notifiers and UI.
 final getAllExpensesProvider = FutureProvider<GetAllExpenses>((ref) async {
   final repository = await ref.watch(expenseRepositoryProvider.future);
   return GetAllExpenses(repository);
@@ -39,13 +48,19 @@ final getExpensesByDateRangeProvider =
   return GetExpensesByDateRange(repository);
 });
 
-// State Providers (async)
+final updateExpenseProvider = FutureProvider<UpdateExpense>((ref) async {
+  final repository = await ref.watch(expenseRepositoryProvider.future);
+  return UpdateExpense(repository);
+});
+
+// State Notifier for managing the list of expenses (ViewModel for expenses)
 class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
   final Ref ref;
   ExpenseNotifier(this.ref) : super(const AsyncValue.loading()) {
     _loadExpenses();
   }
 
+  // Loads all expenses from the repository and updates state.
   Future<void> _loadExpenses() async {
     state = const AsyncValue.loading();
     try {
@@ -61,6 +76,7 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
     }
   }
 
+  // Adds a new expense using the CreateExpense use case.
   Future<void> addExpense({
     required String title,
     required String description,
@@ -93,24 +109,38 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
     final createExpense = await ref.read(createExpenseProvider.future);
     final result = await createExpense(expense);
     result.fold(
-      (failure) => throw Exception(failure.message),
+      (failure) {
+        if (failure is ValidationFailure) {
+          throw Exception(failure.message);
+        } else {
+          throw Exception(failure.message);
+        }
+      },
       (_) {
         _loadExpenses();
       },
     );
   }
 
+  // Updates an existing expense using the UpdateExpense use case.
   Future<void> updateExpense(Expense expense) async {
-    final repository = await ref.read(expenseRepositoryProvider.future);
-    final result = await repository.updateExpense(expense);
+    final updateExpense = await ref.read(updateExpenseProvider.future);
+    final result = await updateExpense(expense);
     result.fold(
-      (failure) => throw Exception(failure.message),
+      (failure) {
+        if (failure is ValidationFailure) {
+          throw Exception(failure.message);
+        } else {
+          throw Exception(failure.message);
+        }
+      },
       (_) {
         _loadExpenses();
       },
     );
   }
 
+  // Deletes an expense by ID using the repository.
   Future<void> deleteExpense(String id) async {
     final repository = await ref.read(expenseRepositoryProvider.future);
     final result = await repository.deleteExpense(id);
@@ -123,6 +153,7 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
   }
 }
 
+// Provider for the ExpenseNotifier (ViewModel for expenses)
 final expenseNotifierProvider =
     StateNotifierProvider<ExpenseNotifier, AsyncValue<List<Expense>>>((ref) {
   return ExpenseNotifier(ref);
@@ -380,4 +411,65 @@ class SmartTipsNotifier extends StateNotifier<AsyncValue<List<String>>> {
 final smartTipsNotifierProvider =
     StateNotifierProvider<SmartTipsNotifier, AsyncValue<List<String>>>((ref) {
   return SmartTipsNotifier(ref);
+});
+
+// Category Notifier and Provider
+class CategoryNotifier extends StateNotifier<AsyncValue<List<String>>> {
+  CategoryNotifier() : super(const AsyncValue.loading()) {
+    _init();
+  }
+
+  late final CategoryLocalDataSourceImpl _ds;
+
+  Future<void> _init() async {
+    _ds = CategoryLocalDataSourceImpl();
+    await _ds.init();
+    _loadCategories();
+  }
+
+  void _loadCategories() {
+    try {
+      final categories = _ds.getCategories();
+      state = AsyncValue.data(categories);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  // Add this public method for UI to trigger reload
+  void loadCategories() => _loadCategories();
+
+  Future<void> addCategory(String category) async {
+    try {
+      await _ds.addCategory(category);
+      _loadCategories();
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  Future<void> editCategory(String oldCategory, String newCategory) async {
+    try {
+      await _ds.editCategory(oldCategory, newCategory);
+      _loadCategories();
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  Future<bool> deleteCategory(String category) async {
+    try {
+      final result = await _ds.deleteCategory(category);
+      _loadCategories();
+      return result;
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      return false;
+    }
+  }
+}
+
+final categoryNotifierProvider =
+    StateNotifierProvider<CategoryNotifier, AsyncValue<List<String>>>((ref) {
+  return CategoryNotifier();
 });

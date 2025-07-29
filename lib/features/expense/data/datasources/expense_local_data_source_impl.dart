@@ -1,82 +1,76 @@
-import 'package:hive_flutter/hive_flutter.dart';
+// This file implements the ExpenseLocalDataSource interface using Hive for local storage.
+// It is responsible for all low-level data access and persistence.
+
+import 'package:hive/hive.dart';
 import '../models/expense_model.dart';
-import 'expense_local_data_source.dart';
 import '../../domain/entities/expense.dart';
+import 'expense_local_data_source.dart';
+import 'package:collection/collection.dart';
 import 'package:uuid/uuid.dart';
 
+/// Concrete implementation of ExpenseLocalDataSource using Hive.
 class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
-  static const String _boxName = 'expenses';
+  // The Hive box name for storing expenses.
+  static const String boxName = 'expenses';
+
+  // The Hive box instance (opened in init).
   late Box<ExpenseModel> _box;
 
+  /// Initialize the data source by opening the Hive box.
+  @override
   Future<void> init() async {
-    _box = await Hive.openBox<ExpenseModel>(_boxName);
+    _box = await Hive.openBox<ExpenseModel>(boxName);
   }
 
+  /// Get all expenses and income records from local storage.
   @override
   Future<List<ExpenseModel>> getAllExpenses() async {
     return _box.values.toList();
   }
 
+  /// Get a single expense by its unique ID.
   @override
   Future<ExpenseModel?> getExpenseById(String id) async {
-    try {
-      return _box.values.firstWhere(
-        (expense) => expense.id == id,
-      );
-    } catch (e) {
-      return null;
-    }
+    // Use firstWhereOrNull from collection package for null safety
+    return _box.values.firstWhereOrNull((e) => e.id == id);
   }
 
+  /// Get all expenses/income in a date range (inclusive).
   @override
   Future<List<ExpenseModel>> getExpensesByDateRange(
-    DateTime start,
-    DateTime end,
-  ) async {
-    return _box.values.where((expense) {
-      return expense.date.isAfter(start.subtract(const Duration(days: 1))) &&
-          expense.date.isBefore(end.add(const Duration(days: 1)));
-    }).toList();
+      DateTime start, DateTime end) async {
+    return _box.values
+        .where((e) =>
+            e.date.isAfter(start.subtract(const Duration(days: 1))) &&
+            e.date.isBefore(end.add(const Duration(days: 1))))
+        .toList();
   }
 
+  /// Get all expenses/income for a specific category.
   @override
   Future<List<ExpenseModel>> getExpensesByCategory(String category) async {
-    return _box.values.where((expense) {
-      return expense.category == category;
-    }).toList();
+    return _box.values.where((e) => e.category == category).toList();
   }
 
+  /// Get all expenses/income of a specific type (expense or income).
   @override
   Future<List<ExpenseModel>> getExpensesByType(ExpenseType type) async {
-    return _box.values.where((expense) => expense.type == type).toList();
+    return _box.values.where((e) => e.type == type).toList();
   }
 
+  /// Create a new expense or income record in local storage.
   @override
   Future<void> createExpense(ExpenseModel expense) async {
-    if (expense.id.trim().isEmpty ||
-        expense.title.trim().isEmpty ||
-        expense.category.trim().isEmpty ||
-        expense.amount.isNaN ||
-        expense.amount.isInfinite ||
-        expense.amount <= 0) {
-      throw Exception('Invalid expense data');
-    }
     await _box.put(expense.id, expense);
   }
 
+  /// Update an existing expense or income record in local storage.
   @override
   Future<void> updateExpense(ExpenseModel expense) async {
-    if (expense.id.trim().isEmpty ||
-        expense.title.trim().isEmpty ||
-        expense.category.trim().isEmpty ||
-        expense.amount.isNaN ||
-        expense.amount.isInfinite ||
-        expense.amount <= 0) {
-      throw Exception('Invalid expense data');
-    }
     await _box.put(expense.id, expense);
   }
 
+  /// Delete an expense or income record by ID from local storage.
   @override
   Future<void> deleteExpense(String id) async {
     await _box.delete(id);
@@ -119,7 +113,10 @@ class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
       DateTime? nextOccurrence,
       DateTime? endDate,
     }) {
-      if (amount.isNaN || amount.isInfinite || amount <= 0 || amount > 1000000) {
+      if (amount.isNaN ||
+          amount.isInfinite ||
+          amount <= 0 ||
+          amount > 1000000) {
         return;
       }
       if (title.trim().isEmpty) return;

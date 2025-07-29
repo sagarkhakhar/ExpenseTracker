@@ -101,7 +101,7 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
                   value: entry.value,
                   title: isTouched ? '' : '$percent%',
                   radius: isTouched ? 70.0 : 60.0, // Ensure double
-                  titleStyle: AppTextStyles.caption.copyWith(
+                  titleStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Colors.white, fontWeight: FontWeight.bold),
                   badgeWidget: isTouched
                       ? _buildTooltip(context, entry.key, entry.value, percent,
@@ -277,18 +277,26 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
             const SizedBox(width: AppConstants.paddingS),
             Text(
               _capitalize(category),
-              style: AppTextStyles.caption
-                  .copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
             ),
             const SizedBox(width: AppConstants.paddingM),
             Text(
               CurrencyUtils.formatAbbreviatedCurrency(value),
-              style: AppTextStyles.caption.copyWith(color: Colors.white),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: Colors.white),
             ),
             const SizedBox(width: AppConstants.paddingS),
             Text(
               '($percent%)',
-              style: AppTextStyles.caption.copyWith(color: Colors.white70),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: Colors.white70),
             ),
           ],
         ),
@@ -310,18 +318,24 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
               const SizedBox(width: AppConstants.paddingS),
               Text(
                 _capitalize(category),
-                style: AppTextStyles.caption
-                    .copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.white, fontWeight: FontWeight.bold),
               ),
               const SizedBox(width: AppConstants.paddingM),
               Text(
                 CurrencyUtils.formatAbbreviatedCurrency(value),
-                style: AppTextStyles.caption.copyWith(color: Colors.white),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: Colors.white),
               ),
               const SizedBox(width: AppConstants.paddingS),
               Text(
                 '($percent%)',
-                style: AppTextStyles.caption.copyWith(color: Colors.white70),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: Colors.white70),
               ),
             ],
           ),
@@ -395,7 +409,7 @@ class ExpenseTrendChart extends StatelessWidget {
                       }
                       final d = days[idx];
                       return Text('${d.day}/${d.month}',
-                          style: AppTextStyles.caption);
+                          style: Theme.of(context).textTheme.bodySmall);
                     },
                   ),
                 ),
@@ -481,11 +495,11 @@ class _LegendDot extends StatelessWidget {
     return Row(
       children: [
         Container(
-            width: AppConstants.width12,
-            height: AppConstants.height12,
+            width: AppConstants.iconSizeS,
+            height: AppConstants.iconSizeS,
             decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
         const SizedBox(width: AppConstants.paddingXS),
-        Text(label, style: AppTextStyles.caption),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }

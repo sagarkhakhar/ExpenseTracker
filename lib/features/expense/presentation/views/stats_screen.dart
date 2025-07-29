@@ -1,219 +1,417 @@
+// This file defines the StatsScreen, which displays detailed financial statistics and charts.
+// It shows spending patterns, category breakdowns, and trends over time.
+// This demonstrates data visualization and statistical analysis in the presentation layer.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/expense_providers.dart';
-import '../widgets/expense_summary_card.dart';
-import '../widgets/expense_pie_chart.dart';
 import '../../../../core/constants/app_constants.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../../../core/utils/currency_utils.dart';
 import '../../../../shared/widgets/platform_widgets.dart';
+import '../providers/expense_providers.dart';
+import '../widgets/expense_pie_chart.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class SmartTipsCard extends ConsumerWidget {
-  const SmartTipsCard({super.key});
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final tipsAsync = ref.watch(smartTipsNotifierProvider);
-    final localizations = AppLocalizations.of(context)!;
-    List<String> localizeTips(List<String> tipKeys) {
-      return tipKeys.map((key) {
-        if (key.startsWith('tipCategorySpike:')) {
-          final cat = key.split(':').length > 1 ? key.split(':')[1] : '';
-          return localizations.tipCategorySpike(cat);
-        }
-        switch (key) {
-          case 'tipHighSpending':
-            return localizations.tipHighSpending;
-          case 'tipNoIncome':
-            return localizations.tipNoIncome;
-          case 'tipNegativeBalance':
-            return localizations.tipNegativeBalance;
-          case 'tipFewExpenses':
-            return localizations.tipFewExpenses;
-          case 'tipAllGood':
-            return localizations.tipAllGood;
-          default:
-            return key;
-        }
-      }).toList();
-    }
-
-    return Semantics(
-      label: localizations.smartTips,
-      header: true,
-      child: tipsAsync.when(
-        data: (tipKeys) {
-          final tips = localizeTips(tipKeys);
-          return PlatformWidgets.isIOS
-              ? Container(
-                  decoration: BoxDecoration(
-                    color: CupertinoColors.systemGrey6,
-                    borderRadius: BorderRadius.circular(AppConstants.radiusL),
-                  ),
-                  margin: const EdgeInsets.only(bottom: AppConstants.paddingL),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: AppConstants.paddingL,
-                      vertical: AppConstants.paddingM),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            CupertinoIcons.lightbulb,
-                            color: CupertinoColors.activeBlue,
-                            size: 28,
-                            semanticLabel: localizations.smartTips,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(localizations.smartTips,
-                              style: AppTextStyles.heading3),
-                        ],
-                      ),
-                      const SizedBox(height: AppConstants.paddingS),
-                      ...tips.map((tip) => Semantics(
-                            label: tip,
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  bottom: AppConstants.paddingXS),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('\u2022 ', style: AppTextStyles.caption),
-                                  Expanded(child: Text(tip)),
-                                ],
-                              ),
-                            ),
-                          )),
-                    ],
-                  ),
-                )
-              : Card(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  margin: const EdgeInsets.only(bottom: AppConstants.paddingL),
-                  shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(AppConstants.radiusL)),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: AppConstants.paddingL,
-                        vertical: AppConstants.paddingM),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.lightbulb,
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 28,
-                              semanticLabel: localizations.smartTips,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(localizations.smartTips,
-                                style: Theme.of(context).textTheme.titleMedium),
-                          ],
-                        ),
-                        const SizedBox(height: AppConstants.paddingS),
-                        ...tips.map((tip) => Semantics(
-                              label: tip,
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    bottom: AppConstants.paddingXS),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('\u2022 ',
-                                        style: AppTextStyles.caption),
-                                    Expanded(child: Text(tip)),
-                                  ],
-                                ),
-                              ),
-                            )),
-                      ],
-                    ),
-                  ),
-                );
-        },
-        loading: () => const SizedBox.shrink(),
-        error: (e, _) => Semantics(
-          label: localizations.noData,
-          child: const SizedBox.shrink(),
-        ),
-      ),
-    );
-  }
-}
-
+/// The statistics screen that displays detailed financial analysis and charts.
+/// This screen provides insights into spending patterns and financial trends.
 class StatsScreen extends ConsumerWidget {
   const StatsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context)!;
+
+    // Watch the stats provider to get real-time financial statistics
     final statsAsync = ref.watch(expenseStatsNotifierProvider);
-    return PlatformWidgets.buildScaffold(
-      context: context,
-      appBar: PlatformWidgets.buildAppBar(
-        context: context,
-        title: localizations.stats,
+
+    return statsAsync.when(
+      // Loading state: show a loading indicator
+      loading: () => Center(
+        child: PlatformWidgets.isIOS
+            ? const CupertinoActivityIndicator()
+            : const CircularProgressIndicator(),
       ),
-      body: statsAsync.when(
-        data: (stats) {
-          final expenseBreakdown =
-              stats['categoryExpenseBreakdown'] as Map<String, double>? ?? {};
-          final incomeBreakdown =
-              stats['categoryIncomeBreakdown'] as Map<String, double>? ?? {};
-          final dailyTotals =
-              stats['dailyTotals'] as Map<DateTime, Map<String, double>>? ?? {};
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(AppConstants.paddingM),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SmartTipsCard(),
-                ExpenseTrendChart(
-                  dailyTotals: dailyTotals,
-                  title: localizations.dailyTrend,
+      // Error state: show error message with retry option
+      error: (error, stackTrace) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(localizations.errorLoadingExpenses),
+            const SizedBox(height: AppConstants.paddingM),
+            PlatformWidgets.buildButton(
+              context: context,
+              onPressed: () {
+                // Retry loading statistics
+                ref.refresh(expenseStatsNotifierProvider);
+              },
+              child: Text(localizations.retry),
+            ),
+          ],
+        ),
+      ),
+      // Data state: show comprehensive statistics and charts
+      data: (stats) {
+        final totalExpenses = stats['totalExpenses'] as double? ?? 0.0;
+        final totalIncome = stats['totalIncome'] as double? ?? 0.0;
+        final balance = stats['balance'] as double? ?? 0.0;
+        final categoryExpenseBreakdown =
+            stats['categoryExpenseBreakdown'] as Map<String, double>? ?? {};
+        final categoryIncomeBreakdown =
+            stats['categoryIncomeBreakdown'] as Map<String, double>? ?? {};
+        final dailyTotals =
+            stats['dailyTotals'] as Map<DateTime, Map<String, double>>? ?? {};
+        final weeklyTotals =
+            stats['weeklyTotals'] as Map<int, Map<String, double>>? ?? {};
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(AppConstants.paddingM),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Main financial summary section
+              _buildFinancialSummary(
+                  context, localizations, totalExpenses, totalIncome, balance),
+              const SizedBox(height: AppConstants.paddingL),
+
+              // Expense category breakdown with pie chart
+              if (categoryExpenseBreakdown.isNotEmpty) ...[
+                _buildCategorySection(
+                  context,
+                  localizations,
+                  categoryExpenseBreakdown,
+                  'Expense Categories',
+                  Color(AppConstants.errorColor),
                 ),
-                const SizedBox(height: AppConstants.paddingXL),
-                ExpenseSummaryCard(stats: stats),
                 const SizedBox(height: AppConstants.paddingL),
-                ExpensePieChart(
-                  categoryBreakdown: expenseBreakdown,
-                  title: localizations.expensesByCategory,
+              ],
+
+              // Income category breakdown
+              if (categoryIncomeBreakdown.isNotEmpty) ...[
+                _buildCategorySection(
+                  context,
+                  localizations,
+                  categoryIncomeBreakdown,
+                  'Income Categories',
+                  Color(AppConstants.successColor),
                 ),
-                const SizedBox(height: AppConstants.paddingXL),
-                ExpensePieChart(
-                  categoryBreakdown: incomeBreakdown,
-                  title: localizations.incomeByCategory,
+                const SizedBox(height: AppConstants.paddingL),
+              ],
+
+              // Daily trend analysis
+              if (dailyTotals.isNotEmpty) ...[
+                _buildTrendSection(
+                  context,
+                  localizations,
+                  dailyTotals,
+                  'Daily Trend',
+                ),
+                const SizedBox(height: AppConstants.paddingL),
+              ],
+
+              // Weekly trend analysis
+              if (weeklyTotals.isNotEmpty) ...[
+                _buildTrendSection(
+                  context,
+                  localizations,
+                  weeklyTotals,
+                  'Weekly Trend',
+                ),
+                const SizedBox(height: AppConstants.paddingL),
+              ],
+
+              // Smart tips section
+              _buildSmartTipsSection(context, ref, localizations),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// Builds the main financial summary section showing total expenses, income, and balance.
+  Widget _buildFinancialSummary(
+    BuildContext context,
+    AppLocalizations localizations,
+    double totalExpenses,
+    double totalIncome,
+    double balance,
+  ) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppConstants.paddingM),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Financial Summary',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: AppConstants.paddingM),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildSummaryTile(
+                    context,
+                    'Total Expenses',
+                    CurrencyUtils.formatCurrency(totalExpenses),
+                    Color(AppConstants.errorColor),
+                  ),
+                ),
+                Expanded(
+                  child: _buildSummaryTile(
+                    context,
+                    'Total Income',
+                    CurrencyUtils.formatCurrency(totalIncome),
+                    Color(AppConstants.successColor),
+                  ),
+                ),
+                Expanded(
+                  child: _buildSummaryTile(
+                    context,
+                    'Balance',
+                    CurrencyUtils.formatCurrency(balance),
+                    balance >= 0
+                        ? Color(AppConstants.successColor)
+                        : Color(AppConstants.errorColor),
+                  ),
                 ),
               ],
             ),
-          );
-        },
-        loading: () => Center(
-          child: PlatformWidgets.buildLoadingIndicator(),
-        ),
-        error: (e, _) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                PlatformWidgets.isIOS
-                    ? CupertinoIcons.exclamationmark_triangle
-                    : Icons.error_outline,
-                size: 64,
-                color: Colors.red,
-                semanticLabel: localizations.errorLoadingExpenses,
-              ),
-              const SizedBox(height: 16),
-              Text(localizations.errorLoadingExpenses),
-              const SizedBox(height: 8),
-              Text(e.toString()),
-            ],
-          ),
+          ],
         ),
       ),
+    );
+  }
+
+  /// Builds a category breakdown section with pie chart visualization.
+  Widget _buildCategorySection(
+    BuildContext context,
+    AppLocalizations localizations,
+    Map<String, double> categoryData,
+    String title,
+    Color primaryColor,
+  ) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppConstants.paddingM),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: AppConstants.paddingM),
+
+            // Pie chart visualization
+            SizedBox(
+              height: 200,
+              child: ExpensePieChart(
+                categoryBreakdown: categoryData,
+                title: title,
+              ),
+            ),
+            const SizedBox(height: AppConstants.paddingM),
+
+            // Category list with amounts
+            ...categoryData.entries.map((entry) => Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: AppConstants.paddingXS),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(entry.key),
+                      Text(
+                        CurrencyUtils.formatCurrency(entry.value),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Builds a trend analysis section showing spending patterns over time.
+  Widget _buildTrendSection(
+    BuildContext context,
+    AppLocalizations localizations,
+    Map<dynamic, Map<String, double>> trendData,
+    String title,
+  ) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppConstants.paddingM),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: AppConstants.paddingM),
+
+            // Simple bar chart representation
+            ...trendData.entries.take(7).map((entry) {
+              final data = entry.value;
+              final expenses = data['expenses'] ?? 0.0;
+              final income = data['income'] ?? 0.0;
+              final maxValue =
+                  [expenses, income].reduce((a, b) => a > b ? a : b);
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: AppConstants.paddingXS),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 60,
+                          child: Text(
+                            entry.key.toString().split(' ').first,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              if (expenses > 0) ...[
+                                Expanded(
+                                  flex: (expenses / maxValue * 100).round(),
+                                  child: Container(
+                                    height: 20,
+                                    color: Color(AppConstants.errorColor),
+                                    child: Center(
+                                      child: Text(
+                                        CurrencyUtils.formatAbbreviatedCurrency(
+                                            expenses),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              if (income > 0) ...[
+                                Expanded(
+                                  flex: (income / maxValue * 100).round(),
+                                  child: Container(
+                                    height: 20,
+                                    color: Color(AppConstants.successColor),
+                                    child: Center(
+                                      child: Text(
+                                        CurrencyUtils.formatAbbreviatedCurrency(
+                                            income),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Builds the smart tips section that provides personalized financial advice.
+  Widget _buildSmartTipsSection(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations localizations,
+  ) {
+    return ref.watch(smartTipsNotifierProvider).when(
+          data: (tips) => Card(
+            child: Padding(
+              padding: const EdgeInsets.all(AppConstants.paddingM),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    localizations.smartTips,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: AppConstants.paddingM),
+                  ...tips.map((tip) => Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: AppConstants.paddingXS),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.lightbulb_outline,
+                              color: Color(AppConstants.warningColor),
+                              size: 16,
+                            ),
+                            const SizedBox(width: AppConstants.paddingS),
+                            Expanded(
+                              child: Text(tip),
+                            ),
+                          ],
+                        ),
+                      )),
+                ],
+              ),
+            ),
+          ),
+          loading: () => const Card(
+            child: Padding(
+              padding: EdgeInsets.all(AppConstants.paddingM),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ),
+          error: (error, stack) => Card(
+            child: Padding(
+              padding: const EdgeInsets.all(AppConstants.paddingM),
+              child: Text('Error loading tips: $error'),
+            ),
+          ),
+        );
+  }
+
+  /// Builds a summary tile showing a label and value with color coding.
+  Widget _buildSummaryTile(
+    BuildContext context,
+    String label,
+    String value,
+    Color color,
+  ) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodySmall,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: AppConstants.paddingXS),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: color,
+                fontWeight: FontWeight.bold,
+              ),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }

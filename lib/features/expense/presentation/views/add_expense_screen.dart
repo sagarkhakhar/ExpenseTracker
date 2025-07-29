@@ -1,13 +1,19 @@
+// This file defines the AddExpenseScreen, which is the UI for adding or editing an expense.
+// It demonstrates MVVM by interacting only with providers (ViewModels), not with data sources or repositories directly.
+// All business logic and validation is handled in the domain/use case layer.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/expense.dart';
 import '../providers/expense_providers.dart';
-import '../../data/datasources/expense_local_data_source_impl.dart';
 import '../../../../shared/widgets/platform_widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../data/datasources/expense_local_data_source_impl.dart';
 
+/// The AddExpenseScreen allows the user to add a new expense or edit an existing one.
+/// It uses a form and interacts with the ExpenseNotifier (ViewModel) via Riverpod.
 class AddExpenseScreen extends ConsumerStatefulWidget {
   final Expense? expense;
   const AddExpenseScreen({super.key, this.expense});
@@ -17,10 +23,13 @@ class AddExpenseScreen extends ConsumerStatefulWidget {
 }
 
 class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
+  // Form key for validation
   final _formKey = GlobalKey<FormState>();
+  // Controllers for form fields
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
   late TextEditingController _amountController;
+  // State for dropdowns and switches
   late String _category;
   late ExpenseType _type;
   late DateTime _date;
@@ -52,7 +61,6 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     _recurringFrequency = e?.recurringFrequency;
     _nextOccurrence = e?.nextOccurrence;
     _endDate = e?.endDate;
-    _loadCategories();
   }
 
   @override
@@ -63,17 +71,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     super.dispose();
   }
 
-  Future<void> _loadCategories() async {
-    final ds = CategoryLocalDataSourceImpl();
-    await ds.init();
-    setState(() {
-      _categories = ds.getCategories();
-      if (!_categories.contains(_category)) {
-        _category = _categories.isNotEmpty ? _categories.first : 'other';
-      }
-    });
-  }
-
+  /// Handles form submission: validates, builds an Expense, and calls the ViewModel.
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     // Additional manual validation
@@ -135,7 +133,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     setState(() => _loading = true);
     try {
       if (widget.expense != null) {
-        // Edit
+        // Edit existing expense
         final updated = widget.expense!.copyWith(
           title: _titleController.text.trim(),
           description: _descriptionController.text.trim(),
@@ -170,7 +168,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
         }
         await ref.read(expenseNotifierProvider.notifier).updateExpense(updated);
       } else {
-        // Add new
+        // Add new expense
         await ref.read(expenseNotifierProvider.notifier).addExpense(
               title: _titleController.text.trim(),
               description: _descriptionController.text.trim(),
@@ -256,16 +254,23 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
       Row(
         children: [
           Expanded(
-            child: PlatformWidgets.buildPlatformDropdown<String>(
-              context: context,
-              value: _categories.contains(_category)
-                  ? _category
-                  : (_categories.isNotEmpty ? _categories.first : 'other'),
-              items: _categories.where((cat) => cat.trim().isNotEmpty).toList(),
-              itemBuilder: (cat) => Text(cat),
-              onChanged: (v) => setState(() => _category = v ?? 'other'),
-              label: localizations.category,
-            ),
+            child: ref.watch(categoryNotifierProvider).when(
+                  data: (categories) =>
+                      PlatformWidgets.buildPlatformDropdown<String>(
+                    context: context,
+                    value: categories.contains(_category)
+                        ? _category
+                        : (categories.isNotEmpty ? categories.first : 'other'),
+                    items: categories
+                        .where((cat) => cat.trim().isNotEmpty)
+                        .toList(),
+                    itemBuilder: (cat) => Text(cat),
+                    onChanged: (v) => setState(() => _category = v ?? 'other'),
+                    label: localizations.category,
+                  ),
+                  loading: () => const CircularProgressIndicator(),
+                  error: (e, _) => Text(localizations.errorLoadingExpenses),
+                ),
           ),
           PlatformWidgets.platformActionButton(
             context: context,
@@ -276,8 +281,11 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             onPressed: () async {
               await showDialog(
                 context: context,
-                builder: (context) =>
-                    _CategoryManagerDialog(onChanged: _loadCategories),
+                builder: (context) => _CategoryManagerDialog(
+                  onChanged: () => ref
+                      .read(categoryNotifierProvider.notifier)
+                      .loadCategories(),
+                ),
               );
             },
           ),
@@ -442,16 +450,17 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   }
 }
 
-class _CategoryManagerDialog extends StatefulWidget {
+class _CategoryManagerDialog extends ConsumerStatefulWidget {
   final VoidCallback onChanged;
   const _CategoryManagerDialog({required this.onChanged});
 
   @override
-  State<_CategoryManagerDialog> createState() => _CategoryManagerDialogState();
+  ConsumerState<_CategoryManagerDialog> createState() =>
+      _CategoryManagerDialogState();
 }
 
-class _CategoryManagerDialogState extends State<_CategoryManagerDialog> {
-  late CategoryLocalDataSourceImpl _ds;
+class _CategoryManagerDialogState
+    extends ConsumerState<_CategoryManagerDialog> {
   List<String> _categories = [];
   final _controller = TextEditingController();
   String? _editing;
@@ -459,14 +468,9 @@ class _CategoryManagerDialogState extends State<_CategoryManagerDialog> {
   @override
   void initState() {
     super.initState();
-    _ds = CategoryLocalDataSourceImpl();
-    _ds.init().then((_) {
-      setState(() => _categories = _ds.getCategories());
-    });
   }
 
   void _refresh() {
-    setState(() => _categories = _ds.getCategories());
     widget.onChanged();
   }
 
@@ -477,279 +481,339 @@ class _CategoryManagerDialogState extends State<_CategoryManagerDialog> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    if (PlatformWidgets.isIOS) {
-      return CupertinoAlertDialog(
-        title: Text(localizations.manageCategories),
-        content: SizedBox(
-          width: 300,
-          height: 400,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ..._categories.map((cat) => PlatformWidgets.platformListTile(
-                      context: context,
-                      title: _editing == cat
-                          ? CupertinoTextField(
-                              controller: _controller,
-                              autofocus: true,
-                              style: AppTextStyles.body1,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: AppConstants.paddingS,
-                                vertical: AppConstants.paddingS,
-                              ),
-                              decoration: BoxDecoration(
-                                color: CupertinoColors.systemGrey6,
-                                borderRadius:
-                                    BorderRadius.circular(AppConstants.radiusM),
-                                border: Border.all(
-                                  color: CupertinoColors.separator,
-                                  width: 0.5,
+    return ref.watch(categoryNotifierProvider).when(
+          data: (categories) {
+            _categories = categories;
+            if (PlatformWidgets.isIOS) {
+              return CupertinoAlertDialog(
+                title: Text(localizations.manageCategories),
+                content: SizedBox(
+                  width: 300,
+                  height: 400,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ..._categories.map((cat) =>
+                            PlatformWidgets.platformListTile(
+                              context: context,
+                              title: _editing == cat
+                                  ? CupertinoTextField(
+                                      controller: _controller,
+                                      autofocus: true,
+                                      style: PlatformWidgets.isIOS
+                                          ? CupertinoTheme.of(context)
+                                              .textTheme
+                                              .textStyle
+                                          : Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: AppConstants.paddingS,
+                                        vertical: AppConstants.paddingS,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: CupertinoColors.systemGrey6,
+                                        borderRadius: BorderRadius.circular(
+                                            AppConstants.radiusM),
+                                        border: Border.all(
+                                          color: CupertinoColors.separator,
+                                          width: 0.5,
+                                        ),
+                                      ),
+                                      onSubmitted: (val) async {
+                                        final trimmed = val.trim();
+                                        if (trimmed.isEmpty) {
+                                          PlatformWidgets.showPlatformSnackbar(
+                                            context: context,
+                                            message:
+                                                localizations.categoryNameEmpty,
+                                          );
+                                          return;
+                                        }
+                                        if (_isDuplicateCategory(trimmed) &&
+                                            trimmed != cat) {
+                                          PlatformWidgets.showPlatformSnackbar(
+                                            context: context,
+                                            message:
+                                                localizations.duplicateCategory,
+                                          );
+                                          return;
+                                        }
+                                        await ref
+                                            .read(categoryNotifierProvider
+                                                .notifier)
+                                            .editCategory(cat, trimmed);
+                                        _editing = null;
+                                        _controller.clear();
+                                        _refresh();
+                                      },
+                                    )
+                                  : Text(cat),
+                              trailing: CategoryLocalDataSourceImpl
+                                      .defaultCategories
+                                      .contains(cat)
+                                  ? null
+                                  : Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        PlatformWidgets.platformActionButton(
+                                          context: context,
+                                          icon: CupertinoIcons.pencil,
+                                          tooltip: localizations.editExpense,
+                                          onPressed: () {
+                                            setState(() {
+                                              _editing = cat;
+                                              _controller.text = cat;
+                                            });
+                                          },
+                                        ),
+                                        PlatformWidgets.platformActionButton(
+                                          context: context,
+                                          icon: CupertinoIcons.delete,
+                                          tooltip: localizations.delete,
+                                          onPressed: () async {
+                                            final success = await ref
+                                                .read(categoryNotifierProvider
+                                                    .notifier)
+                                                .deleteCategory(cat);
+                                            if (!success) {
+                                              PlatformWidgets
+                                                  .showPlatformSnackbar(
+                                                context: context,
+                                                message:
+                                                    localizations.categoryInUse,
+                                              );
+                                            } else {
+                                              _refresh();
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                            )),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CupertinoTextField(
+                                controller: _controller,
+                                placeholder: localizations.addCategory,
+                                style: PlatformWidgets.isIOS
+                                    ? CupertinoTheme.of(context)
+                                        .textTheme
+                                        .textStyle
+                                    : Theme.of(context).textTheme.bodyMedium,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: AppConstants.paddingS,
+                                  vertical: AppConstants.paddingS,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(
+                                      AppConstants.radiusM),
+                                  border: Border.all(
+                                    color: CupertinoColors.separator,
+                                    width: 0.5,
+                                  ),
                                 ),
                               ),
-                              onSubmitted: (val) async {
-                                final trimmed = val.trim();
-                                if (trimmed.isEmpty) {
+                            ),
+                            PlatformWidgets.platformActionButton(
+                              context: context,
+                              icon: CupertinoIcons.add,
+                              tooltip: localizations.addCategory,
+                              onPressed: () async {
+                                final val = _controller.text.trim();
+                                if (val.isEmpty) {
                                   PlatformWidgets.showPlatformSnackbar(
                                     context: context,
                                     message: localizations.categoryNameEmpty,
                                   );
                                   return;
                                 }
-                                if (_isDuplicateCategory(trimmed) &&
-                                    trimmed != cat) {
+                                if (_isDuplicateCategory(val)) {
                                   PlatformWidgets.showPlatformSnackbar(
                                     context: context,
                                     message: localizations.duplicateCategory,
                                   );
                                   return;
                                 }
-                                await _ds.editCategory(cat, trimmed);
-                                _editing = null;
+                                await ref
+                                    .read(categoryNotifierProvider.notifier)
+                                    .addCategory(val);
                                 _controller.clear();
                                 _refresh();
                               },
-                            )
-                          : Text(cat),
-                      trailing: CategoryLocalDataSourceImpl.defaultCategories
-                              .contains(cat)
-                          ? null
-                          : Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                PlatformWidgets.platformActionButton(
-                                  context: context,
-                                  icon: CupertinoIcons.pencil,
-                                  tooltip: localizations.editExpense,
-                                  onPressed: () {
-                                    setState(() {
-                                      _editing = cat;
-                                      _controller.text = cat;
-                                    });
-                                  },
-                                ),
-                                PlatformWidgets.platformActionButton(
-                                  context: context,
-                                  icon: CupertinoIcons.delete,
-                                  tooltip: localizations.delete,
-                                  onPressed: () async {
-                                    final success =
-                                        await _ds.deleteCategory(cat);
-                                    if (!success) {
-                                      PlatformWidgets.showPlatformSnackbar(
-                                        context: context,
-                                        message: localizations.categoryInUse,
-                                      );
-                                    } else {
-                                      _refresh();
-                                    }
-                                  },
-                                ),
-                              ],
                             ),
-                    )),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: CupertinoTextField(
-                        controller: _controller,
-                        placeholder: localizations.addCategory,
-                        style: AppTextStyles.body1,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: AppConstants.paddingS,
-                          vertical: AppConstants.paddingS,
+                          ],
                         ),
-                        decoration: BoxDecoration(
-                          borderRadius:
-                              BorderRadius.circular(AppConstants.radiusM),
-                          border: Border.all(
-                            color: CupertinoColors.separator,
-                            width: 0.5,
-                          ),
-                        ),
-                      ),
-                    ),
-                    PlatformWidgets.platformActionButton(
-                      context: context,
-                      icon: CupertinoIcons.add,
-                      tooltip: localizations.addCategory,
-                      onPressed: () async {
-                        final val = _controller.text.trim();
-                        if (val.isEmpty) {
-                          PlatformWidgets.showPlatformSnackbar(
-                            context: context,
-                            message: localizations.categoryNameEmpty,
-                          );
-                          return;
-                        }
-                        if (_isDuplicateCategory(val)) {
-                          PlatformWidgets.showPlatformSnackbar(
-                            context: context,
-                            message: localizations.duplicateCategory,
-                          );
-                          return;
-                        }
-                        await _ds.addCategory(val);
-                        _controller.clear();
-                        _refresh();
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          CupertinoDialogAction(
-            child: Text(localizations.close, style: AppTextStyles.button),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
-      );
-    } else {
-      return AlertDialog(
-        title: Text(localizations.manageCategories),
-        content: SizedBox(
-          width: 300,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ..._categories.map((cat) => PlatformWidgets.platformListTile(
-                    context: context,
-                    title: _editing == cat
-                        ? TextField(
-                            controller: _controller,
-                            autofocus: true,
-                            style: AppTextStyles.body1,
-                            decoration: InputDecoration(
-                              hintText: localizations.addCategory,
-                              border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.circular(AppConstants.radiusM),
-                                borderSide: BorderSide.none,
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: AppConstants.paddingS,
-                                vertical: AppConstants.paddingS,
-                              ),
-                            ),
-                          )
-                        : Text(cat),
-                    trailing: CategoryLocalDataSourceImpl.defaultCategories
-                            .contains(cat)
-                        ? null
-                        : Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              PlatformWidgets.platformActionButton(
-                                context: context,
-                                icon: Icons.edit,
-                                tooltip: localizations.editExpense,
-                                onPressed: () {
-                                  setState(() {
-                                    _editing = cat;
-                                    _controller.text = cat;
-                                  });
-                                },
-                              ),
-                              PlatformWidgets.platformActionButton(
-                                context: context,
-                                icon: Icons.delete,
-                                tooltip: localizations.delete,
-                                onPressed: () async {
-                                  final success = await _ds.deleteCategory(cat);
-                                  if (!success) {
-                                    PlatformWidgets.showPlatformSnackbar(
-                                      context: context,
-                                      message: localizations.categoryInUse,
-                                    );
-                                  } else {
-                                    _refresh();
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                  )),
-              const SizedBox(height: 16),
-              Container(
-                height: 1,
-                color: PlatformWidgets.isIOS
-                    ? CupertinoColors.separator
-                    : Colors.grey[300],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      decoration:
-                          InputDecoration(hintText: localizations.addCategory),
-                      style: AppTextStyles.body1,
+                      ],
                     ),
                   ),
-                  PlatformWidgets.platformActionButton(
-                    context: context,
-                    icon: Icons.add,
-                    tooltip: localizations.addCategory,
-                    onPressed: () async {
-                      final val = _controller.text.trim();
-                      if (val.isEmpty) {
-                        PlatformWidgets.showPlatformSnackbar(
-                          context: context,
-                          message: localizations.categoryNameEmpty,
-                        );
-                        return;
-                      }
-                      if (_isDuplicateCategory(val)) {
-                        PlatformWidgets.showPlatformSnackbar(
-                          context: context,
-                          message: localizations.duplicateCategory,
-                        );
-                        return;
-                      }
-                      await _ds.addCategory(val);
-                      _controller.clear();
-                      _refresh();
-                    },
+                ),
+                actions: [
+                  CupertinoDialogAction(
+                    child: Text(localizations.close,
+                        style: PlatformWidgets.isIOS
+                            ? CupertinoTheme.of(context)
+                                .textTheme
+                                .actionTextStyle
+                            : Theme.of(context).textTheme.labelLarge),
+                    onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          PlatformWidgets.buildButton(
-            context: context,
-            onPressed: () => Navigator.of(context).pop(),
-            isPrimary: false,
-            child: Text(localizations.close, style: AppTextStyles.button),
-          ),
-        ],
-      );
-    }
+              );
+            } else {
+              return AlertDialog(
+                title: Text(localizations.manageCategories),
+                content: SizedBox(
+                  width: 300,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ..._categories
+                          .map((cat) => PlatformWidgets.platformListTile(
+                                context: context,
+                                title: _editing == cat
+                                    ? TextField(
+                                        controller: _controller,
+                                        autofocus: true,
+                                        style: PlatformWidgets.isIOS
+                                            ? CupertinoTheme.of(context)
+                                                .textTheme
+                                                .textStyle
+                                            : Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium,
+                                        decoration: InputDecoration(
+                                          hintText: localizations.addCategory,
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                AppConstants.radiusM),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          contentPadding: EdgeInsets.symmetric(
+                                            horizontal: AppConstants.paddingS,
+                                            vertical: AppConstants.paddingS,
+                                          ),
+                                        ),
+                                      )
+                                    : Text(cat),
+                                trailing: CategoryLocalDataSourceImpl
+                                        .defaultCategories
+                                        .contains(cat)
+                                    ? null
+                                    : Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          PlatformWidgets.platformActionButton(
+                                            context: context,
+                                            icon: Icons.edit,
+                                            tooltip: localizations.editExpense,
+                                            onPressed: () {
+                                              setState(() {
+                                                _editing = cat;
+                                                _controller.text = cat;
+                                              });
+                                            },
+                                          ),
+                                          PlatformWidgets.platformActionButton(
+                                            context: context,
+                                            icon: Icons.delete,
+                                            tooltip: localizations.delete,
+                                            onPressed: () async {
+                                              final success = await ref
+                                                  .read(categoryNotifierProvider
+                                                      .notifier)
+                                                  .deleteCategory(cat);
+                                              if (!success) {
+                                                PlatformWidgets
+                                                    .showPlatformSnackbar(
+                                                  context: context,
+                                                  message: localizations
+                                                      .categoryInUse,
+                                                );
+                                              } else {
+                                                _refresh();
+                                              }
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                              )),
+                      const SizedBox(height: 16),
+                      Container(
+                        height: 1,
+                        color: PlatformWidgets.isIOS
+                            ? CupertinoColors.separator
+                            : Colors.grey[300],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _controller,
+                              decoration: InputDecoration(
+                                  hintText: localizations.addCategory),
+                              style: PlatformWidgets.isIOS
+                                  ? CupertinoTheme.of(context)
+                                      .textTheme
+                                      .textStyle
+                                  : Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ),
+                          PlatformWidgets.platformActionButton(
+                            context: context,
+                            icon: Icons.add,
+                            tooltip: localizations.addCategory,
+                            onPressed: () async {
+                              final val = _controller.text.trim();
+                              if (val.isEmpty) {
+                                PlatformWidgets.showPlatformSnackbar(
+                                  context: context,
+                                  message: localizations.categoryNameEmpty,
+                                );
+                                return;
+                              }
+                              if (_isDuplicateCategory(val)) {
+                                PlatformWidgets.showPlatformSnackbar(
+                                  context: context,
+                                  message: localizations.duplicateCategory,
+                                );
+                                return;
+                              }
+                              await ref
+                                  .read(categoryNotifierProvider.notifier)
+                                  .addCategory(val);
+                              _controller.clear();
+                              _refresh();
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                actions: [
+                  PlatformWidgets.buildButton(
+                    context: context,
+                    onPressed: () => Navigator.of(context).pop(),
+                    isPrimary: false,
+                    child: Text(localizations.close,
+                        style: PlatformWidgets.isIOS
+                            ? CupertinoTheme.of(context)
+                                .textTheme
+                                .actionTextStyle
+                            : Theme.of(context).textTheme.labelLarge),
+                  ),
+                ],
+              );
+            }
+          },
+          loading: () => Center(child: CircularProgressIndicator()),
+          error: (e, _) =>
+              Center(child: Text(localizations.errorLoadingExpenses)),
+        );
   }
 }

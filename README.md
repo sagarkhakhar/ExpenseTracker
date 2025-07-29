@@ -95,6 +95,66 @@ lib/
 └── main.dart              # App entry point
 ```
 
+---
+
+## 🏛️ Architecture & Contribution Guide
+
+### Clean Architecture & MVVM
+
+- **Domain Layer**: Business logic, entities, use cases, repository interfaces. No dependencies on other layers.
+- **Data Layer**: Repository implementations, data sources, models. Implements domain interfaces.
+- **Presentation Layer (MVVM)**: UI widgets (Views), Riverpod providers (ViewModels/Notifiers), and state management. No direct data access or business logic.
+
+### Adding a New Feature (Best Practice)
+
+1. **Create a Feature Directory**
+   - `lib/features/<feature_name>/`
+2. **Domain Layer**
+   - Define entities in `domain/entities/`
+   - Define repository interfaces in `domain/repositories/`
+   - Add use cases in `domain/usecases/`
+3. **Data Layer**
+   - Implement repositories in `data/repositories/`
+   - Add data sources in `data/datasources/`
+   - Add models in `data/models/`
+4. **Presentation Layer**
+   - Add providers (ViewModels/Notifiers) in `presentation/providers/`
+   - Add UI screens in `presentation/views/`
+   - Add widgets in `presentation/widgets/`
+5. **Testing**
+   - Add unit tests for use cases in `test/features/<feature_name>/domain/usecases/`
+   - Add widget/UI tests in `test/features/<feature_name>/presentation/views/`
+
+### Example: Adding a New Use Case
+
+- Add a Dart file in `domain/usecases/` (e.g., `add_budget.dart`).
+- Implement business rule validation in the use case, not in the UI or repository.
+- Write unit tests for all validation and logic.
+
+### Running Tests
+
+```bash
+flutter test
+```
+
+### Code Quality
+
+- Run static analysis:
+
+```bash
+flutter analyze
+```
+
+- Follow lints in `analysis_options.yaml`.
+
+### Pull Requests
+
+- Write or update tests for new features/bugfixes.
+- Ensure all tests and lints pass before submitting a PR.
+- Follow the architecture and directory structure above.
+
+---
+
 ## 🎨 UI Components
 
 - **Home Screen**: Overview of expenses with summary cards

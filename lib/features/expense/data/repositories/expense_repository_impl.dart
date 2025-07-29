@@ -1,3 +1,7 @@
+// This file implements the ExpenseRepository interface for the data layer.
+// It connects the domain layer to the data source (Hive/local storage).
+// Implements all methods defined in the domain repository abstraction.
+
 import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/expense.dart';
@@ -5,17 +9,23 @@ import '../../domain/repositories/expense_repository.dart';
 import '../datasources/expense_local_data_source.dart';
 import '../models/expense_model.dart';
 
+/// Concrete implementation of ExpenseRepository for local storage.
+/// Uses a data source (e.g., Hive) to persist and retrieve expenses.
 class ExpenseRepositoryImpl implements ExpenseRepository {
+  // The data source for local storage (injected for testability and flexibility).
   final ExpenseLocalDataSource localDataSource;
 
+  /// Constructor with dependency injection.
   ExpenseRepositoryImpl(this.localDataSource);
 
   @override
   Future<Either<Failure, List<Expense>>> getAllExpenses() async {
     try {
+      // Get all expenses from the data source and map to domain entities.
       final expenses = await localDataSource.getAllExpenses();
       return Right(expenses.map((model) => model.toEntity()).toList());
     } catch (e) {
+      // Return a Failure if anything goes wrong.
       return Left(DatabaseFailure('Failed to get expenses: ${e.toString()}'));
     }
   }
@@ -84,6 +94,7 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
   @override
   Future<Either<Failure, Expense>> createExpense(Expense expense) async {
     try {
+      // Convert the domain entity to a data model for storage.
       final expenseModel = ExpenseModel.fromEntity(expense);
       await localDataSource.createExpense(expenseModel);
       return Right(expense);
@@ -99,7 +110,8 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
       await localDataSource.updateExpense(expenseModel);
       return Right(expense);
     } catch (e) {
-      return Left(DatabaseFailure('Failed to update expense: ${e.toString()}'));
+      return Left(
+          DatabaseFailure('Failed to update expense:  [${e.toString()}'));
     }
   }
 

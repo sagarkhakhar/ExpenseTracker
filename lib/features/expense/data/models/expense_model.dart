@@ -1,43 +1,37 @@
+// This file defines the ExpenseModel, which is the data-layer representation of an Expense.
+// It is used for local storage (Hive) and for mapping to/from the domain entity.
+
 import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 import '../../domain/entities/expense.dart';
 
 part 'expense_model.g.dart';
 
-@HiveType(typeId: 0)
-@JsonSerializable()
+/// Data model for storing expenses in Hive.
+/// This class is used only in the data layer and is mapped to/from the domain entity (Expense).
+@HiveType(typeId: 4)
 class ExpenseModel extends HiveObject {
+  // All fields must match those in the Expense entity for easy mapping.
   @HiveField(0)
   final String id;
-
   @HiveField(1)
   final String title;
-
   @HiveField(2)
   final String description;
-
   @HiveField(3)
   final double amount;
-
   @HiveField(4)
-  final String category; // Now a string
-
+  final String category;
   @HiveField(5)
-  @JsonKey(fromJson: _typeFromJson, toJson: _typeToJson)
   final ExpenseType type;
-
   @HiveField(6)
   final DateTime date;
-
   @HiveField(7)
   final DateTime createdAt;
-
   @HiveField(8)
   final DateTime updatedAt;
-
   @HiveField(9)
   final Map<String, dynamic>? metadata;
-  // Recurring fields
   @HiveField(10)
   final bool isRecurring;
   @HiveField(11)
@@ -47,6 +41,7 @@ class ExpenseModel extends HiveObject {
   @HiveField(13)
   final DateTime? endDate;
 
+  /// Constructor for ExpenseModel. All fields are required except metadata and recurring fields.
   ExpenseModel({
     required this.id,
     required this.title,
@@ -62,18 +57,9 @@ class ExpenseModel extends HiveObject {
     this.recurringFrequency,
     this.nextOccurrence,
     this.endDate,
-  })  : assert(id.trim().isNotEmpty, 'ID cannot be empty'),
-        assert(
-            title.trim().isNotEmpty, 'Title cannot be empty'),
-        assert(category.trim().isNotEmpty,
-            'Category cannot be empty'),
-        assert(!amount.isNaN && !amount.isInfinite && amount > 0,
-            'Amount must be positive and finite');
+  });
 
-  factory ExpenseModel.fromJson(Map<String, dynamic> json) =>
-      _$ExpenseModelFromJson(json);
-  Map<String, dynamic> toJson() => _$ExpenseModelToJson(this);
-
+  /// Convert a domain entity (Expense) to a data model (ExpenseModel).
   factory ExpenseModel.fromEntity(Expense expense) {
     return ExpenseModel(
       id: expense.id,
@@ -93,6 +79,7 @@ class ExpenseModel extends HiveObject {
     );
   }
 
+  /// Convert this data model to a domain entity (Expense).
   Expense toEntity() {
     return Expense(
       id: id,
