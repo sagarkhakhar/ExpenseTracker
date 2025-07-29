@@ -3,22 +3,44 @@
 .packages
 .pub/
 build/
+*.lock
+pubspec.lock
 
 # IDEs and editors
 .idea/
 .vscode/
 *.iml
+*.ipr
+*.iws
+.settings/
+.project
+.classpath
+*.swp
+*.swo
+*~
 
 # Flutter generated
 .flutter-plugins
 .flutter-plugins-dependencies
 .flutter-versions
 .flutter_export_environment.sh
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+
+# Generated files
+lib/generated/
+lib/l10n/generated/
+*.gen.dart
 
 # Misc
 *.log
 *.tmp
 *.swp
+*.bak
+*.orig
+.DS_Store
+Thumbs.db
 
 # Platform-specific outputs
 android/.gradle/
@@ -26,6 +48,16 @@ android/captures/
 android/local.properties
 android/GeneratedPluginRegistrant.java
 android/.cxx/
+android/app/debug/
+android/app/profile/
+android/app/release/
+android/key.properties
+android/app/*.jks
+android/app/*.keystore
+android/app/google-services.json
+android/app/google-services.json.bak
+
+# iOS specific
 ios/Pods/
 ios/Flutter/App.framework
 ios/Flutter/Flutter.framework
@@ -41,9 +73,134 @@ ios/Runner/GeneratedPluginRegistrant.*
 ios/DerivedData/
 ios/xcuserdata/
 ios/.generated/
+ios/Runner.xcworkspace/xcshareddata/
+ios/Runner.xcodeproj/xcuserdata/
+ios/Runner.xcodeproj/project.xcworkspace/xcuserdata/
 
 # Exceptions for Xcode project files
 !ios/default.mode1v3
 !ios/default.mode2v3
 !ios/default.pbxuser
-!ios/default.perspectivev3 
+!ios/default.perspectivev3
+
+# Web specific
+web/firebase.json
+web/.firebase/
+web/firebase-debug.log
+web/firestore-debug.log
+web/ui-debug.log
+
+# Test coverage
+coverage/
+*.lcov
+test/coverage/
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.staging
+
+# Firebase
+firebase_options.dart
+google-services.json
+GoogleService-Info.plist
+
+# Hive database files (local storage)
+*.hive
+*.hive-journal
+*.hive-wal
+*.hive-shm
+
+# Temporary files
+temp/
+tmp/
+.temp/
+.tmp/
+
+# Backup files
+*.backup
+*.backup.*
+backup/
+
+# Documentation build
+docs/_build/
+docs/build/
+
+# Package manager files
+yarn.lock
+package-lock.json
+pnpm-lock.yaml
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# FVM (Flutter Version Management)
+.fvm/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Code coverage
+coverage/
+*.lcov
+
+# Performance profiling
+*.trace
+*.timeline
+
+# Crash logs
+crash.log
+crash_report.txt
+
+# Local configuration
+local.properties
+local_config.dart
+
+# Build artifacts
+*.apk
+*.aab
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Generated localization files
+lib/l10n/generated/
+*.arb.bak
+
+# Hive generated files
+*.hive.g.dart
+
+# Riverpod generated files
+*.riverpod.dart
+
+# JSON serialization generated files
+*.g.dart
+
+# Mock files (if using mockito)
+*.mocks.dart
+
+# Test artifacts
+test_results/
+test_output/ 
