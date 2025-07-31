@@ -193,4 +193,39 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get tipAllGood => '¡Buen trabajo! Tu gasto está bajo control este mes.';
+
+  @override
+  String get receiptPhotos => 'Receipt Photos';
+
+  @override
+  String get camera => 'Camera';
+
+  @override
+  String get gallery => 'Gallery';
+
+  @override
+  String get photoCapturedSuccessfully => 'Photo captured successfully!';
+
+  @override
+  String get photoDeletedSuccessfully => 'Photo deleted successfully!';
+
+  @override
+  String get failedToCapturePhoto => 'Failed to capture photo';
+
+  @override
+  String get failedToDeletePhoto => 'Failed to delete photo';
+
+  @override
+  String get fileSizeTooLarge => 'File size too large. Maximum size is 10MB.';
+
+  @override
+  String get unsupportedFileType => 'Unsupported file type. Please select a JPEG or PNG image.';
+
+  @override
+  String get noPhotos => 'No photos attached';
+
+  @override
+  String photosAttached(Object count) {
+    return '$count photos attached';
+  }
 }

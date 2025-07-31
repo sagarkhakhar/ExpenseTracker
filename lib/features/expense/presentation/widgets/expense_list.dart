@@ -11,6 +11,7 @@ import '../../../../core/utils/date_utils.dart' as app_date_utils;
 import '../../../../shared/widgets/platform_widgets.dart';
 import '../../domain/entities/expense.dart';
 import '../providers/expense_providers.dart';
+import '../providers/photo_providers.dart';
 import '../../../../l10n/app_localizations.dart';
 
 /// A scrollable list widget that displays expense items with interactive features.
@@ -134,7 +135,8 @@ class ExpenseList extends ConsumerWidget {
 
               // Expense details (title, category, date)
               Expanded(
-                child: _buildExpenseDetails(context, expense, localizations),
+                child:
+                    _buildExpenseDetails(context, expense, localizations, ref),
               ),
 
               // Expense amount
@@ -184,6 +186,7 @@ class ExpenseList extends ConsumerWidget {
     BuildContext context,
     Expense expense,
     AppLocalizations localizations,
+    WidgetRef ref,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,6 +218,10 @@ class ExpenseList extends ConsumerWidget {
                 color: Theme.of(context).colorScheme.outline,
               ),
         ),
+        const SizedBox(height: AppConstants.paddingXS),
+
+        // Photo indicator
+        _buildPhotoIndicator(context, expense, ref),
       ],
     );
   }
@@ -403,5 +410,48 @@ class ExpenseList extends ConsumerWidget {
       // Show full date for older expenses
       return app_date_utils.DateUtils.formatDate(date);
     }
+  }
+
+  /// Builds the photo indicator for expense items.
+  /// Shows if the expense has photos attached.
+  Widget _buildPhotoIndicator(
+    BuildContext context,
+    Expense expense,
+    WidgetRef ref,
+  ) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final hasPhotosAsync = ref.watch(hasPhotosProvider(expense.id));
+
+        return hasPhotosAsync.when(
+          data: (hasPhotos) {
+            if (!hasPhotos) return const SizedBox.shrink();
+
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  PlatformWidgets.isIOS
+                      ? CupertinoIcons.photo
+                      : Icons.photo_library,
+                  size: 14,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Has photos',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontSize: 11,
+                      ),
+                ),
+              ],
+            );
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
+        );
+      },
+    );
   }
 }

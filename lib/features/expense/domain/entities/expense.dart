@@ -140,4 +140,8 @@ class Expense extends Equatable {
 
   /// Utility: returns the signed amount (negative for expenses, positive for income)
   double get signedAmount => isExpense ? -amount : amount;
+
+  /// Utility: returns true if this expense has photos (to be checked via repository)
+  /// This is a placeholder for future implementation
+  bool get hasPhotos => false; // Will be implemented when photos are loaded
 }

@@ -58,5 +58,16 @@
   "tipCategorySpike": "High spending on '{category}'. Consider reviewing this category.",
   "tipNegativeBalance": "Your balance is negative. Try to reduce expenses or increase income.",
   "tipFewExpenses": "Add more expenses to get better insights and tips.",
-  "tipAllGood": "Great job! Your spending is under control this month."
+  "tipAllGood": "Great job! Your spending is under control this month.",
+  "receiptPhotos": "Receipt Photos",
+  "camera": "Camera",
+  "gallery": "Gallery",
+  "photoCapturedSuccessfully": "Photo captured successfully!",
+  "photoDeletedSuccessfully": "Photo deleted successfully!",
+  "failedToCapturePhoto": "Failed to capture photo",
+  "failedToDeletePhoto": "Failed to delete photo",
+  "fileSizeTooLarge": "File size too large. Maximum size is 10MB.",
+  "unsupportedFileType": "Unsupported file type. Please select a JPEG or PNG image.",
+  "noPhotos": "No photos attached",
+  "photosAttached": "{count} photos attached"
 } 

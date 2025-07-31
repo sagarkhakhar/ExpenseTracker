@@ -454,6 +454,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Great job! Your spending is under control this month.'**
   String get tipAllGood;
+
+  /// No description provided for @receiptPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt Photos'**
+  String get receiptPhotos;
+
+  /// No description provided for @camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get camera;
+
+  /// No description provided for @gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get gallery;
+
+  /// No description provided for @photoCapturedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo captured successfully!'**
+  String get photoCapturedSuccessfully;
+
+  /// No description provided for @photoDeletedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo deleted successfully!'**
+  String get photoDeletedSuccessfully;
+
+  /// No description provided for @failedToCapturePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to capture photo'**
+  String get failedToCapturePhoto;
+
+  /// No description provided for @failedToDeletePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete photo'**
+  String get failedToDeletePhoto;
+
+  /// No description provided for @fileSizeTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'File size too large. Maximum size is 10MB.'**
+  String get fileSizeTooLarge;
+
+  /// No description provided for @unsupportedFileType.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsupported file type. Please select a JPEG or PNG image.'**
+  String get unsupportedFileType;
+
+  /// No description provided for @noPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'No photos attached'**
+  String get noPhotos;
+
+  /// No description provided for @photosAttached.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} photos attached'**
+  String photosAttached(Object count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/expense.dart';
 import '../providers/expense_providers.dart';
+import '../widgets/photo_capture_widget.dart';
 import '../../../../shared/widgets/platform_widgets.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -38,6 +39,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   String? _recurringFrequency;
   DateTime? _nextOccurrence;
   DateTime? _endDate;
+  String? _tempExpenseId; // Temporary ID for photo capture
   final List<String> _frequencyOptions = [
     'daily',
     'weekly',
@@ -60,6 +62,11 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     _recurringFrequency = e?.recurringFrequency;
     _nextOccurrence = e?.nextOccurrence;
     _endDate = e?.endDate;
+
+    // Generate temporary expense ID for photo capture
+    if (e == null) {
+      _tempExpenseId = DateTime.now().millisecondsSinceEpoch.toString();
+    }
   }
 
   @override
@@ -180,6 +187,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
               nextOccurrence: _isRecurring ? _nextOccurrence : null,
               endDate: _isRecurring ? _endDate : null,
             );
+
+        // TODO: Update photos from temp ID to real expense ID after expense creation
+        // This would require a method to update photo expense IDs
       }
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
@@ -400,6 +410,26 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
               if (picked != null) setState(() => _endDate = picked);
             },
           ),
+        ),
+      ],
+      // Photo capture section (only for new expenses)
+      if (widget.expense == null && _tempExpenseId != null) ...[
+        const SizedBox(height: AppConstants.paddingM),
+        PhotoCaptureWidget(
+          expenseId: _tempExpenseId!,
+          onPhotoCaptured: () {
+            // Refresh the form or show success message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(localizations.photoCapturedSuccessfully ??
+                    'Photo captured successfully!'),
+                backgroundColor: Theme.of(context).colorScheme.primary,
+              ),
+            );
+          },
+          onError: () {
+            // Error handling is done in the widget
+          },
         ),
       ],
     ];
@@ -736,7 +766,8 @@ class _CategoryManagerDialogState
                                               AppConstants.radiusM),
                                           borderSide: BorderSide.none,
                                         ),
-                                        contentPadding: const EdgeInsets.symmetric(
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
                                           horizontal: AppConstants.paddingS,
                                           vertical: AppConstants.paddingS,
                                         ),
