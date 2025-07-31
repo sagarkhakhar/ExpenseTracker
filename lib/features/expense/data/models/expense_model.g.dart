@@ -8,7 +8,7 @@ part of 'expense_model.dart';
 
 class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
   @override
-  final int typeId = 0;
+  final int typeId = 4;
 
   @override
   ExpenseModel read(BinaryReader reader) {
@@ -78,46 +78,3 @@ class ExpenseModelAdapter extends TypeAdapter<ExpenseModel> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
-
-// **************************************************************************
-// JsonSerializableGenerator
-// **************************************************************************
-
-ExpenseModel _$ExpenseModelFromJson(Map<String, dynamic> json) => ExpenseModel(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      description: json['description'] as String,
-      amount: (json['amount'] as num).toDouble(),
-      category: json['category'] as String,
-      type: ExpenseModel._typeFromJson(json['type'] as String),
-      date: DateTime.parse(json['date'] as String),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
-      metadata: json['metadata'] as Map<String, dynamic>?,
-      isRecurring: json['isRecurring'] as bool? ?? false,
-      recurringFrequency: json['recurringFrequency'] as String?,
-      nextOccurrence: json['nextOccurrence'] == null
-          ? null
-          : DateTime.parse(json['nextOccurrence'] as String),
-      endDate: json['endDate'] == null
-          ? null
-          : DateTime.parse(json['endDate'] as String),
-    );
-
-Map<String, dynamic> _$ExpenseModelToJson(ExpenseModel instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'title': instance.title,
-      'description': instance.description,
-      'amount': instance.amount,
-      'category': instance.category,
-      'type': ExpenseModel._typeToJson(instance.type),
-      'date': instance.date.toIso8601String(),
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
-      'metadata': instance.metadata,
-      'isRecurring': instance.isRecurring,
-      'recurringFrequency': instance.recurringFrequency,
-      'nextOccurrence': instance.nextOccurrence?.toIso8601String(),
-      'endDate': instance.endDate?.toIso8601String(),
-    };

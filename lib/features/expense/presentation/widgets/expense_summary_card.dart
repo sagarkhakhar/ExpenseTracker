@@ -9,6 +9,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/currency_utils.dart';
 import '../../../../shared/widgets/platform_widgets.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../budget/presentation/providers/budget_providers.dart';
 
 /// A card widget that displays key financial metrics and summaries.
 /// Shows total expenses, income, balance, and other important financial data.
@@ -66,6 +67,10 @@ class ExpenseSummaryCard extends ConsumerWidget {
               monthlyBalance,
               localizations,
             ),
+            const SizedBox(height: AppConstants.paddingL),
+
+            // Budget indicators
+            _buildBudgetIndicators(context, ref),
           ],
         ),
       ),
@@ -311,5 +316,89 @@ class ExpenseSummaryCard extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  /// Builds the budget indicators section showing budget status.
+  Widget _buildBudgetIndicators(BuildContext context, WidgetRef ref) {
+    return ref.watch(activeBudgetsProvider).when(
+          data: (budgets) {
+            if (budgets.isEmpty) {
+              return const SizedBox.shrink();
+            }
+
+            final budgetsWithAlerts = budgets.where((budget) => 
+              budget.isApproachingLimit || budget.isExceeded
+            ).toList();
+
+            final exceededBudgets = budgets.where((budget) => 
+              budget.isExceeded
+            ).toList();
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Section title
+                Text(
+                  'Budget Status',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: AppConstants.paddingM),
+
+                // Budget indicators
+                Row(
+                  children: [
+                    // Total budgets
+                    Expanded(
+                      child: _buildMetricTile(
+                        context,
+                        'Total Budgets',
+                        budgets.length.toString(),
+                        Colors.blue,
+                        PlatformWidgets.isIOS
+                            ? CupertinoIcons.creditcard
+                            : Icons.account_balance_wallet,
+                        isCompact: true,
+                      ),
+                    ),
+                    const SizedBox(width: AppConstants.paddingM),
+
+                    // Budgets with alerts
+                    Expanded(
+                      child: _buildMetricTile(
+                        context,
+                        'Alerts',
+                        budgetsWithAlerts.length.toString(),
+                        budgetsWithAlerts.isNotEmpty ? Colors.orange : Colors.green,
+                        PlatformWidgets.isIOS
+                            ? CupertinoIcons.exclamationmark_triangle
+                            : Icons.warning,
+                        isCompact: true,
+                      ),
+                    ),
+                    const SizedBox(width: AppConstants.paddingM),
+
+                    // Exceeded budgets
+                    Expanded(
+                      child: _buildMetricTile(
+                        context,
+                        'Exceeded',
+                        exceededBudgets.length.toString(),
+                        exceededBudgets.isNotEmpty ? Colors.red : Colors.green,
+                        PlatformWidgets.isIOS
+                            ? CupertinoIcons.xmark_circle
+                            : Icons.cancel,
+                        isCompact: true,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (error, stack) => const SizedBox.shrink(),
+        );
   }
 }

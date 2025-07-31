@@ -12,6 +12,7 @@ import 'features/expense/data/models/expense_model.dart';
 import 'features/expense/presentation/views/add_expense_screen.dart';
 import 'features/expense/domain/entities/expense.dart';
 import 'features/expense/data/datasources/expense_local_data_source_impl.dart';
+import 'features/budget/data/models/budget_model.dart';
 import 'shared/widgets/platform_widgets.dart';
 import 'l10n/app_localizations.dart';
 
@@ -29,6 +30,7 @@ void main() async {
   // These adapters tell Hive how to convert our objects to/from binary format
   Hive.registerAdapter(ExpenseModelAdapter()); // For expense data models
   Hive.registerAdapter(ExpenseTypeAdapter()); // For expense type enums
+  Hive.registerAdapter(BudgetModelAdapter()); // For budget data models
 
   // Initialize the category data source and populate default categories
   // This ensures the app has basic categories available on first launch

@@ -11,6 +11,8 @@ import '../../../../shared/widgets/platform_widgets.dart';
 import '../providers/expense_providers.dart';
 import '../widgets/expense_pie_chart.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../budget/presentation/providers/budget_providers.dart';
+import '../../../budget/presentation/widgets/budget_card.dart';
 
 /// The statistics screen that displays detailed financial analysis and charts.
 /// This screen provides insights into spending patterns and financial trends.
@@ -118,6 +120,10 @@ class StatsScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppConstants.paddingL),
               ],
+
+              // Budget overview section
+              _buildBudgetOverviewSection(context, ref, localizations),
+              const SizedBox(height: AppConstants.paddingL),
 
               // Smart tips section
               _buildSmartTipsSection(context, ref, localizations),
@@ -334,6 +340,104 @@ class StatsScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// Builds the budget overview section showing budget status and alerts.
+  Widget _buildBudgetOverviewSection(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations localizations,
+  ) {
+    return ref.watch(activeBudgetsProvider).when(
+          data: (budgets) {
+            if (budgets.isEmpty) {
+              return const SizedBox.shrink();
+            }
+
+            final budgetsWithAlerts = budgets.where((budget) => 
+              budget.isApproachingLimit || budget.isExceeded
+            ).toList();
+
+            return Card(
+              child: Padding(
+                padding: const EdgeInsets.all(AppConstants.paddingM),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Budget Overview',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        if (budgetsWithAlerts.isNotEmpty)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.orange.withOpacity(0.3),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.warning,
+                                  size: 12,
+                                  color: Colors.orange,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${budgetsWithAlerts.length} Alert${budgetsWithAlerts.length > 1 ? 's' : ''}',
+                                  style: const TextStyle(
+                                    color: Colors.orange,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: AppConstants.paddingM),
+                    if (budgetsWithAlerts.isNotEmpty) ...[
+                      ...budgetsWithAlerts.map((budget) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: BudgetCard(budget: budget),
+                      )),
+                    ] else ...[
+                      Text(
+                        'All budgets are within limits',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.green,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            );
+          },
+          loading: () => const Card(
+            child: Padding(
+              padding: EdgeInsets.all(AppConstants.paddingM),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ),
+          error: (error, stack) => Card(
+            child: Padding(
+              padding: const EdgeInsets.all(AppConstants.paddingM),
+              child: Text('Error loading budgets: $error'),
+            ),
+          ),
+        );
   }
 
   /// Builds the smart tips section that provides personalized financial advice.

@@ -15,6 +15,8 @@ import 'stats_screen.dart';
 import 'add_expense_screen.dart';
 import '../../../../shared/widgets/platform_widgets.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../budget/presentation/providers/budget_providers.dart';
+import '../../../budget/presentation/widgets/budget_card.dart';
 
 /// The main screen of the app that contains the bottom navigation and manages tabs.
 /// This screen acts as a container for the overview and statistics tabs.
@@ -222,6 +224,10 @@ class ExpenseOverviewTab extends ConsumerWidget {
               ),
               const SizedBox(height: AppConstants.paddingL),
               
+              // Budget alerts section
+              _buildBudgetAlertsSection(context, ref),
+              const SizedBox(height: AppConstants.paddingL),
+              
               // Title for the expense list
               Text(
                 localizations.overview,
@@ -239,5 +245,72 @@ class ExpenseOverviewTab extends ConsumerWidget {
         );
       },
     );
+  }
+
+  /// Builds the budget alerts section showing budgets that need attention.
+  Widget _buildBudgetAlertsSection(BuildContext context, WidgetRef ref) {
+    return ref.watch(budgetsWithAlertsProvider).when(
+          data: (budgetsWithAlerts) {
+            if (budgetsWithAlerts.isEmpty) {
+              return const SizedBox.shrink();
+            }
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Budget Alerts',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.red.withOpacity(0.3),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.warning,
+                            size: 12,
+                            color: Colors.red,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${budgetsWithAlerts.length}',
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppConstants.paddingM),
+                ...budgetsWithAlerts.map((budget) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: BudgetCard(budget: budget),
+                )),
+              ],
+            );
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (error, stack) => const SizedBox.shrink(),
+        );
   }
 }
