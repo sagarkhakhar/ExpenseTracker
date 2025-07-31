@@ -548,7 +548,7 @@ class _CategoryManagerDialogState
                                           : Theme.of(context)
                                               .textTheme
                                               .bodyMedium,
-                                      padding: EdgeInsets.symmetric(
+                                      padding: const EdgeInsets.symmetric(
                                         horizontal: AppConstants.paddingS,
                                         vertical: AppConstants.paddingS,
                                       ),
@@ -644,7 +644,7 @@ class _CategoryManagerDialogState
                                         .textTheme
                                         .textStyle
                                     : Theme.of(context).textTheme.bodyMedium,
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                   horizontal: AppConstants.paddingS,
                                   vertical: AppConstants.paddingS,
                                 ),
@@ -736,7 +736,7 @@ class _CategoryManagerDialogState
                                               AppConstants.radiusM),
                                           borderSide: BorderSide.none,
                                         ),
-                                        contentPadding: EdgeInsets.symmetric(
+                                        contentPadding: const EdgeInsets.symmetric(
                                           horizontal: AppConstants.paddingS,
                                           vertical: AppConstants.paddingS,
                                         ),
@@ -856,7 +856,7 @@ class _CategoryManagerDialogState
               );
             }
           },
-          loading: () => Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) =>
               Center(child: Text(localizations.errorLoadingExpenses)),
         );

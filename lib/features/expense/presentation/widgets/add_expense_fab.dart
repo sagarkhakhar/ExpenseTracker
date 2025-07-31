@@ -21,11 +21,6 @@ class AddExpenseFAB extends ConsumerWidget {
 
     return FloatingActionButton(
       // Use platform-appropriate icon
-      child: Icon(
-        PlatformWidgets.isIOS ? CupertinoIcons.add : Icons.add,
-        size: AppConstants.iconSizeL,
-      ),
-      // Handle tap events to navigate to add expense screen
       onPressed: () => _navigateToAddExpense(context),
       // Add tooltip for accessibility
       tooltip: localizations.addExpense,
@@ -36,6 +31,11 @@ class AddExpenseFAB extends ConsumerWidget {
       foregroundColor: PlatformWidgets.isIOS
           ? CupertinoColors.white
           : Theme.of(context).colorScheme.onPrimary,
+      // Use platform-appropriate icon
+      child: Icon(
+        PlatformWidgets.isIOS ? CupertinoIcons.add : Icons.add,
+        size: AppConstants.iconSizeL,
+      ),
     );
   }
 

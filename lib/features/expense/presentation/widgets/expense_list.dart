@@ -157,8 +157,8 @@ class ExpenseList extends ConsumerWidget {
   Widget _buildCategoryIndicator(BuildContext context, Expense expense) {
     // Get category color based on expense type
     final color = expense.amount < 0
-        ? Color(AppConstants.errorColor)
-        : Color(AppConstants.successColor);
+        ? const Color(AppConstants.errorColor)
+        : const Color(AppConstants.successColor);
 
     // Get appropriate icon for the category
     final icon = _getCategoryIcon(expense.category);
@@ -224,8 +224,8 @@ class ExpenseList extends ConsumerWidget {
   Widget _buildExpenseAmount(BuildContext context, Expense expense) {
     final isExpense = expense.amount < 0;
     final color = isExpense
-        ? Color(AppConstants.errorColor)
-        : Color(AppConstants.successColor);
+        ? const Color(AppConstants.errorColor)
+        : const Color(AppConstants.successColor);
     final prefix = isExpense ? '-' : '+';
 
     return Column(
@@ -264,7 +264,7 @@ class ExpenseList extends ConsumerWidget {
       onPressed: () => _showDeleteConfirmation(context, expense, ref),
       icon: Icon(
         PlatformWidgets.isIOS ? CupertinoIcons.delete : Icons.delete_outline,
-        color: Color(AppConstants.errorColor),
+        color: const Color(AppConstants.errorColor),
         size: AppConstants.iconSizeM,
       ),
       tooltip: 'Delete expense',
@@ -286,7 +286,7 @@ class ExpenseList extends ConsumerWidget {
         context: context,
         builder: (context) => CupertinoAlertDialog(
           title: Text(localizations.deleteExpense),
-          content: Text('Are you sure you want to delete this expense?'),
+          content: const Text('Are you sure you want to delete this expense?'),
           actions: [
             CupertinoDialogAction(
               child: Text(localizations.cancel),
@@ -309,7 +309,7 @@ class ExpenseList extends ConsumerWidget {
         context: context,
         builder: (context) => AlertDialog(
           title: Text(localizations.deleteExpense),
-          content: Text('Are you sure you want to delete this expense?'),
+          content: const Text('Are you sure you want to delete this expense?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -321,7 +321,7 @@ class ExpenseList extends ConsumerWidget {
                 _deleteExpense(expense, ref);
               },
               style: TextButton.styleFrom(
-                foregroundColor: Color(AppConstants.errorColor),
+                foregroundColor: const Color(AppConstants.errorColor),
               ),
               child: Text(localizations.delete),
             ),

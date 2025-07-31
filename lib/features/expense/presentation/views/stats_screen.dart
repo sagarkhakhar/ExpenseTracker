@@ -80,7 +80,7 @@ class StatsScreen extends ConsumerWidget {
                   localizations,
                   categoryExpenseBreakdown,
                   'Expense Categories',
-                  Color(AppConstants.errorColor),
+                  const Color(AppConstants.errorColor),
                 ),
                 const SizedBox(height: AppConstants.paddingL),
               ],
@@ -92,7 +92,7 @@ class StatsScreen extends ConsumerWidget {
                   localizations,
                   categoryIncomeBreakdown,
                   'Income Categories',
-                  Color(AppConstants.successColor),
+                  const Color(AppConstants.successColor),
                 ),
                 const SizedBox(height: AppConstants.paddingL),
               ],
@@ -154,7 +154,7 @@ class StatsScreen extends ConsumerWidget {
                     context,
                     'Total Expenses',
                     CurrencyUtils.formatCurrency(totalExpenses),
-                    Color(AppConstants.errorColor),
+                    const Color(AppConstants.errorColor),
                   ),
                 ),
                 Expanded(
@@ -162,7 +162,7 @@ class StatsScreen extends ConsumerWidget {
                     context,
                     'Total Income',
                     CurrencyUtils.formatCurrency(totalIncome),
-                    Color(AppConstants.successColor),
+                    const Color(AppConstants.successColor),
                   ),
                 ),
                 Expanded(
@@ -171,8 +171,8 @@ class StatsScreen extends ConsumerWidget {
                     'Balance',
                     CurrencyUtils.formatCurrency(balance),
                     balance >= 0
-                        ? Color(AppConstants.successColor)
-                        : Color(AppConstants.errorColor),
+                        ? const Color(AppConstants.successColor)
+                        : const Color(AppConstants.errorColor),
                   ),
                 ),
               ],
@@ -288,7 +288,7 @@ class StatsScreen extends ConsumerWidget {
                                   flex: (expenses / maxValue * 100).round(),
                                   child: Container(
                                     height: 20,
-                                    color: Color(AppConstants.errorColor),
+                                    color: const Color(AppConstants.errorColor),
                                     child: Center(
                                       child: Text(
                                         CurrencyUtils.formatAbbreviatedCurrency(
@@ -307,7 +307,7 @@ class StatsScreen extends ConsumerWidget {
                                   flex: (income / maxValue * 100).round(),
                                   child: Container(
                                     height: 20,
-                                    color: Color(AppConstants.successColor),
+                                    color: const Color(AppConstants.successColor),
                                     child: Center(
                                       child: Text(
                                         CurrencyUtils.formatAbbreviatedCurrency(
@@ -359,7 +359,7 @@ class StatsScreen extends ConsumerWidget {
                             vertical: AppConstants.paddingXS),
                         child: Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.lightbulb_outline,
                               color: Color(AppConstants.warningColor),
                               size: 16,

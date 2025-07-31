@@ -38,34 +38,34 @@ void main() {
   test('returns ValidationFailure if title is empty', () async {
     final expense = validExpense.copyWith(title: ' ');
     final result = await usecase(expense);
-    expect(result, equals(Left(ValidationFailure('Title cannot be empty'))));
+    expect(result, equals(const Left(ValidationFailure('Title cannot be empty'))));
   });
 
   test('returns ValidationFailure if category is empty', () async {
     final expense = validExpense.copyWith(category: ' ');
     final result = await usecase(expense);
-    expect(result, equals(Left(ValidationFailure('Category cannot be empty'))));
+    expect(result, equals(const Left(ValidationFailure('Category cannot be empty'))));
   });
 
   test('returns ValidationFailure if amount is <= 0', () async {
     final expense = validExpense.copyWith(amount: 0.0);
     final result = await usecase(expense);
     expect(result,
-        equals(Left(ValidationFailure('Amount must be positive and finite'))));
+        equals(const Left(ValidationFailure('Amount must be positive and finite'))));
   });
 
   test('returns ValidationFailure if amount is NaN', () async {
     final expense = validExpense.copyWith(amount: double.nan);
     final result = await usecase(expense);
     expect(result,
-        equals(Left(ValidationFailure('Amount must be positive and finite'))));
+        equals(const Left(ValidationFailure('Amount must be positive and finite'))));
   });
 
   test('returns ValidationFailure if amount is infinite', () async {
     final expense = validExpense.copyWith(amount: double.infinity);
     final result = await usecase(expense);
     expect(result,
-        equals(Left(ValidationFailure('Amount must be positive and finite'))));
+        equals(const Left(ValidationFailure('Amount must be positive and finite'))));
   });
 
   group('recurring', () {
@@ -76,7 +76,7 @@ void main() {
           nextOccurrence: DateTime.now());
       final result = await usecase(expense);
       expect(result,
-          equals(Left(ValidationFailure('Recurring frequency required'))));
+          equals(const Left(ValidationFailure('Recurring frequency required'))));
     });
     test('returns ValidationFailure if recurringFrequency is empty', () async {
       final expense = validExpense.copyWith(
@@ -85,7 +85,7 @@ void main() {
           nextOccurrence: DateTime.now());
       final result = await usecase(expense);
       expect(result,
-          equals(Left(ValidationFailure('Recurring frequency required'))));
+          equals(const Left(ValidationFailure('Recurring frequency required'))));
     });
     test('returns ValidationFailure if nextOccurrence is null', () async {
       final expense = validExpense.copyWith(
@@ -94,7 +94,7 @@ void main() {
           nextOccurrence: null);
       final result = await usecase(expense);
       expect(
-          result, equals(Left(ValidationFailure('Next occurrence required'))));
+          result, equals(const Left(ValidationFailure('Next occurrence required'))));
     });
     test('returns ValidationFailure if nextOccurrence is before date',
         () async {
@@ -108,7 +108,7 @@ void main() {
       final result = await usecase(expense);
       expect(
           result,
-          equals(Left(ValidationFailure(
+          equals(const Left(ValidationFailure(
               'Next occurrence must be after or equal to the main date'))));
     });
     test('returns ValidationFailure if endDate is before nextOccurrence',
@@ -123,7 +123,7 @@ void main() {
       final result = await usecase(expense);
       expect(
           result,
-          equals(Left(
+          equals(const Left(
               ValidationFailure('End date must be after next occurrence'))));
     });
   });

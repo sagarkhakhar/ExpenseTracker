@@ -2,7 +2,6 @@
 // It is used for local storage (Hive) and for mapping to/from the domain entity.
 
 import 'package:hive/hive.dart';
-import 'package:json_annotation/json_annotation.dart';
 import '../../domain/entities/expense.dart';
 
 part 'expense_model.g.dart';

@@ -32,15 +32,15 @@ class AppTheme {
       ),
 
       // App bar theme
-      appBarTheme: AppBarTheme(
-        backgroundColor: const Color(AppConstants.surfaceColor),
-        foregroundColor: const Color(AppConstants.textColorPrimary),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(AppConstants.surfaceColor),
+        foregroundColor: Color(AppConstants.textColorPrimary),
         elevation: AppConstants.shadowS,
         centerTitle: true,
         titleTextStyle: TextStyle(
           fontSize: AppConstants.textSizeL,
           fontWeight: FontWeight.w600,
-          color: const Color(AppConstants.textColorPrimary),
+          color: Color(AppConstants.textColorPrimary),
         ),
       ),
 
@@ -66,7 +66,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppConstants.radiusM),
           ),
-          textStyle: TextStyle(
+          textStyle: const TextStyle(
             fontSize: AppConstants.textSizeM,
             fontWeight: FontWeight.w600,
           ),
@@ -81,7 +81,7 @@ class AppTheme {
             horizontal: AppConstants.paddingM,
             vertical: AppConstants.paddingS,
           ),
-          textStyle: TextStyle(
+          textStyle: const TextStyle(
             fontSize: AppConstants.textSizeM,
             fontWeight: FontWeight.w500,
           ),
@@ -103,7 +103,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppConstants.radiusM),
           ),
-          textStyle: TextStyle(
+          textStyle: const TextStyle(
             fontSize: AppConstants.textSizeM,
             fontWeight: FontWeight.w600,
           ),
@@ -156,92 +156,92 @@ class AppTheme {
           horizontal: AppConstants.paddingM,
           vertical: AppConstants.paddingM,
         ),
-        labelStyle: TextStyle(
+        labelStyle: const TextStyle(
           fontSize: AppConstants.textSizeM,
-          color: const Color(AppConstants.textColorSecondary),
+          color: Color(AppConstants.textColorSecondary),
         ),
-        hintStyle: TextStyle(
+        hintStyle: const TextStyle(
           fontSize: AppConstants.textSizeM,
-          color: const Color(AppConstants.textColorSecondary),
+          color: Color(AppConstants.textColorSecondary),
         ),
       ),
 
       // Text theme
-      textTheme: TextTheme(
+      textTheme: const TextTheme(
         displayLarge: TextStyle(
           fontSize: AppConstants.textSizeXXL,
           fontWeight: FontWeight.bold,
-          color: const Color(AppConstants.textColorPrimary),
+          color: Color(AppConstants.textColorPrimary),
         ),
         displayMedium: TextStyle(
           fontSize: AppConstants.textSizeXL,
           fontWeight: FontWeight.bold,
-          color: const Color(AppConstants.textColorPrimary),
+          color: Color(AppConstants.textColorPrimary),
         ),
         displaySmall: TextStyle(
           fontSize: AppConstants.textSizeL,
           fontWeight: FontWeight.bold,
-          color: const Color(AppConstants.textColorPrimary),
+          color: Color(AppConstants.textColorPrimary),
         ),
         headlineLarge: TextStyle(
           fontSize: AppConstants.textSizeXL,
           fontWeight: FontWeight.w600,
-          color: const Color(AppConstants.textColorPrimary),
+          color: Color(AppConstants.textColorPrimary),
         ),
         headlineMedium: TextStyle(
           fontSize: AppConstants.textSizeL,
           fontWeight: FontWeight.w600,
-          color: const Color(AppConstants.textColorPrimary),
+          color: Color(AppConstants.textColorPrimary),
         ),
         headlineSmall: TextStyle(
           fontSize: AppConstants.textSizeM,
           fontWeight: FontWeight.w600,
-          color: const Color(AppConstants.textColorPrimary),
+          color: Color(AppConstants.textColorPrimary),
         ),
         titleLarge: TextStyle(
           fontSize: AppConstants.textSizeL,
           fontWeight: FontWeight.w500,
-          color: const Color(AppConstants.textColorPrimary),
+          color: Color(AppConstants.textColorPrimary),
         ),
         titleMedium: TextStyle(
           fontSize: AppConstants.textSizeM,
           fontWeight: FontWeight.w500,
-          color: const Color(AppConstants.textColorPrimary),
+          color: Color(AppConstants.textColorPrimary),
         ),
         titleSmall: TextStyle(
           fontSize: AppConstants.textSizeS,
           fontWeight: FontWeight.w500,
-          color: const Color(AppConstants.textColorPrimary),
+          color: Color(AppConstants.textColorPrimary),
         ),
         bodyLarge: TextStyle(
           fontSize: AppConstants.textSizeL,
           fontWeight: FontWeight.normal,
-          color: const Color(AppConstants.textColorPrimary),
+          color: Color(AppConstants.textColorPrimary),
         ),
         bodyMedium: TextStyle(
           fontSize: AppConstants.textSizeM,
           fontWeight: FontWeight.normal,
-          color: const Color(AppConstants.textColorPrimary),
+          color: Color(AppConstants.textColorPrimary),
         ),
         bodySmall: TextStyle(
           fontSize: AppConstants.textSizeS,
           fontWeight: FontWeight.normal,
-          color: const Color(AppConstants.textColorSecondary),
+          color: Color(AppConstants.textColorSecondary),
         ),
         labelLarge: TextStyle(
           fontSize: AppConstants.textSizeM,
           fontWeight: FontWeight.w500,
-          color: const Color(AppConstants.textColorPrimary),
+          color: Color(AppConstants.textColorPrimary),
         ),
         labelMedium: TextStyle(
           fontSize: AppConstants.textSizeS,
           fontWeight: FontWeight.w500,
-          color: const Color(AppConstants.textColorPrimary),
+          color: Color(AppConstants.textColorPrimary),
         ),
         labelSmall: TextStyle(
           fontSize: AppConstants.textSizeXS,
           fontWeight: FontWeight.w500,
-          color: const Color(AppConstants.textColorSecondary),
+          color: Color(AppConstants.textColorSecondary),
         ),
       ),
 
@@ -259,10 +259,10 @@ class AppTheme {
       ),
 
       // Bottom navigation bar theme
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: const Color(AppConstants.surfaceColor),
-        selectedItemColor: const Color(AppConstants.primaryColor),
-        unselectedItemColor: const Color(AppConstants.textColorSecondary),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: Color(AppConstants.surfaceColor),
+        selectedItemColor: Color(AppConstants.primaryColor),
+        unselectedItemColor: Color(AppConstants.textColorSecondary),
         type: BottomNavigationBarType.fixed,
         elevation: AppConstants.shadowM,
       ),
@@ -274,14 +274,14 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.radiusL),
         ),
-        titleTextStyle: TextStyle(
+        titleTextStyle: const TextStyle(
           fontSize: AppConstants.textSizeL,
           fontWeight: FontWeight.w600,
-          color: const Color(AppConstants.textColorPrimary),
+          color: Color(AppConstants.textColorPrimary),
         ),
-        contentTextStyle: TextStyle(
+        contentTextStyle: const TextStyle(
           fontSize: AppConstants.textSizeM,
-          color: const Color(AppConstants.textColorPrimary),
+          color: Color(AppConstants.textColorPrimary),
         ),
       ),
 
@@ -302,9 +302,9 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: Colors.grey[100],
         selectedColor: const Color(AppConstants.primaryColor),
-        labelStyle: TextStyle(
+        labelStyle: const TextStyle(
           fontSize: AppConstants.textSizeS,
-          color: const Color(AppConstants.textColorPrimary),
+          color: Color(AppConstants.textColorPrimary),
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.radiusM),
@@ -335,7 +335,7 @@ class AppTheme {
         foregroundColor: Colors.white,
         elevation: AppConstants.shadowS,
         centerTitle: true,
-        titleTextStyle: TextStyle(
+        titleTextStyle: const TextStyle(
           fontSize: AppConstants.textSizeL,
           fontWeight: FontWeight.w600,
           color: Colors.white,
@@ -364,7 +364,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppConstants.radiusM),
           ),
-          textStyle: TextStyle(
+          textStyle: const TextStyle(
             fontSize: AppConstants.textSizeM,
             fontWeight: FontWeight.w600,
           ),
@@ -379,7 +379,7 @@ class AppTheme {
             horizontal: AppConstants.paddingM,
             vertical: AppConstants.paddingS,
           ),
-          textStyle: TextStyle(
+          textStyle: const TextStyle(
             fontSize: AppConstants.textSizeM,
             fontWeight: FontWeight.w500,
           ),
@@ -401,7 +401,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppConstants.radiusM),
           ),
-          textStyle: TextStyle(
+          textStyle: const TextStyle(
             fontSize: AppConstants.textSizeM,
             fontWeight: FontWeight.w600,
           ),
@@ -466,57 +466,57 @@ class AppTheme {
 
       // Text theme
       textTheme: TextTheme(
-        displayLarge: TextStyle(
+        displayLarge: const TextStyle(
           fontSize: AppConstants.textSizeXXL,
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
-        displayMedium: TextStyle(
+        displayMedium: const TextStyle(
           fontSize: AppConstants.textSizeXL,
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
-        displaySmall: TextStyle(
+        displaySmall: const TextStyle(
           fontSize: AppConstants.textSizeL,
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
-        headlineLarge: TextStyle(
+        headlineLarge: const TextStyle(
           fontSize: AppConstants.textSizeXL,
           fontWeight: FontWeight.w600,
           color: Colors.white,
         ),
-        headlineMedium: TextStyle(
+        headlineMedium: const TextStyle(
           fontSize: AppConstants.textSizeL,
           fontWeight: FontWeight.w600,
           color: Colors.white,
         ),
-        headlineSmall: TextStyle(
+        headlineSmall: const TextStyle(
           fontSize: AppConstants.textSizeM,
           fontWeight: FontWeight.w600,
           color: Colors.white,
         ),
-        titleLarge: TextStyle(
+        titleLarge: const TextStyle(
           fontSize: AppConstants.textSizeL,
           fontWeight: FontWeight.w500,
           color: Colors.white,
         ),
-        titleMedium: TextStyle(
+        titleMedium: const TextStyle(
           fontSize: AppConstants.textSizeM,
           fontWeight: FontWeight.w500,
           color: Colors.white,
         ),
-        titleSmall: TextStyle(
+        titleSmall: const TextStyle(
           fontSize: AppConstants.textSizeS,
           fontWeight: FontWeight.w500,
           color: Colors.white,
         ),
-        bodyLarge: TextStyle(
+        bodyLarge: const TextStyle(
           fontSize: AppConstants.textSizeL,
           fontWeight: FontWeight.normal,
           color: Colors.white,
         ),
-        bodyMedium: TextStyle(
+        bodyMedium: const TextStyle(
           fontSize: AppConstants.textSizeM,
           fontWeight: FontWeight.normal,
           color: Colors.white,
@@ -526,12 +526,12 @@ class AppTheme {
           fontWeight: FontWeight.normal,
           color: Colors.grey[400],
         ),
-        labelLarge: TextStyle(
+        labelLarge: const TextStyle(
           fontSize: AppConstants.textSizeM,
           fontWeight: FontWeight.w500,
           color: Colors.white,
         ),
-        labelMedium: TextStyle(
+        labelMedium: const TextStyle(
           fontSize: AppConstants.textSizeS,
           fontWeight: FontWeight.w500,
           color: Colors.white,
@@ -572,12 +572,12 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.radiusL),
         ),
-        titleTextStyle: TextStyle(
+        titleTextStyle: const TextStyle(
           fontSize: AppConstants.textSizeL,
           fontWeight: FontWeight.w600,
           color: Colors.white,
         ),
-        contentTextStyle: TextStyle(
+        contentTextStyle: const TextStyle(
           fontSize: AppConstants.textSizeM,
           color: Colors.white,
         ),
@@ -600,7 +600,7 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: Colors.grey[800],
         selectedColor: const Color(AppConstants.primaryColor),
-        labelStyle: TextStyle(
+        labelStyle: const TextStyle(
           fontSize: AppConstants.textSizeS,
           color: Colors.white,
         ),
@@ -635,9 +635,9 @@ class AppTheme {
           fontSize: AppConstants.textSizeM,
           color: brightness == Brightness.dark ? Colors.white : Colors.black,
         ),
-        actionTextStyle: TextStyle(
+        actionTextStyle: const TextStyle(
           fontSize: AppConstants.textSizeM,
-          color: const Color(AppConstants.primaryColor),
+          color: Color(AppConstants.primaryColor),
         ),
         tabLabelTextStyle: TextStyle(
           fontSize: AppConstants.textSizeS,
