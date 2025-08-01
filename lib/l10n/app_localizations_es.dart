@@ -228,4 +228,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String photosAttached(Object count) {
     return '$count fotos adjuntas';
   }
+
+  @override
+  String get preview => 'Vista previa';
+
+  @override
+  String get save => 'Guardar';
 }

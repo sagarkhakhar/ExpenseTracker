@@ -69,5 +69,7 @@
   "fileSizeTooLarge": "File size too large. Maximum size is 10MB.",
   "unsupportedFileType": "Unsupported file type. Please select a JPEG or PNG image.",
   "noPhotos": "No photos attached",
-  "photosAttached": "{count} photos attached"
+  "photosAttached": "{count} photos attached",
+  "preview": "Preview",
+  "save": "Save"
 } 

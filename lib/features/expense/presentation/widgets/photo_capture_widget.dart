@@ -1,5 +1,5 @@
 // This file defines the PhotoCaptureWidget for capturing photos from camera or gallery.
-// It provides a user interface for photo capture operations.
+// It provides a user interface for photo capture operations with preview functionality.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,9 +10,9 @@ import '../../../../l10n/app_localizations.dart';
 import '../providers/photo_providers.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
-/// Widget for capturing photos from camera or gallery.
-/// Provides buttons to select camera or gallery and handles the capture process.
-class PhotoCaptureWidget extends ConsumerWidget {
+/// Widget for capturing photos from camera or gallery with preview functionality.
+/// Provides buttons to select camera or gallery, shows preview, and handles the capture process.
+class PhotoCaptureWidget extends ConsumerStatefulWidget {
   final String expenseId;
   final VoidCallback? onPhotoCaptured;
   final VoidCallback? onError;
@@ -25,7 +25,15 @@ class PhotoCaptureWidget extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PhotoCaptureWidget> createState() => _PhotoCaptureWidgetState();
+}
+
+class _PhotoCaptureWidgetState extends ConsumerState<PhotoCaptureWidget> {
+  XFile? _previewImage;
+  bool _isPreviewMode = false;
+
+  @override
+  Widget build(BuildContext context) {
     final photoCaptureState = ref.watch(photoCaptureNotifierProvider);
 
     return Column(
@@ -42,42 +50,50 @@ class PhotoCaptureWidget extends ConsumerWidget {
           ),
         ),
 
+        // Preview section
+        if (_isPreviewMode && _previewImage != null) ...[
+          _buildPreviewSection(context),
+          const SizedBox(height: 16),
+        ],
+
         // Capture buttons
-        Row(
-          children: [
-            // Camera button
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: photoCaptureState.isLoading
-                    ? null
-                    : () => _captureFromCamera(context, ref),
-                icon: const Icon(Icons.camera_alt),
-                label: Text(
-                  AppLocalizations.of(context)?.camera ?? 'Camera',
-                ),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            // Gallery button
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: photoCaptureState.isLoading
-                    ? null
-                    : () => _captureFromGallery(context, ref),
-                icon: const Icon(Icons.photo_library),
-                label: Text(
-                  AppLocalizations.of(context)?.gallery ?? 'Gallery',
-                ),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+        if (!_isPreviewMode) ...[
+          Row(
+            children: [
+              // Camera button
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: photoCaptureState.isLoading
+                      ? null
+                      : () => _captureFromCamera(context, ref),
+                  icon: const Icon(Icons.camera_alt),
+                  label: Text(
+                    AppLocalizations.of(context)?.camera ?? 'Camera',
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
+              const SizedBox(width: 12),
+              // Gallery button
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: photoCaptureState.isLoading
+                      ? null
+                      : () => _captureFromGallery(context, ref),
+                  icon: const Icon(Icons.photo_library),
+                  label: Text(
+                    AppLocalizations.of(context)?.gallery ?? 'Gallery',
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
 
         // Loading indicator
         if (photoCaptureState.isLoading)
@@ -118,6 +134,198 @@ class PhotoCaptureWidget extends ConsumerWidget {
           ),
       ],
     );
+  }
+
+  /// Build preview section
+  Widget _buildPreviewSection(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Preview header
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.preview,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 16,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  AppLocalizations.of(context)?.preview ?? 'Preview',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                const Spacer(),
+                Flexible(
+                  child: Text(
+                    _previewImage?.name ?? '',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Preview image
+          Container(
+            height: 120,
+            width: double.infinity,
+            margin: const EdgeInsets.symmetric(horizontal: 8),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: Image.file(
+                File(_previewImage!.path),
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: Theme.of(context).colorScheme.surface,
+                    child: Icon(
+                      Icons.broken_image,
+                      color: Theme.of(context).colorScheme.outline,
+                      size: 32,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+
+          // Action buttons
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Row(
+              children: [
+                // Save button
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _savePreviewImage(context),
+                    icon: const Icon(Icons.save, size: 16),
+                    label: Text(
+                      AppLocalizations.of(context)?.save ?? 'Save',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Cancel button
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _cancelPreview(),
+                    icon: const Icon(Icons.close, size: 16),
+                    label: Text(
+                      AppLocalizations.of(context)?.cancel ?? 'Cancel',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Save the preview image
+  Future<void> _savePreviewImage(BuildContext context) async {
+    if (_previewImage == null) return;
+
+    try {
+      final file = File(_previewImage!.path);
+
+      // Check if file exists
+      if (!await file.exists()) {
+        _showError(context, 'Selected image file does not exist.');
+        return;
+      }
+
+      final fileSize = await file.length();
+      final fileName = _previewImage!.name;
+      final mimeType = _getMimeType(fileName);
+
+      // Validate file size (10MB limit)
+      if (fileSize > 10 * 1024 * 1024) {
+        _showError(context, 'File size too large. Maximum size is 10MB.');
+        return;
+      }
+
+      // Validate MIME type
+      if (!_isValidMimeType(mimeType)) {
+        _showError(context,
+            'Unsupported file type. Please select a JPEG or PNG image.');
+        return;
+      }
+
+      // Capture the photo using the use case
+      final notifier = ref.read(photoCaptureNotifierProvider.notifier);
+      await notifier.capturePhoto(
+        expenseId: widget.expenseId,
+        filePath: _previewImage!.path,
+        fileName: fileName,
+        fileSize: fileSize,
+        mimeType: mimeType,
+        capturedAt: DateTime.now(),
+      );
+
+      // Check the result
+      final state = ref.read(photoCaptureNotifierProvider);
+      state.whenData((result) {
+        result?.fold(
+          (failure) {
+            _showError(context, failure.message);
+            widget.onError?.call();
+          },
+          (receiptPhoto) {
+            widget.onPhotoCaptured?.call();
+            _cancelPreview(); // Exit preview mode
+            // Reset the state after successful capture
+            Future.delayed(const Duration(seconds: 2), () {
+              notifier.reset();
+            });
+          },
+        );
+      });
+    } catch (e) {
+      _showError(context, 'Failed to save image: $e');
+    }
+  }
+
+  /// Cancel preview and return to capture mode
+  void _cancelPreview() {
+    setState(() {
+      _previewImage = null;
+      _isPreviewMode = false;
+    });
+  }
+
+  /// Set preview image
+  void _setPreviewImage(XFile image) {
+    setState(() {
+      _previewImage = image;
+      _isPreviewMode = true;
+    });
   }
 
   /// Capture photo from camera
@@ -205,7 +413,7 @@ class PhotoCaptureWidget extends ConsumerWidget {
 
       if (image != null) {
         debugPrint('Image captured from camera: ${image.path}');
-        await _processCapturedImage(context, ref, image);
+        _setPreviewImage(image); // Set preview image
       } else {
         debugPrint('No image selected from camera');
       }
@@ -345,7 +553,7 @@ class PhotoCaptureWidget extends ConsumerWidget {
 
       if (image != null) {
         debugPrint('Image selected from gallery: ${image.path}');
-        await _processCapturedImage(context, ref, image);
+        _setPreviewImage(image); // Set preview image
       } else {
         debugPrint('No image selected from gallery');
       }
@@ -396,10 +604,11 @@ class PhotoCaptureWidget extends ConsumerWidget {
 
       // Capture the photo using the use case
       final notifier = ref.read(photoCaptureNotifierProvider.notifier);
-      debugPrint('Calling capturePhoto use case with expenseId: $expenseId');
+      debugPrint(
+          'Calling capturePhoto use case with expenseId: ${widget.expenseId}');
 
       await notifier.capturePhoto(
-        expenseId: expenseId,
+        expenseId: widget.expenseId,
         filePath: image.path,
         fileName: fileName,
         fileSize: fileSize,
@@ -419,11 +628,11 @@ class PhotoCaptureWidget extends ConsumerWidget {
           (failure) {
             debugPrint('Photo capture failed: ${failure.message}');
             _showError(context, failure.message);
-            onError?.call();
+            widget.onError?.call();
           },
           (receiptPhoto) {
             debugPrint('Photo capture successful: ${receiptPhoto.id}');
-            onPhotoCaptured?.call();
+            widget.onPhotoCaptured?.call();
             // Reset the state after successful capture
             Future.delayed(const Duration(seconds: 2), () {
               notifier.reset();
@@ -475,7 +684,7 @@ class PhotoCaptureWidget extends ConsumerWidget {
         backgroundColor: Theme.of(context).colorScheme.error,
       ),
     );
-    onError?.call();
+    widget.onError?.call();
   }
 
   /// Show permission error message with settings option
@@ -500,6 +709,6 @@ class PhotoCaptureWidget extends ConsumerWidget {
         ],
       ),
     );
-    onError?.call();
+    widget.onError?.call();
   }
 }

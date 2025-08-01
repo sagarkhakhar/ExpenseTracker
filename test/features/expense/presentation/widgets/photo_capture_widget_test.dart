@@ -157,5 +157,31 @@ void main() {
       expect(find.text('Camera'), findsOneWidget);
       expect(find.text('Gallery'), findsOneWidget);
     });
+
+    testWidgets('should show preview when image is selected',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: PhotoCaptureWidget(
+                expenseId: 'test-expense-id',
+                onPhotoCaptured: () {},
+                onError: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+
+      // Verify initial state - no preview
+      expect(find.text('Preview'), findsNothing);
+      expect(find.text('Save'), findsNothing);
+      expect(find.text('Cancel'), findsNothing);
+
+      // Verify camera and gallery buttons are visible initially
+      expect(find.text('Camera'), findsOneWidget);
+      expect(find.text('Gallery'), findsOneWidget);
+    });
   });
 }

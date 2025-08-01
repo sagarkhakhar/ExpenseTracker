@@ -520,6 +520,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} photos attached'**
   String photosAttached(Object count);
+
+  /// No description provided for @preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get preview;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
