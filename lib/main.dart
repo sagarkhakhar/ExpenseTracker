@@ -120,8 +120,8 @@ class _AppLoadingScreenState extends ConsumerState<AppLoadingScreen> {
       await _initializeCategories();
 
       setState(() => _status = 'Ready!');
-      // Reduced delay for faster startup
-      await Future.delayed(const Duration(milliseconds: 50));
+      // Minimal delay for stability
+      await Future.delayed(const Duration(milliseconds: 25));
 
       if (mounted) {
         setState(() => _isInitialized = true);

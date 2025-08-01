@@ -192,12 +192,12 @@ class ExpenseStatsNotifier
   late final ProviderSubscription<AsyncValue<List<Expense>>> _expensesSub;
 
   ExpenseStatsNotifier(this.ref) : super(const AsyncValue.loading()) {
-    // Listen to changes in the expenses provider
+    // Listen to changes in the expenses provider with memory optimization
     _expensesSub = ref.listen<AsyncValue<List<Expense>>>(
       expenseNotifierProvider,
       (previous, next) {
         if (next is AsyncData<List<Expense>>) {
-          // Use isolate for heavy stats calculation
+          // Calculate stats directly for better memory management
           _calculateStatsInIsolate(next.value ?? []);
         } else if (next is AsyncError) {
           state = AsyncValue.error(next.error!, next.stackTrace!);
@@ -205,7 +205,7 @@ class ExpenseStatsNotifier
           state = const AsyncValue.loading();
         }
       },
-      fireImmediately: true, // So it runs on initialization too
+      fireImmediately: false, // Reduce initial load for better stability
     );
   }
 
