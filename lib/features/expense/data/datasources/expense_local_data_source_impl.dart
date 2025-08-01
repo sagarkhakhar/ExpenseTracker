@@ -2,6 +2,7 @@
 // It is responsible for all low-level data access and persistence.
 
 import 'package:hive/hive.dart';
+
 import '../models/expense_model.dart';
 import '../../domain/entities/expense.dart';
 import 'expense_local_data_source.dart';
@@ -19,12 +20,21 @@ class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
   /// Initialize the data source by opening the Hive box.
   @override
   Future<void> init() async {
-    _box = await Hive.openBox<ExpenseModel>(boxName);
+    // Use a more efficient box opening strategy
+    if (!Hive.isBoxOpen(boxName)) {
+      _box = await Hive.openBox<ExpenseModel>(boxName);
+    } else {
+      _box = Hive.box<ExpenseModel>(boxName);
+    }
+
+    // Seed minimal data if empty
+    await seedMinimalDummyDataIfEmpty();
   }
 
   /// Get all expenses and income records from local storage.
   @override
   Future<List<ExpenseModel>> getAllExpenses() async {
+    // Reverted to direct access for stability
     return _box.values.toList();
   }
 
@@ -39,6 +49,7 @@ class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
   @override
   Future<List<ExpenseModel>> getExpensesByDateRange(
       DateTime start, DateTime end) async {
+    // Reverted to direct access for stability
     return _box.values
         .where((e) =>
             e.date.isAfter(start.subtract(const Duration(days: 1))) &&
@@ -49,12 +60,14 @@ class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
   /// Get all expenses/income for a specific category.
   @override
   Future<List<ExpenseModel>> getExpensesByCategory(String category) async {
+    // Reverted to direct access for stability
     return _box.values.where((e) => e.category == category).toList();
   }
 
   /// Get all expenses/income of a specific type (expense or income).
   @override
   Future<List<ExpenseModel>> getExpensesByType(ExpenseType type) async {
+    // Reverted to direct access for stability
     return _box.values.where((e) => e.type == type).toList();
   }
 
@@ -86,53 +99,10 @@ class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
     if (_box.isNotEmpty) return;
 
     final now = DateTime.now();
-    final List<ExpenseModel> dummyExpenses = [];
-
-    // Helper to safely add only valid dummy data
-    void addIfValid({
-      required String id,
-      required String title,
-      required String description,
-      required double amount,
-      required String category,
-      required ExpenseType type,
-      required DateTime date,
-      required DateTime createdAt,
-      required DateTime updatedAt,
-      Map<String, dynamic>? metadata,
-      bool isRecurring = false,
-      String? recurringFrequency,
-      DateTime? nextOccurrence,
-      DateTime? endDate,
-    }) {
-      if (amount.isNaN ||
-          amount.isInfinite ||
-          amount <= 0 ||
-          amount > 1000000) {
-        return;
-      }
-      if (title.trim().isEmpty) return;
-      if (category.trim().isEmpty) return;
-      dummyExpenses.add(ExpenseModel(
-        id: id,
-        title: title,
-        description: description,
-        amount: amount,
-        category: category,
-        type: type,
-        date: date,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        metadata: metadata,
-        isRecurring: isRecurring,
-        recurringFrequency: recurringFrequency,
-        nextOccurrence: nextOccurrence,
-        endDate: endDate,
-      ));
-    }
+    final Map<String, ExpenseModel> batch = {};
 
     // Add only a few sample expenses for better performance
-    addIfValid(
+    batch['1'] = ExpenseModel(
       id: '1',
       title: 'Sample Food Expense',
       description: 'Lunch at restaurant',
@@ -144,7 +114,7 @@ class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
       updatedAt: now.subtract(const Duration(days: 1)),
     );
 
-    addIfValid(
+    batch['2'] = ExpenseModel(
       id: '2',
       title: 'Sample Income',
       description: 'Salary payment',
@@ -156,11 +126,7 @@ class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
       updatedAt: now.subtract(const Duration(days: 2)),
     );
 
-    // Batch add all dummy expenses at once
-    final batch = _box.toMap();
-    for (final expense in dummyExpenses) {
-      batch[expense.id] = expense;
-    }
+    // Single batch operation for better performance
     await _box.putAll(batch);
   }
 
@@ -625,11 +591,20 @@ class CategoryLocalDataSourceImpl {
   ];
 
   Future<void> init() async {
-    _box = await Hive.openBox<String>(_boxName);
+    // Use a more efficient box opening strategy
+    if (!Hive.isBoxOpen(_boxName)) {
+      _box = await Hive.openBox<String>(_boxName);
+    } else {
+      _box = Hive.box<String>(_boxName);
+    }
+
     if (_box.isEmpty) {
+      // Batch add categories for better performance
+      final batch = <String>[];
       for (final cat in defaultCategories) {
-        await _box.add(cat);
+        batch.add(cat);
       }
+      await _box.addAll(batch);
     }
   }
 

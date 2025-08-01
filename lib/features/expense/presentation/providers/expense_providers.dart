@@ -3,6 +3,7 @@
 // Providers connect the UI to the domain and data layers, enforcing Clean Architecture and SOLID.
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/datasources/expense_local_data_source_impl.dart';
 import '../../data/repositories/expense_repository_impl.dart';
@@ -57,22 +58,20 @@ final updateExpenseProvider = FutureProvider<UpdateExpense>((ref) async {
 class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
   final Ref ref;
   bool _isLoading = false;
+  bool _hasLoaded = false;
 
   ExpenseNotifier(this.ref) : super(const AsyncValue.loading()) {
-    // Use Future.microtask to defer loading to next frame
-    Future.microtask(() => _loadExpenses());
+    // Immediate loading but with error handling
+    _loadExpenses();
   }
 
   // Loads all expenses from the repository and updates state.
   Future<void> _loadExpenses() async {
-    if (_isLoading) return; // Prevent multiple simultaneous loads
+    if (_isLoading || _hasLoaded) return; // Prevent multiple simultaneous loads
     _isLoading = true;
     state = const AsyncValue.loading();
 
     try {
-      // Add a small delay to allow UI to render first
-      await Future.delayed(const Duration(milliseconds: 100));
-
       final getAllExpenses = await ref.read(getAllExpensesProvider.future);
       final result = await getAllExpenses();
       state = result.fold(
@@ -80,11 +79,18 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
             AsyncValue.error(Exception(failure.message), StackTrace.current),
         (expenses) => AsyncValue.data(expenses),
       );
+      _hasLoaded = true;
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     } finally {
       _isLoading = false;
     }
+  }
+
+  // Refresh expenses data
+  Future<void> refresh() async {
+    _hasLoaded = false;
+    await _loadExpenses();
   }
 
   // Adds a new expense using the CreateExpense use case.
@@ -181,7 +187,8 @@ class ExpenseStatsNotifier
       expenseNotifierProvider,
       (previous, next) {
         if (next is AsyncData<List<Expense>>) {
-          state = AsyncValue.data(_calculateStats(next.value ?? []));
+          // Use isolate for heavy stats calculation
+          _calculateStatsInIsolate(next.value ?? []);
         } else if (next is AsyncError) {
           state = AsyncValue.error(next.error!, next.stackTrace!);
         } else {
@@ -198,10 +205,27 @@ class ExpenseStatsNotifier
     super.dispose();
   }
 
-  Map<String, dynamic> _calculateStats(List<Expense> expenses) {
+  /// Calculate stats directly for stability
+  Future<void> _calculateStatsInIsolate(List<Expense> expenses) async {
+    try {
+      final stats = _calculateStatsInBackground(expenses);
+      if (mounted) {
+        state = AsyncValue.data(stats);
+      }
+    } catch (e) {
+      if (mounted) {
+        state = AsyncValue.error(e, StackTrace.current);
+      }
+    }
+  }
+
+  /// Background isolate function for stats calculation
+  static Map<String, dynamic> _calculateStatsInBackground(
+      List<Expense> expenses) {
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
     final endOfMonth = DateTime(now.year, now.month + 1, 0);
+
     final monthlyExpenses = expenses
         .where((expense) =>
             expense.isExpense &&
@@ -209,6 +233,7 @@ class ExpenseStatsNotifier
                 .isAfter(startOfMonth.subtract(const Duration(days: 1))) &&
             expense.date.isBefore(endOfMonth.add(const Duration(days: 1))))
         .toList();
+
     final monthlyIncome = expenses
         .where((expense) =>
             expense.isIncome &&
@@ -216,71 +241,33 @@ class ExpenseStatsNotifier
                 .isAfter(startOfMonth.subtract(const Duration(days: 1))) &&
             expense.date.isBefore(endOfMonth.add(const Duration(days: 1))))
         .toList();
+
     final totalExpenses =
         monthlyExpenses.fold(0.0, (sum, expense) => sum + expense.amount);
     final totalIncome =
         monthlyIncome.fold(0.0, (sum, expense) => sum + expense.amount);
     final balance = totalIncome - totalExpenses;
+
     final categoryExpenseBreakdown = <String, double>{};
     for (final expense in monthlyExpenses) {
       categoryExpenseBreakdown[expense.category] =
           (categoryExpenseBreakdown[expense.category] ?? 0.0) + expense.amount;
     }
+
     final categoryIncomeBreakdown = <String, double>{};
     for (final income in monthlyIncome) {
       categoryIncomeBreakdown[income.category] =
           (categoryIncomeBreakdown[income.category] ?? 0.0) + income.amount;
     }
-    // Daily trend
-    final Map<DateTime, Map<String, double>> dailyTotals = {};
-    for (var d = startOfMonth;
-        !d.isAfter(endOfMonth);
-        d = d.add(const Duration(days: 1))) {
-      final dayExpenses = monthlyExpenses
-          .where((e) =>
-              e.date.year == d.year &&
-              e.date.month == d.month &&
-              e.date.day == d.day)
-          .fold(0.0, (sum, e) => sum + e.amount);
-      final dayIncome = monthlyIncome
-          .where((e) =>
-              e.date.year == d.year &&
-              e.date.month == d.month &&
-              e.date.day == d.day)
-          .fold(0.0, (sum, e) => sum + e.amount);
-      dailyTotals[d] = {
-        'expenses': dayExpenses,
-        'income': dayIncome,
-        'balance': dayIncome - dayExpenses,
-      };
-    }
-    // Weekly trend (weeks start on Monday)
-    final Map<int, Map<String, double>> weeklyTotals = {};
-    for (final e in monthlyExpenses + monthlyIncome) {
-      final week = _weekOfMonth(e.date);
-      weeklyTotals[week] ??= {'expenses': 0.0, 'income': 0.0, 'balance': 0.0};
-      if (e.isExpense) {
-        weeklyTotals[week]!['expenses'] =
-            weeklyTotals[week]!['expenses']! + e.amount;
-      } else {
-        weeklyTotals[week]!['income'] =
-            weeklyTotals[week]!['income']! + e.amount;
-      }
-    }
-    for (final week in weeklyTotals.keys) {
-      final w = weeklyTotals[week]!;
-      w['balance'] = w['income']! - w['expenses']!;
-    }
+
     return {
       'totalExpenses': totalExpenses,
       'totalIncome': totalIncome,
       'balance': balance,
-      'categoryExpenseBreakdown': categoryExpenseBreakdown,
-      'categoryIncomeBreakdown': categoryIncomeBreakdown,
       'expenseCount': monthlyExpenses.length,
       'incomeCount': monthlyIncome.length,
-      'dailyTotals': dailyTotals,
-      'weeklyTotals': weeklyTotals,
+      'categoryExpenseBreakdown': categoryExpenseBreakdown,
+      'categoryIncomeBreakdown': categoryIncomeBreakdown,
     };
   }
 

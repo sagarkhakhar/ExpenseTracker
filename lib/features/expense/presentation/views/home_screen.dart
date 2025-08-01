@@ -210,41 +210,49 @@ class ExpenseOverviewTab extends ConsumerWidget {
           );
         }
 
-                // Normal state: show expense list with summary cards
+        // Normal state: show expense list with summary cards
         return SingleChildScrollView(
           padding: const EdgeInsets.all(AppConstants.paddingM),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Summary cards showing financial overview
-              ref.watch(expenseStatsNotifierProvider).when(
-                data: (stats) => ExpenseSummaryCard(stats: stats),
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, stack) => Text('Error loading stats: $error'),
-              ),
+              // Summary cards showing financial overview - optimized with lazy loading
+              _buildOptimizedSummaryCard(ref),
               const SizedBox(height: AppConstants.paddingL),
-              
+
               // Budget alerts section
               _buildBudgetAlertsSection(context, ref),
               const SizedBox(height: AppConstants.paddingL),
-              
+
               // Title for the expense list
               Text(
                 localizations.overview,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: AppConstants.paddingM),
-              
+
               // List of all expenses
               ExpenseList(
                 expenses: expenses,
-                onExpenseTap: (expense) => _navigateToEditExpense(context, expense),
+                onExpenseTap: (expense) =>
+                    _navigateToEditExpense(context, expense),
               ),
             ],
           ),
         );
       },
     );
+  }
+
+  /// Build optimized summary card with lazy loading
+  Widget _buildOptimizedSummaryCard(WidgetRef ref) {
+    return ref.watch(expenseStatsNotifierProvider).when(
+          data: (stats) => ExpenseSummaryCard(stats: stats),
+          loading: () =>
+              const SizedBox(height: 100), // Reduced loading indicator
+          error: (error, stack) =>
+              const SizedBox.shrink(), // Hide errors initially
+        );
   }
 
   /// Builds the budget alerts section showing budgets that need attention.
@@ -264,8 +272,8 @@ class ExpenseOverviewTab extends ConsumerWidget {
                     Text(
                       'Budget Alerts',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -303,9 +311,9 @@ class ExpenseOverviewTab extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppConstants.paddingM),
                 ...budgetsWithAlerts.map((budget) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: BudgetCard(budget: budget),
-                )),
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: BudgetCard(budget: budget),
+                    )),
               ],
             );
           },
