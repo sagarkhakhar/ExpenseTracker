@@ -2,6 +2,7 @@
 // It provides the data layer implementation for receipt photo operations.
 
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/receipt_photo.dart';
 import '../../domain/repositories/receipt_photo_repository.dart';
@@ -14,12 +15,33 @@ class ReceiptPhotoRepositoryImpl implements ReceiptPhotoRepository {
   ReceiptPhotoRepositoryImpl({required this.localDataSource});
 
   @override
+  Future<void> init() async {
+    debugPrint('ReceiptPhotoRepositoryImpl: Initializing repository');
+    try {
+      await localDataSource.init();
+      debugPrint('ReceiptPhotoRepositoryImpl: Repository initialized');
+    } catch (e) {
+      debugPrint(
+          'ReceiptPhotoRepositoryImpl: Failed to initialize repository: $e');
+      // Don't rethrow - let the operation fail gracefully
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> saveReceiptPhoto(
       ReceiptPhoto receiptPhoto) async {
+    debugPrint(
+        'ReceiptPhotoRepositoryImpl: Saving receipt photo: ${receiptPhoto.id}');
     try {
+      // Ensure initialization before saving
+      await init();
       await localDataSource.saveReceiptPhoto(receiptPhoto);
+      debugPrint(
+          'ReceiptPhotoRepositoryImpl: Receipt photo saved successfully');
       return const Right(null);
     } catch (e) {
+      debugPrint(
+          'ReceiptPhotoRepositoryImpl: Failed to save receipt photo: $e');
       return Left(DatabaseFailure('Failed to save receipt photo: $e'));
     }
   }

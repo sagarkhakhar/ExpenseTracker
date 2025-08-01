@@ -58,5 +58,16 @@
   "tipCategorySpike": "Gasto elevado en '{category}'. Considera revisar esta categoría.",
   "tipNegativeBalance": "Tu balance es negativo. Intenta reducir gastos o aumentar ingresos.",
   "tipFewExpenses": "Agrega más gastos para obtener mejores consejos e información.",
-  "tipAllGood": "¡Buen trabajo! Tu gasto está bajo control este mes."
+  "tipAllGood": "¡Buen trabajo! Tu gasto está bajo control este mes.",
+  "receiptPhotos": "Fotos de Recibos",
+  "camera": "Cámara",
+  "gallery": "Galería",
+  "photoCapturedSuccessfully": "¡Foto capturada exitosamente!",
+  "photoDeletedSuccessfully": "¡Foto eliminada exitosamente!",
+  "failedToCapturePhoto": "Error al capturar la foto",
+  "failedToDeletePhoto": "Error al eliminar la foto",
+  "fileSizeTooLarge": "El archivo es demasiado grande. El tamaño máximo es 10MB.",
+  "unsupportedFileType": "Tipo de archivo no soportado. Por favor selecciona una imagen JPEG o PNG.",
+  "noPhotos": "No hay fotos adjuntas",
+  "photosAttached": "{count} fotos adjuntas"
 } 

@@ -12,11 +12,18 @@ import '../../domain/usecases/get_photos_for_expense.dart';
 import '../../domain/services/photo_service.dart';
 import '../../data/repositories/receipt_photo_repository_impl.dart';
 import '../../data/datasources/receipt_photo_local_data_source.dart';
+import 'package:flutter/foundation.dart';
 
 // Repository provider
 final receiptPhotoRepositoryProvider = Provider<ReceiptPhotoRepository>((ref) {
   final localDataSource = ReceiptPhotoLocalDataSourceImpl();
-  return ReceiptPhotoRepositoryImpl(localDataSource: localDataSource);
+  final repository =
+      ReceiptPhotoRepositoryImpl(localDataSource: localDataSource);
+
+  // Don't initialize here - let it be initialized when first used
+  // This prevents initialization errors during widget building
+
+  return repository;
 });
 
 // Use case providers
@@ -101,9 +108,15 @@ class PhotoCaptureNotifier
     required String mimeType,
     required DateTime capturedAt,
   }) async {
+    debugPrint('PhotoCaptureNotifier: Starting capture photo process');
+    debugPrint(
+        'PhotoCaptureNotifier: expenseId=$expenseId, filePath=$filePath, fileName=$fileName');
+
     state = const AsyncValue.loading();
+    debugPrint('PhotoCaptureNotifier: State set to loading');
 
     try {
+      debugPrint('PhotoCaptureNotifier: Calling capture photo use case');
       final result = await _capturePhoto(
         expenseId: expenseId,
         filePath: filePath,
@@ -113,13 +126,19 @@ class PhotoCaptureNotifier
         capturedAt: capturedAt,
       );
 
+      debugPrint(
+          'PhotoCaptureNotifier: Use case completed with result: $result');
       state = AsyncValue.data(result);
+      debugPrint('PhotoCaptureNotifier: State updated with result');
     } catch (e) {
+      debugPrint('PhotoCaptureNotifier: Error occurred: $e');
       state = AsyncValue.error(e, StackTrace.current);
+      debugPrint('PhotoCaptureNotifier: State set to error');
     }
   }
 
   void reset() {
+    debugPrint('PhotoCaptureNotifier: Resetting state');
     state = const AsyncValue.data(null);
   }
 }

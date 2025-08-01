@@ -41,6 +41,9 @@ dependencies:
   # Permissions
   permission_handler: ^11.3.1
 
+  # Device Info
+  device_info_plus: ^9.1.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

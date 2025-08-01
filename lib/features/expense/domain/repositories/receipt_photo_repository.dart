@@ -9,6 +9,9 @@ import '../entities/receipt_photo.dart';
 /// Interface for repository operations related to receipt photos.
 /// Implemented by a concrete class (e.g., using local storage).
 abstract class ReceiptPhotoRepository {
+  /// Initialize the repository (e.g., open database connections).
+  Future<void> init();
+
   /// Save a receipt photo to storage.
   Future<Either<Failure, void>> saveReceiptPhoto(ReceiptPhoto receiptPhoto);
 

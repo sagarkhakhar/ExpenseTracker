@@ -195,37 +195,37 @@ class AppLocalizationsEs extends AppLocalizations {
   String get tipAllGood => '¡Buen trabajo! Tu gasto está bajo control este mes.';
 
   @override
-  String get receiptPhotos => 'Receipt Photos';
+  String get receiptPhotos => 'Fotos de Recibos';
 
   @override
-  String get camera => 'Camera';
+  String get camera => 'Cámara';
 
   @override
-  String get gallery => 'Gallery';
+  String get gallery => 'Galería';
 
   @override
-  String get photoCapturedSuccessfully => 'Photo captured successfully!';
+  String get photoCapturedSuccessfully => '¡Foto capturada exitosamente!';
 
   @override
-  String get photoDeletedSuccessfully => 'Photo deleted successfully!';
+  String get photoDeletedSuccessfully => '¡Foto eliminada exitosamente!';
 
   @override
-  String get failedToCapturePhoto => 'Failed to capture photo';
+  String get failedToCapturePhoto => 'Error al capturar la foto';
 
   @override
-  String get failedToDeletePhoto => 'Failed to delete photo';
+  String get failedToDeletePhoto => 'Error al eliminar la foto';
 
   @override
-  String get fileSizeTooLarge => 'File size too large. Maximum size is 10MB.';
+  String get fileSizeTooLarge => 'El archivo es demasiado grande. El tamaño máximo es 10MB.';
 
   @override
-  String get unsupportedFileType => 'Unsupported file type. Please select a JPEG or PNG image.';
+  String get unsupportedFileType => 'Tipo de archivo no soportado. Por favor selecciona una imagen JPEG o PNG.';
 
   @override
-  String get noPhotos => 'No photos attached';
+  String get noPhotos => 'No hay fotos adjuntas';
 
   @override
   String photosAttached(Object count) {
-    return '$count photos attached';
+    return '$count fotos adjuntas';
   }
 }

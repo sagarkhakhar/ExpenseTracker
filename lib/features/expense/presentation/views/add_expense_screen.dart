@@ -7,7 +7,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/expense.dart';
 import '../providers/expense_providers.dart';
+import '../providers/photo_providers.dart';
 import '../widgets/photo_capture_widget.dart';
+import '../widgets/photo_display_widget.dart';
 import '../../../../shared/widgets/platform_widgets.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -188,8 +190,36 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
               endDate: _isRecurring ? _endDate : null,
             );
 
-        // TODO: Update photos from temp ID to real expense ID after expense creation
-        // This would require a method to update photo expense IDs
+        // Update photos from temp ID to real expense ID after expense creation
+        // We'll need to get the newly created expense ID from the state
+        if (_tempExpenseId != null) {
+          try {
+            // Get the most recently created expense to find its ID
+            final expenses = ref.read(expenseNotifierProvider).value;
+            if (expenses != null && expenses.isNotEmpty) {
+              // Find the expense that matches our form data
+              final newExpense = expenses.firstWhere(
+                (expense) =>
+                    expense.title == _titleController.text.trim() &&
+                    expense.amount ==
+                        (double.tryParse(_amountController.text.trim()) ??
+                            0.0) &&
+                    expense.category == _category &&
+                    expense.type == _type &&
+                    expense.date.year == _date.year &&
+                    expense.date.month == _date.month &&
+                    expense.date.day == _date.day,
+                orElse: () =>
+                    expenses.first, // Fallback to first expense if not found
+              );
+
+              await _migratePhotosFromTempId(_tempExpenseId!, newExpense.id);
+            }
+          } catch (e) {
+            // Log error but don't fail the expense creation
+            debugPrint('Failed to migrate photos: $e');
+          }
+        }
       }
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
@@ -201,6 +231,57 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  /// Migrate photos from temporary expense ID to real expense ID
+  Future<void> _migratePhotosFromTempId(
+      String tempExpenseId, String realExpenseId) async {
+    try {
+      final photoRepository = ref.read(receiptPhotoRepositoryProvider);
+      final photos =
+          await photoRepository.getReceiptPhotosForExpense(tempExpenseId);
+
+      photos.fold(
+        (failure) => debugPrint(
+            'Failed to get photos for migration: ${failure.message}'),
+        (photosList) async {
+          for (final photo in photosList) {
+            // Create new photo with real expense ID
+            final updatedPhoto = photo.copyWith(
+              id: _generatePhotoId(),
+              expenseId: realExpenseId,
+              updatedAt: DateTime.now(),
+            );
+
+            // Save new photo and delete old one
+            final saveResult =
+                await photoRepository.saveReceiptPhoto(updatedPhoto);
+            saveResult.fold(
+              (failure) => debugPrint(
+                  'Failed to save migrated photo: ${failure.message}'),
+              (_) async {
+                final deleteResult =
+                    await photoRepository.deleteReceiptPhoto(photo.id);
+                deleteResult.fold(
+                  (failure) => debugPrint(
+                      'Failed to delete old photo: ${failure.message}'),
+                  (_) => debugPrint(
+                      'Successfully migrated photo: ${photo.fileName}'),
+                );
+              },
+            );
+          }
+        },
+      );
+    } catch (e) {
+      debugPrint('Error during photo migration: $e');
+    }
+  }
+
+  /// Generate a unique photo ID for migration
+  String _generatePhotoId() {
+    return DateTime.now().millisecondsSinceEpoch.toString() +
+        (1000 + (DateTime.now().microsecond % 9000)).toString();
   }
 
   @override
@@ -417,6 +498,43 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
         const SizedBox(height: AppConstants.paddingM),
         PhotoCaptureWidget(
           expenseId: _tempExpenseId!,
+          onPhotoCaptured: () {
+            // Refresh the form or show success message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(localizations.photoCapturedSuccessfully ??
+                    'Photo captured successfully!'),
+                backgroundColor: Theme.of(context).colorScheme.primary,
+              ),
+            );
+          },
+          onError: () {
+            // Error handling is done in the widget
+          },
+        ),
+      ],
+      // Photo display section (for both new and existing expenses)
+      if (widget.expense != null) ...[
+        const SizedBox(height: AppConstants.paddingM),
+        PhotoDisplayWidget(
+          expenseId: widget.expense!.id,
+          onPhotoDeleted: () {
+            // Refresh the form or show success message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(localizations.photoDeletedSuccessfully ??
+                    'Photo deleted successfully!'),
+                backgroundColor: Theme.of(context).colorScheme.primary,
+              ),
+            );
+          },
+        ),
+      ],
+      // Photo capture section for existing expenses (to add more photos)
+      if (widget.expense != null) ...[
+        const SizedBox(height: AppConstants.paddingM),
+        PhotoCaptureWidget(
+          expenseId: widget.expense!.id,
           onPhotoCaptured: () {
             // Refresh the form or show success message
             ScaffoldMessenger.of(context).showSnackBar(
