@@ -54,7 +54,8 @@ void main() {
       final result = await useCase(query);
 
       // Assert
-      expect(result, const Right([]));
+      expect(result, isA<Right<Failure, List<Expense>>>());
+      expect(result.fold((l) => null, (r) => r), equals([]));
       verifyNever(() => mockRepository.searchByText(any()));
     });
 
@@ -66,7 +67,8 @@ void main() {
       final result = await useCase(query);
 
       // Assert
-      expect(result, const Right([]));
+      expect(result, isA<Right<Failure, List<Expense>>>());
+      expect(result.fold((l) => null, (r) => r), equals([]));
       verifyNever(() => mockRepository.searchByText(any()));
     });
 

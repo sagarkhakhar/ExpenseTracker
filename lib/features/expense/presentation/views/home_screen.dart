@@ -13,6 +13,7 @@ import '../widgets/expense_list.dart';
 import '../widgets/add_expense_fab.dart';
 import 'stats_screen.dart';
 import 'add_expense_screen.dart';
+import 'filter_screen.dart';
 import '../../../../shared/widgets/platform_widgets.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../budget/presentation/providers/budget_providers.dart';
@@ -62,7 +63,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         tabBuilder: (context, index) {
           return CupertinoTabView(
-            builder: (context) => _screens[index],
+            builder: (context) => CupertinoPageScaffold(
+              navigationBar: index == 0
+                  ? CupertinoNavigationBar(
+                      middle: Text(localizations.appTitle),
+                      trailing: CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            CupertinoPageRoute(
+                              builder: (context) => const FilterScreen(),
+                            ),
+                          );
+                        },
+                        child: const Icon(CupertinoIcons.search),
+                      ),
+                    )
+                  : null,
+              child: _screens[index],
+            ),
           );
         },
       );
@@ -80,9 +99,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     icon: PlatformWidgets.isIOS
                         ? CupertinoIcons.search
                         : Icons.filter_list,
-                    tooltip: localizations.overview,
+                    tooltip: 'Filter Expenses',
                     onPressed: () {
-                      // TODO: Implement filter functionality
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const FilterScreen(),
+                        ),
+                      );
                     },
                   ),
                 ],

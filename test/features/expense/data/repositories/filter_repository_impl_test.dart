@@ -183,7 +183,8 @@ void main() {
         final result = await repository.getAvailableExpenseTypes();
 
         // Assert
-        expect(result, Right(['expense']));
+        expect(result, isA<Right<Failure, List<String>>>());
+        expect(result.fold((l) => null, (r) => r), equals(['expense']));
         verify(() => mockLocalDataSource.getAllExpenses()).called(1);
         verify(() => mockFilterService.getAvailableExpenseTypes(any()))
             .called(1);
@@ -319,7 +320,9 @@ void main() {
         final result = await repository.getExpensesByDateRange(start, end);
 
         // Assert
-        expect(result, Right(testExpenses.map((e) => e.toEntity()).toList()));
+        expect(result, isA<Right<Failure, List<Expense>>>());
+        expect(result.fold((l) => null, (r) => r),
+            equals(testExpenses.map((e) => e.toEntity()).toList()));
         verify(() => mockLocalDataSource.getExpensesByDateRange(start, end))
             .called(1);
       });
@@ -420,7 +423,9 @@ void main() {
         final result = await repository.getExpensesByType('expense');
 
         // Assert
-        expect(result, Right(testExpenses.map((e) => e.toEntity()).toList()));
+        expect(result, isA<Right<Failure, List<Expense>>>());
+        expect(result.fold((l) => null, (r) => r),
+            equals(testExpenses.map((e) => e.toEntity()).toList()));
         verify(() => mockLocalDataSource.getExpensesByType(ExpenseType.expense))
             .called(1);
       });
