@@ -2,6 +2,7 @@
 // It is responsible for all low-level data access and persistence.
 
 import 'package:hive/hive.dart';
+import 'package:flutter/foundation.dart';
 
 import '../models/expense_model.dart';
 import '../../domain/entities/expense.dart';
@@ -20,15 +21,21 @@ class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
   /// Initialize the data source by opening the Hive box.
   @override
   Future<void> init() async {
+    debugPrint('Initializing ExpenseLocalDataSourceImpl...');
     // Use a more efficient box opening strategy
     if (!Hive.isBoxOpen(boxName)) {
       _box = await Hive.openBox<ExpenseModel>(boxName);
+      debugPrint('Opened new Hive box: $boxName');
     } else {
       _box = Hive.box<ExpenseModel>(boxName);
+      debugPrint('Using existing Hive box: $boxName');
     }
+
+    debugPrint('Box contains ${_box.length} items');
 
     // Seed minimal data if empty
     await seedMinimalDummyDataIfEmpty();
+    debugPrint('After seeding: Box contains ${_box.length} items');
   }
 
   /// Get all expenses and income records from local storage.

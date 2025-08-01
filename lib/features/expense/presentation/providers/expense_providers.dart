@@ -72,15 +72,25 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
     state = const AsyncValue.loading();
 
     try {
+      debugPrint('Loading expenses...');
       final getAllExpenses = await ref.read(getAllExpensesProvider.future);
+      debugPrint('Got getAllExpenses use case');
       final result = await getAllExpenses();
+      debugPrint('Got result: ${result.isRight()}');
       state = result.fold(
-        (failure) =>
-            AsyncValue.error(Exception(failure.message), StackTrace.current),
-        (expenses) => AsyncValue.data(expenses),
+        (failure) {
+          debugPrint('Failure: ${failure.message}');
+          return AsyncValue.error(
+              Exception(failure.message), StackTrace.current);
+        },
+        (expenses) {
+          debugPrint('Success: ${expenses.length} expenses loaded');
+          return AsyncValue.data(expenses);
+        },
       );
       _hasLoaded = true;
     } catch (e, st) {
+      debugPrint('Exception in _loadExpenses: $e');
       state = AsyncValue.error(e, st);
     } finally {
       _isLoading = false;
