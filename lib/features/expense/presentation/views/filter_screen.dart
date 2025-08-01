@@ -143,6 +143,9 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                   controller: _searchController,
                   onSearchChanged: (query) {
                     // Real-time search updates
+                    ref
+                        .read(filteredExpensesProvider.notifier)
+                        .searchExpenses(query);
                   },
                 ),
                 const SizedBox(height: 16),

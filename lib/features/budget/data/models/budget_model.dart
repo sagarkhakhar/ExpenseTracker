@@ -3,7 +3,7 @@ import '../../domain/entities/budget.dart';
 
 part 'budget_model.g.dart';
 
-@HiveType(typeId: 4)
+@HiveType(typeId: 9)
 class BudgetModel extends HiveObject {
   @HiveField(0)
   final String id;

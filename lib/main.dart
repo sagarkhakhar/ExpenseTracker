@@ -49,7 +49,7 @@ void _registerHiveAdapters() {
   if (!Hive.isAdapterRegistered(1)) {
     Hive.registerAdapter(ExpenseTypeAdapter());
   }
-  if (!Hive.isAdapterRegistered(4)) {
+  if (!Hive.isAdapterRegistered(9)) {
     Hive.registerAdapter(BudgetModelAdapter());
   }
   if (!Hive.isAdapterRegistered(3)) {
