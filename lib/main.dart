@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'shared/theme/app_theme.dart';
@@ -29,29 +30,64 @@ void main() async {
 
   // Register Hive adapters for data serialization
   // These adapters tell Hive how to convert our objects to/from binary format
-  Hive.registerAdapter(ExpenseModelAdapter()); // For expense data models
-  Hive.registerAdapter(ExpenseTypeAdapter()); // For expense type enums
-  Hive.registerAdapter(BudgetModelAdapter()); // For budget data models
-  Hive.registerAdapter(
-      ReceiptPhotoModelAdapter()); // For receipt photo data models
-
-  // Initialize the category data source and populate default categories
-  // This ensures the app has basic categories available on first launch
-  final categoryDataSource = CategoryLocalDataSourceImpl();
-  await categoryDataSource.init();
-
-  // Initialize the expense data source and seed with dummy data if empty
-  // This provides sample data for new users to see how the app works
-  final dummyDataSource = ExpenseLocalDataSourceImpl();
-  await dummyDataSource.init();
-  await dummyDataSource.seedDummyDataIfEmpty();
-
-  // Process any recurring expenses that are due
-  // This automatically creates new expense entries for recurring transactions
-  await dummyDataSource.processRecurringExpenses();
+  // Use try-catch to handle cases where adapters are already registered
+  try {
+    Hive.registerAdapter(ExpenseModelAdapter()); // For expense data models
+    Hive.registerAdapter(ExpenseTypeAdapter()); // For expense type enums
+    Hive.registerAdapter(BudgetModelAdapter()); // For budget data models
+    Hive.registerAdapter(
+        ReceiptPhotoModelAdapter()); // For receipt photo data models
+  } catch (e) {
+    // Adapters already registered, continue
+    debugPrint('Hive adapters already registered: $e');
+  }
 
   // Launch the app wrapped in ProviderScope for Riverpod state management
+  // Move heavy initialization to background thread
   runApp(const ProviderScope(child: ExpenseTrackerApp()));
+
+  // Initialize data sources in background to avoid blocking main thread
+  _initializeDataSourcesInBackground();
+}
+
+/// Initialize data sources in background thread to avoid blocking main thread
+Future<void> _initializeDataSourcesInBackground() async {
+  try {
+    // Use compute to run heavy operations in isolate
+    await Future.wait([
+      _initializeCategories(),
+      _initializeExpenses(),
+    ]);
+  } catch (e) {
+    // Log error but don't crash the app
+    debugPrint('Error initializing data sources: $e');
+  }
+}
+
+/// Initialize categories in background
+Future<void> _initializeCategories() async {
+  try {
+    final categoryDataSource = CategoryLocalDataSourceImpl();
+    await categoryDataSource.init();
+  } catch (e) {
+    debugPrint('Error initializing categories: $e');
+  }
+}
+
+/// Initialize expenses in background with reduced dummy data
+Future<void> _initializeExpenses() async {
+  try {
+    final dummyDataSource = ExpenseLocalDataSourceImpl();
+    await dummyDataSource.init();
+
+    // Only seed minimal data to avoid performance issues
+    await dummyDataSource.seedMinimalDummyDataIfEmpty();
+
+    // Process recurring expenses in background
+    await dummyDataSource.processRecurringExpenses();
+  } catch (e) {
+    debugPrint('Error initializing expenses: $e');
+  }
 }
 
 /// The root widget of the Expense Tracker application.

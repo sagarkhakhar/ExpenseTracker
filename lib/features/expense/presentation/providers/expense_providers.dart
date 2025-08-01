@@ -56,14 +56,23 @@ final updateExpenseProvider = FutureProvider<UpdateExpense>((ref) async {
 // State Notifier for managing the list of expenses (ViewModel for expenses)
 class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
   final Ref ref;
+  bool _isLoading = false;
+
   ExpenseNotifier(this.ref) : super(const AsyncValue.loading()) {
-    _loadExpenses();
+    // Use Future.microtask to defer loading to next frame
+    Future.microtask(() => _loadExpenses());
   }
 
   // Loads all expenses from the repository and updates state.
   Future<void> _loadExpenses() async {
+    if (_isLoading) return; // Prevent multiple simultaneous loads
+    _isLoading = true;
     state = const AsyncValue.loading();
+
     try {
+      // Add a small delay to allow UI to render first
+      await Future.delayed(const Duration(milliseconds: 100));
+
       final getAllExpenses = await ref.read(getAllExpensesProvider.future);
       final result = await getAllExpenses();
       state = result.fold(
@@ -73,6 +82,8 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
       );
     } catch (e, st) {
       state = AsyncValue.error(e, st);
+    } finally {
+      _isLoading = false;
     }
   }
 

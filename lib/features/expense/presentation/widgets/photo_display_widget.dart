@@ -36,7 +36,8 @@ class PhotoDisplayWidget extends ConsumerWidget {
         return _buildPhotosSection(context, ref, photos, photoDeletionState);
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => _buildErrorSection(context, error.toString()),
+      error: (error, stack) =>
+          _buildErrorSection(context, ref, error.toString()),
     );
   }
 
@@ -236,7 +237,7 @@ class PhotoDisplayWidget extends ConsumerWidget {
   }
 
   /// Build error section
-  Widget _buildErrorSection(BuildContext context, String error) {
+  Widget _buildErrorSection(BuildContext context, WidgetRef ref, String error) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

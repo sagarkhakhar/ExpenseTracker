@@ -8,7 +8,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
 import '../../../../l10n/app_localizations.dart';
 import '../providers/photo_providers.dart';
-import '../../../../core/errors/failures.dart';
 
 /// Widget for capturing photos from camera or gallery.
 /// Provides buttons to select camera or gallery and handles the capture process.

@@ -81,6 +81,89 @@ class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
     await _box.clear();
   }
 
+  /// Seeds the box with minimal dummy data if empty (performance optimized)
+  Future<void> seedMinimalDummyDataIfEmpty() async {
+    if (_box.isNotEmpty) return;
+
+    final now = DateTime.now();
+    final List<ExpenseModel> dummyExpenses = [];
+
+    // Helper to safely add only valid dummy data
+    void addIfValid({
+      required String id,
+      required String title,
+      required String description,
+      required double amount,
+      required String category,
+      required ExpenseType type,
+      required DateTime date,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Map<String, dynamic>? metadata,
+      bool isRecurring = false,
+      String? recurringFrequency,
+      DateTime? nextOccurrence,
+      DateTime? endDate,
+    }) {
+      if (amount.isNaN ||
+          amount.isInfinite ||
+          amount <= 0 ||
+          amount > 1000000) {
+        return;
+      }
+      if (title.trim().isEmpty) return;
+      if (category.trim().isEmpty) return;
+      dummyExpenses.add(ExpenseModel(
+        id: id,
+        title: title,
+        description: description,
+        amount: amount,
+        category: category,
+        type: type,
+        date: date,
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+        metadata: metadata,
+        isRecurring: isRecurring,
+        recurringFrequency: recurringFrequency,
+        nextOccurrence: nextOccurrence,
+        endDate: endDate,
+      ));
+    }
+
+    // Add only a few sample expenses for better performance
+    addIfValid(
+      id: '1',
+      title: 'Sample Food Expense',
+      description: 'Lunch at restaurant',
+      amount: 25.50,
+      category: 'food',
+      type: ExpenseType.expense,
+      date: now.subtract(const Duration(days: 1)),
+      createdAt: now.subtract(const Duration(days: 1)),
+      updatedAt: now.subtract(const Duration(days: 1)),
+    );
+
+    addIfValid(
+      id: '2',
+      title: 'Sample Income',
+      description: 'Salary payment',
+      amount: 2500.00,
+      category: 'other',
+      type: ExpenseType.income,
+      date: now.subtract(const Duration(days: 2)),
+      createdAt: now.subtract(const Duration(days: 2)),
+      updatedAt: now.subtract(const Duration(days: 2)),
+    );
+
+    // Batch add all dummy expenses at once
+    final batch = _box.toMap();
+    for (final expense in dummyExpenses) {
+      batch[expense.id] = expense;
+    }
+    await _box.putAll(batch);
+  }
+
   /// Seeds the box with dummy data for all categories and types if empty
   Future<void> seedDummyDataIfEmpty() async {
     if (_box.isNotEmpty) return;

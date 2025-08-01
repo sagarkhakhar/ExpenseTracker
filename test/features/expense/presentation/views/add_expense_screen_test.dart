@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/features/expense/presentation/views/add_expense_screen.dart';
-import 'package:expense_tracker/shared/widgets/platform_widgets.dart';
+
 import 'package:expense_tracker/l10n/app_localizations.dart';
 import 'package:hive/hive.dart';
 import 'dart:io';
