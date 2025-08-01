@@ -34,7 +34,7 @@ class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
     debugPrint('Box contains ${_box.length} items');
 
     // Seed minimal data if empty
-    await seedMinimalDummyDataIfEmpty();
+    await seedComprehensiveDummyDataIfEmpty();
     debugPrint('After seeding: Box contains ${_box.length} items');
   }
 
@@ -101,40 +101,519 @@ class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
     await _box.clear();
   }
 
-  /// Seeds the box with minimal dummy data if empty (performance optimized)
-  Future<void> seedMinimalDummyDataIfEmpty() async {
-    if (_box.isNotEmpty) return;
+  /// Seed comprehensive dummy data for thorough widget testing
+  Future<void> seedComprehensiveDummyDataIfEmpty() async {
+    // Force reseed for testing - clear existing data first
+    if (_box.isNotEmpty) {
+      debugPrint('Clearing existing expense data for fresh seeding...');
+      await _box.clear();
+    }
 
+    debugPrint('Seeding comprehensive dummy data for widget testing...');
     final now = DateTime.now();
-    final Map<String, ExpenseModel> batch = {};
+    final List<ExpenseModel> dummyExpenses = [];
 
-    // Add only a few sample expenses for better performance
-    batch['1'] = ExpenseModel(
-      id: '1',
-      title: 'Sample Food Expense',
-      description: 'Lunch at restaurant',
-      amount: 25.50,
+    // Helper function to capitalize first letter
+    String capitalize(String text) {
+      if (text.isEmpty) return text;
+      return text[0].toUpperCase() + text.substring(1);
+    }
+
+    // Helper function to add expense with validation
+    void addIfValid({
+      required String id,
+      required String title,
+      required String description,
+      required double amount,
+      required String category,
+      required ExpenseType type,
+      required DateTime date,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      bool isRecurring = false,
+      String? recurringFrequency,
+      DateTime? nextOccurrence,
+      DateTime? endDate,
+      Map<String, dynamic>? metadata,
+    }) {
+      try {
+        final expense = ExpenseModel(
+          id: id,
+          title: title,
+          description: description,
+          amount: amount,
+          category: category,
+          type: type,
+          date: date,
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+          isRecurring: isRecurring,
+          recurringFrequency: recurringFrequency,
+          nextOccurrence: nextOccurrence,
+          endDate: endDate,
+          metadata: metadata,
+        );
+        dummyExpenses.add(expense);
+      } catch (e) {
+        debugPrint('Failed to create expense $id: $e');
+      }
+    }
+
+    // All available categories for comprehensive testing
+    final allCategories = [
+      'food',
+      'transport',
+      'entertainment',
+      'shopping',
+      'health',
+      'education',
+      'bills',
+      'salary',
+      'investments',
+      'gifts',
+      'pets',
+      'travel',
+      'home',
+      'technology',
+      'sports',
+      'beauty',
+      'books',
+      'charity',
+      'insurance',
+      'taxes'
+    ];
+
+    int id = 1;
+
+    // 1. REGULAR EXPENSES - All categories with realistic data
+    for (final cat in allCategories) {
+      // Regular expenses
+      addIfValid(
+        id: (id++).toString(),
+        title: '${capitalize(cat)} Expense',
+        description: 'Regular ${cat} expense for testing',
+        amount: 25.0 + (id % 100),
+        category: cat,
+        type: ExpenseType.expense,
+        date: now.subtract(Duration(days: id % 30)),
+        createdAt: now.subtract(Duration(days: id % 30)),
+        updatedAt: now.subtract(Duration(days: id % 30)),
+      );
+
+      // Income entries
+      if (['salary', 'investments', 'gifts'].contains(cat)) {
+        addIfValid(
+          id: (id++).toString(),
+          title: '${capitalize(cat)} Income',
+          description: 'Income from ${cat}',
+          amount: 500.0 + (id % 1000),
+          category: cat,
+          type: ExpenseType.income,
+          date: now.subtract(Duration(days: id % 30)),
+          createdAt: now.subtract(Duration(days: id % 30)),
+          updatedAt: now.subtract(Duration(days: id % 30)),
+        );
+      }
+    }
+
+    // 2. RECURRING EXPENSES - Various frequencies
+    final recurringCategories = ['bills', 'subscriptions', 'rent', 'insurance'];
+    for (final cat in recurringCategories) {
+      addIfValid(
+        id: (id++).toString(),
+        title: 'Monthly ${capitalize(cat)}',
+        description: 'Recurring monthly ${cat} payment',
+        amount: 100.0 + (id % 200),
+        category: cat,
+        type: ExpenseType.expense,
+        date: now.subtract(Duration(days: 15)),
+        createdAt: now.subtract(Duration(days: 30)),
+        updatedAt: now.subtract(Duration(days: 15)),
+        isRecurring: true,
+        recurringFrequency: 'monthly',
+        nextOccurrence: now.add(const Duration(days: 15)),
+        endDate: now.add(const Duration(days: 365)),
+      );
+
+      addIfValid(
+        id: (id++).toString(),
+        title: 'Weekly ${capitalize(cat)}',
+        description: 'Recurring weekly ${cat} payment',
+        amount: 25.0 + (id % 50),
+        category: cat,
+        type: ExpenseType.expense,
+        date: now.subtract(const Duration(days: 7)),
+        createdAt: now.subtract(const Duration(days: 14)),
+        updatedAt: now.subtract(const Duration(days: 7)),
+        isRecurring: true,
+        recurringFrequency: 'weekly',
+        nextOccurrence: now.add(const Duration(days: 7)),
+        endDate: now.add(const Duration(days: 365)),
+      );
+    }
+
+    // 3. EDGE CASES - Amount ranges
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Micro Transaction',
+      description: 'Very small amount test',
+      amount: 0.01,
+      category: 'other',
+      type: ExpenseType.expense,
+      date: now,
+      createdAt: now,
+      updatedAt: now,
+    );
+
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Large Purchase',
+      description: 'High value transaction',
+      amount: 9999.99,
+      category: 'technology',
+      type: ExpenseType.expense,
+      date: now.subtract(const Duration(days: 5)),
+      createdAt: now.subtract(const Duration(days: 5)),
+      updatedAt: now.subtract(const Duration(days: 5)),
+    );
+
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Million Dollar Deal',
+      description: 'Extreme amount test',
+      amount: 1000000.00,
+      category: 'investments',
+      type: ExpenseType.income,
+      date: now.subtract(const Duration(days: 10)),
+      createdAt: now.subtract(const Duration(days: 10)),
+      updatedAt: now.subtract(const Duration(days: 10)),
+    );
+
+    // 4. DATE EDGE CASES - Various time periods
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Future Expense',
+      description: 'Expense scheduled for future',
+      amount: 150.00,
+      category: 'travel',
+      type: ExpenseType.expense,
+      date: now.add(const Duration(days: 30)),
+      createdAt: now,
+      updatedAt: now,
+    );
+
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Historical Expense',
+      description: 'Very old expense',
+      amount: 50.00,
+      category: 'education',
+      type: ExpenseType.expense,
+      date: now.subtract(const Duration(days: 365)),
+      createdAt: now.subtract(const Duration(days: 365)),
+      updatedAt: now.subtract(const Duration(days: 365)),
+    );
+
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Today\'s Expense',
+      description: 'Expense from today',
+      amount: 75.00,
+      category: 'food',
+      type: ExpenseType.expense,
+      date: now,
+      createdAt: now,
+      updatedAt: now,
+    );
+
+    // 5. SPECIAL CHARACTERS AND EMOJIS
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Groceries 🛒🥦',
+      description: 'Bought milk, eggs, and bread! #breakfast 🍞🥚',
+      amount: 55.55,
+      category: 'food',
+      type: ExpenseType.expense,
+      date: now,
+      createdAt: now,
+      updatedAt: now,
+    );
+
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Travel ✈️🌍',
+      description: 'Flight tickets to Paris 🇫🇷',
+      amount: 1200.00,
+      category: 'travel',
+      type: ExpenseType.expense,
+      date: now.subtract(const Duration(days: 3)),
+      createdAt: now.subtract(const Duration(days: 3)),
+      updatedAt: now.subtract(const Duration(days: 3)),
+    );
+
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Gym Membership 💪',
+      description: 'Monthly fitness subscription',
+      amount: 89.99,
+      category: 'health',
+      type: ExpenseType.expense,
+      date: now.subtract(const Duration(days: 7)),
+      createdAt: now.subtract(const Duration(days: 7)),
+      updatedAt: now.subtract(const Duration(days: 7)),
+    );
+
+    // 6. LONG TEXT EDGE CASES
+    addIfValid(
+      id: (id++).toString(),
+      title:
+          'Very Long Title That Should Test UI Layout and Text Wrapping Capabilities in the Expense List Widget',
+      description:
+          'This is a very long description that should test how the UI handles long text content. It includes multiple sentences and should wrap properly in the expense detail view. The description should be long enough to test text overflow handling and ensure the UI remains responsive and readable.',
+      amount: 123.45,
+      category: 'other',
+      type: ExpenseType.expense,
+      date: now,
+      createdAt: now,
+      updatedAt: now,
+    );
+
+    // 7. DUPLICATE DATES - Multiple expenses on same day
+    final sameDate = now.subtract(const Duration(days: 2));
+    for (int i = 1; i <= 5; i++) {
+      addIfValid(
+        id: (id++).toString(),
+        title: 'Same Day Expense $i',
+        description: 'Multiple expenses on same day - test $i',
+        amount: 10.0 * i,
+        category: 'food',
+        type: ExpenseType.expense,
+        date: sameDate,
+        createdAt: sameDate,
+        updatedAt: sameDate,
+      );
+    }
+
+    // 8. CATEGORY EDGE CASES
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Case Sensitive Category',
+      description: 'Testing category case sensitivity',
+      amount: 25.00,
+      category: 'Food', // Capital F
+      type: ExpenseType.expense,
+      date: now,
+      createdAt: now,
+      updatedAt: now,
+    );
+
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Non-ASCII Category',
+      description: 'Testing non-ASCII characters',
+      amount: 30.00,
+      category: 'категория',
+      type: ExpenseType.expense,
+      date: now,
+      createdAt: now,
+      updatedAt: now,
+    );
+
+    // 9. METADATA TESTING
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Expense with Metadata',
+      description: 'Testing metadata functionality',
+      amount: 45.00,
+      category: 'shopping',
+      type: ExpenseType.expense,
+      date: now,
+      createdAt: now,
+      updatedAt: now,
+      metadata: {
+        'store': 'Walmart',
+        'payment_method': 'credit_card',
+        'receipt_number': 'RCPT-12345',
+        'notes': 'Bought household items',
+        'tags': ['essential', 'monthly'],
+      },
+    );
+
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Income with Metadata',
+      description: 'Testing income metadata',
+      amount: 2500.00,
+      category: 'salary',
+      type: ExpenseType.income,
+      date: now.subtract(const Duration(days: 1)),
+      createdAt: now.subtract(const Duration(days: 1)),
+      updatedAt: now.subtract(const Duration(days: 1)),
+      metadata: {
+        'employer': 'Tech Corp',
+        'payment_method': 'direct_deposit',
+        'tax_deductible': false,
+        'bonus': true,
+      },
+    );
+
+    // 10. WHITESPACE AND EMPTY EDGE CASES
+    addIfValid(
+      id: (id++).toString(),
+      title: '   Whitespace Title   ',
+      description: '   Whitespace description   ',
+      amount: 15.00,
+      category: 'other',
+      type: ExpenseType.expense,
+      date: now,
+      createdAt: now,
+      updatedAt: now,
+    );
+
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Empty Description',
+      description: '',
+      amount: 20.00,
+      category: 'other',
+      type: ExpenseType.expense,
+      date: now,
+      createdAt: now,
+      updatedAt: now,
+    );
+
+    // 11. DECIMAL PRECISION TESTING
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Precise Amount',
+      description: 'Testing decimal precision',
+      amount: 123.456789,
+      category: 'other',
+      type: ExpenseType.expense,
+      date: now,
+      createdAt: now,
+      updatedAt: now,
+    );
+
+    // 12. SEASONAL AND HOLIDAY EXPENSES
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Christmas Shopping',
+      description: 'Holiday gifts and decorations',
+      amount: 500.00,
+      category: 'gifts',
+      type: ExpenseType.expense,
+      date: DateTime(now.year, 12, 25),
+      createdAt: DateTime(now.year, 12, 25),
+      updatedAt: DateTime(now.year, 12, 25),
+    );
+
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Valentine\'s Day',
+      description: 'Romantic dinner and gifts',
+      amount: 150.00,
+      category: 'entertainment',
+      type: ExpenseType.expense,
+      date: DateTime(now.year, 2, 14),
+      createdAt: DateTime(now.year, 2, 14),
+      updatedAt: DateTime(now.year, 2, 14),
+    );
+
+    // 13. BUSINESS EXPENSES
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Business Lunch',
+      description: 'Client meeting expense',
+      amount: 85.00,
       category: 'food',
       type: ExpenseType.expense,
       date: now.subtract(const Duration(days: 1)),
       createdAt: now.subtract(const Duration(days: 1)),
       updatedAt: now.subtract(const Duration(days: 1)),
+      metadata: {
+        'business_expense': true,
+        'client': 'ABC Corp',
+        'tax_deductible': true,
+      },
     );
 
-    batch['2'] = ExpenseModel(
-      id: '2',
-      title: 'Sample Income',
-      description: 'Salary payment',
-      amount: 2500.00,
-      category: 'other',
+    // 14. FREQUENT EXPENSES (for testing filtering)
+    for (int i = 1; i <= 10; i++) {
+      addIfValid(
+        id: (id++).toString(),
+        title: 'Daily Coffee $i',
+        description: 'Morning coffee run',
+        amount: 4.50,
+        category: 'food',
+        type: ExpenseType.expense,
+        date: now.subtract(Duration(days: i)),
+        createdAt: now.subtract(Duration(days: i)),
+        updatedAt: now.subtract(Duration(days: i)),
+      );
+    }
+
+    // 15. INCOME VARIETY
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Freelance Payment',
+      description: 'Web development project',
+      amount: 800.00,
+      category: 'salary',
       type: ExpenseType.income,
-      date: now.subtract(const Duration(days: 2)),
-      createdAt: now.subtract(const Duration(days: 2)),
-      updatedAt: now.subtract(const Duration(days: 2)),
+      date: now.subtract(const Duration(days: 3)),
+      createdAt: now.subtract(const Duration(days: 3)),
+      updatedAt: now.subtract(const Duration(days: 3)),
     );
 
-    // Single batch operation for better performance
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Investment Dividend',
+      description: 'Quarterly stock dividend',
+      amount: 250.00,
+      category: 'investments',
+      type: ExpenseType.income,
+      date: now.subtract(const Duration(days: 7)),
+      createdAt: now.subtract(const Duration(days: 7)),
+      updatedAt: now.subtract(const Duration(days: 7)),
+    );
+
+    addIfValid(
+      id: (id++).toString(),
+      title: 'Birthday Gift',
+      description: 'Cash gift from family',
+      amount: 100.00,
+      category: 'gifts',
+      type: ExpenseType.income,
+      date: now.subtract(const Duration(days: 5)),
+      createdAt: now.subtract(const Duration(days: 5)),
+      updatedAt: now.subtract(const Duration(days: 5)),
+    );
+
+    // Batch insert all valid expenses
+    final validExpenses = dummyExpenses
+        .where((expense) =>
+            expense.amount.isFinite &&
+            expense.amount > 0 &&
+            expense.title.trim().isNotEmpty &&
+            expense.category.trim().isNotEmpty)
+        .toList();
+
+    debugPrint('Adding ${validExpenses.length} dummy expenses...');
+
+    // Use batch operation for efficiency
+    final batch = <String, ExpenseModel>{};
+    for (final expense in validExpenses) {
+      batch[expense.id] = expense;
+    }
+
     await _box.putAll(batch);
+    debugPrint('Successfully added ${batch.length} dummy expenses');
+  }
+
+  /// Seed minimal dummy data if empty (legacy method)
+  Future<void> seedMinimalDummyDataIfEmpty() async {
+    await seedComprehensiveDummyDataIfEmpty();
   }
 
   /// Seeds the box with dummy data for all categories and types if empty

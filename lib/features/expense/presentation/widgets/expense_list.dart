@@ -158,7 +158,7 @@ class ExpenseList extends ConsumerWidget {
   /// Provides visual identification of expense categories.
   Widget _buildCategoryIndicator(BuildContext context, Expense expense) {
     // Get category color based on expense type
-    final color = expense.amount < 0
+    final color = expense.type == ExpenseType.expense
         ? const Color(AppConstants.errorColor)
         : const Color(AppConstants.successColor);
 
@@ -229,7 +229,7 @@ class ExpenseList extends ConsumerWidget {
   /// Builds the expense amount display.
   /// Shows the amount with appropriate formatting and color coding.
   Widget _buildExpenseAmount(BuildContext context, Expense expense) {
-    final isExpense = expense.amount < 0;
+    final isExpense = expense.type == ExpenseType.expense;
     final color = isExpense
         ? const Color(AppConstants.errorColor)
         : const Color(AppConstants.successColor);

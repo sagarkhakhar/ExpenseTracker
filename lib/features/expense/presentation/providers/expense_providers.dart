@@ -205,7 +205,7 @@ class ExpenseStatsNotifier
           state = const AsyncValue.loading();
         }
       },
-      fireImmediately: false, // Reduce initial load for better stability
+      fireImmediately: true, // Load immediately for better UX
     );
   }
 
