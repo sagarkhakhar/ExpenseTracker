@@ -13,6 +13,10 @@ import '../widgets/expense_pie_chart.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../budget/presentation/providers/budget_providers.dart';
 import '../../../budget/presentation/widgets/budget_card.dart';
+import '../../../statistics/presentation/providers/statistics_providers.dart';
+import '../../../statistics/presentation/widgets/trend_chart_widget.dart';
+import '../../../statistics/presentation/widgets/goal_tracker_widget.dart';
+import '../../../statistics/presentation/widgets/category_breakdown_widget.dart';
 
 /// The statistics screen that displays detailed financial analysis and charts.
 /// This screen provides insights into spending patterns and financial trends.
@@ -123,6 +127,10 @@ class StatsScreen extends ConsumerWidget {
 
               // Budget overview section
               _buildBudgetOverviewSection(context, ref, localizations),
+              const SizedBox(height: AppConstants.paddingL),
+
+              // Enhanced Statistics Section
+              _buildEnhancedStatisticsSection(context, ref, localizations),
               const SizedBox(height: AppConstants.paddingL),
 
               // Smart tips section
@@ -313,7 +321,8 @@ class StatsScreen extends ConsumerWidget {
                                   flex: (income / maxValue * 100).round(),
                                   child: Container(
                                     height: 20,
-                                    color: const Color(AppConstants.successColor),
+                                    color:
+                                        const Color(AppConstants.successColor),
                                     child: Center(
                                       child: Text(
                                         CurrencyUtils.formatAbbreviatedCurrency(
@@ -354,9 +363,10 @@ class StatsScreen extends ConsumerWidget {
               return const SizedBox.shrink();
             }
 
-            final budgetsWithAlerts = budgets.where((budget) => 
-              budget.isApproachingLimit || budget.isExceeded
-            ).toList();
+            final budgetsWithAlerts = budgets
+                .where(
+                    (budget) => budget.isApproachingLimit || budget.isExceeded)
+                .toList();
 
             return Card(
               child: Padding(
@@ -409,15 +419,15 @@ class StatsScreen extends ConsumerWidget {
                     const SizedBox(height: AppConstants.paddingM),
                     if (budgetsWithAlerts.isNotEmpty) ...[
                       ...budgetsWithAlerts.map((budget) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: BudgetCard(budget: budget),
-                      )),
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: BudgetCard(budget: budget),
+                          )),
                     ] else ...[
                       Text(
                         'All budgets are within limits',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.green,
-                        ),
+                              color: Colors.green,
+                            ),
                       ),
                     ],
                   ],
@@ -551,5 +561,207 @@ class StatsScreen extends ConsumerWidget {
     }
     // Fallback for other types
     return weekKey.toString();
+  }
+
+  /// Converts a list of expenses to category breakdown map.
+  Map<String, double> _convertExpensesToCategoryBreakdown(List expenses) {
+    final breakdown = <String, double>{};
+
+    for (final expense in expenses) {
+      // Handle both Expense objects and Map representations
+      String category;
+      double amount;
+
+      if (expense is Map) {
+        category = expense['category'] as String? ?? 'Unknown';
+        amount = expense['amount'] as double? ?? 0.0;
+      } else {
+        // Handle Expense objects
+        category = expense.category ?? 'Unknown';
+        amount = expense.amount ?? 0.0;
+      }
+
+      breakdown[category] = (breakdown[category] ?? 0.0) + amount;
+    }
+
+    return breakdown;
+  }
+
+  /// Builds the enhanced statistics section with financial goals, trends, and advanced analytics.
+  Widget _buildEnhancedStatisticsSection(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations localizations,
+  ) {
+    return ref.watch(enhancedStatsNotifierProvider).when(
+          loading: () => const Card(
+            child: Padding(
+              padding: EdgeInsets.all(AppConstants.paddingM),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ),
+          error: (error, stack) => Card(
+            child: Padding(
+              padding: const EdgeInsets.all(AppConstants.paddingM),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Enhanced Analytics',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: AppConstants.paddingM),
+                  Text(
+                    'Error loading enhanced statistics: ${error.toString()}',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: const Color(AppConstants.errorColor),
+                        ),
+                  ),
+                  const SizedBox(height: AppConstants.paddingS),
+                  PlatformWidgets.buildButton(
+                    context: context,
+                    onPressed: () {
+                      ref.refresh(enhancedStatsNotifierProvider);
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          data: (enhancedStats) {
+            final goals = enhancedStats['goals'] as List? ?? [];
+            final trends = enhancedStats['trends'] as List? ?? [];
+            final currentExpenses =
+                enhancedStats['currentExpenses'] as List? ?? [];
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Enhanced Analytics Header
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppConstants.paddingM),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Enhanced Analytics',
+                              style: Theme.of(context).textTheme.headlineSmall,
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.blue.withOpacity(0.3),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.analytics,
+                                    size: 12,
+                                    color: Colors.blue,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'New',
+                                    style: const TextStyle(
+                                      color: Colors.blue,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppConstants.paddingS),
+                        Text(
+                          'Advanced insights and goal tracking',
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Colors.grey[600],
+                                  ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: AppConstants.paddingM),
+
+                // Financial Goals Section
+                if (goals.isNotEmpty) ...[
+                  ...goals.map((goal) => GoalTrackerWidget(goal: goal)),
+                  const SizedBox(height: AppConstants.paddingM),
+                ],
+
+                // Trend Analysis Section
+                if (trends.isNotEmpty) ...[
+                  TrendChartWidget(trends: trends),
+                  const SizedBox(height: AppConstants.paddingM),
+                ],
+
+                // Enhanced Category Breakdown
+                if (currentExpenses.isNotEmpty) ...[
+                  CategoryBreakdownWidget(
+                      categoryBreakdown:
+                          _convertExpensesToCategoryBreakdown(currentExpenses)),
+                  const SizedBox(height: AppConstants.paddingM),
+                ],
+
+                // Quick Actions
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppConstants.paddingM),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Quick Actions',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: AppConstants.paddingM),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: PlatformWidgets.buildButton(
+                                context: context,
+                                onPressed: () {
+                                  // TODO: Navigate to goal creation
+                                },
+                                child: const Text('Add Goal'),
+                              ),
+                            ),
+                            const SizedBox(width: AppConstants.paddingM),
+                            Expanded(
+                              child: PlatformWidgets.buildButton(
+                                context: context,
+                                onPressed: () {
+                                  // TODO: Navigate to detailed analytics
+                                },
+                                child: const Text('View Details'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
   }
 }
