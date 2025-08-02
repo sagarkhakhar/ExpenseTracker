@@ -323,7 +323,7 @@ class PhotoDisplayWidget extends ConsumerWidget {
                 File(photo.filePath),
                 fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) {
-                  return Center(
+                  return const Center(
                     child: Icon(
                       Icons.broken_image,
                       color: Colors.white,
@@ -346,7 +346,7 @@ class PhotoDisplayWidget extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Photo'),
-        content: Text('Are you sure you want to delete this photo?'),
+        content: const Text('Are you sure you want to delete this photo?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),

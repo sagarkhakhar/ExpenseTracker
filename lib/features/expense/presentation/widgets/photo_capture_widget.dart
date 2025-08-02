@@ -9,7 +9,6 @@ import 'dart:io';
 import '../../../../l10n/app_localizations.dart';
 import '../providers/photo_providers.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'photo_display_widget.dart';
 
 /// Widget for capturing photos from camera or gallery with preview functionality.
 /// Provides buttons to select camera or gallery, shows preview, and handles the capture process.

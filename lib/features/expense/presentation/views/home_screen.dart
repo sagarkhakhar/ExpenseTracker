@@ -18,6 +18,7 @@ import '../../../../shared/widgets/platform_widgets.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../budget/presentation/providers/budget_providers.dart';
 import '../../../budget/presentation/widgets/budget_card.dart';
+import '../../../export/presentation/views/export_screen.dart';
 
 /// The main screen of the app that contains the bottom navigation and manages tabs.
 /// This screen acts as a container for the overview and statistics tabs.
@@ -67,16 +68,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               navigationBar: index == 0
                   ? CupertinoNavigationBar(
                       middle: Text(localizations.appTitle),
-                      trailing: CupertinoButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            CupertinoPageRoute(
-                              builder: (context) => const FilterScreen(),
-                            ),
-                          );
-                        },
-                        child: const Icon(CupertinoIcons.search),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CupertinoButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                CupertinoPageRoute(
+                                  builder: (context) => const FilterScreen(),
+                                ),
+                              );
+                            },
+                            child: const Icon(CupertinoIcons.search),
+                          ),
+                          CupertinoButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                CupertinoPageRoute(
+                                  builder: (context) => const ExportScreen(),
+                                ),
+                              );
+                            },
+                            child: const Icon(CupertinoIcons.square_arrow_up),
+                          ),
+                        ],
                       ),
                     )
                   : null,
@@ -104,6 +121,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => const FilterScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  PlatformWidgets.platformActionButton(
+                    context: context,
+                    icon: PlatformWidgets.isIOS
+                        ? CupertinoIcons.square_arrow_up
+                        : Icons.file_download,
+                    tooltip: 'Export Data',
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const ExportScreen(),
                         ),
                       );
                     },

@@ -81,7 +81,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
       _selectedExpenseType = null;
     });
 
-    final clearCriteria = const filter_entities.FilterCriteria(isActive: false);
+    const clearCriteria = filter_entities.FilterCriteria(isActive: false);
     ref
         .read(filterCriteriaProvider.notifier)
         .updateFilterCriteria(clearCriteria);

@@ -135,8 +135,8 @@ class ReceiptPhotoLocalDataSourceImpl implements ReceiptPhotoLocalDataSource {
         addIfValid(
           id: (id++).toString(),
           expenseId: 'multi_$i',
-          filePath: '/photos/receipt_multi_${i}_${j}.jpg',
-          fileName: 'receipt_multi_${i}_${j}.jpg',
+          filePath: '/photos/receipt_multi_${i}_$j.jpg',
+          fileName: 'receipt_multi_${i}_$j.jpg',
           fileSize: 300000 + (id % 700000), // 300KB to 1MB
           capturedAt: now.subtract(Duration(days: i * 7 + j)),
           createdAt: now.subtract(Duration(days: i * 7 + j)),

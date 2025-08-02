@@ -82,7 +82,7 @@ void main() {
     test('hasResults should return false when expenses list is empty', () {
       // Arrange
       final searchResult = SearchResult(
-        expenses: [],
+        expenses: const [],
         totalCount: 0,
         filterCriteria: testFilterCriteria,
       );
@@ -95,7 +95,7 @@ void main() {
         'wasFiltered should return true when filter criteria has active filters',
         () {
       // Arrange
-      final filterCriteria = FilterCriteria(
+      const filterCriteria = FilterCriteria(
         searchQuery: 'test',
         isActive: true,
       );
@@ -113,7 +113,7 @@ void main() {
         'wasFiltered should return false when filter criteria has no active filters',
         () {
       // Arrange
-      final filterCriteria = const FilterCriteria(isActive: false);
+      const filterCriteria = FilterCriteria(isActive: false);
       final searchResult = SearchResult(
         expenses: [testExpense],
         totalCount: 1,

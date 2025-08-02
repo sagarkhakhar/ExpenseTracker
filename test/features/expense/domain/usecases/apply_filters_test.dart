@@ -23,7 +23,7 @@ void main() {
     test('should return SearchResult when repository call is successful',
         () async {
       // Arrange
-      final filterCriteria = FilterCriteria(
+      const filterCriteria = FilterCriteria(
         searchQuery: 'test',
         isActive: true,
       );
@@ -58,11 +58,11 @@ void main() {
 
     test('should return Failure when repository call fails', () async {
       // Arrange
-      final filterCriteria = FilterCriteria(
+      const filterCriteria = FilterCriteria(
         searchQuery: 'test',
         isActive: true,
       );
-      final failure = DatabaseFailure('Database error');
+      const failure = DatabaseFailure('Database error');
 
       when(() => mockRepository.searchExpenses(filterCriteria))
           .thenAnswer((_) async => Left(failure));

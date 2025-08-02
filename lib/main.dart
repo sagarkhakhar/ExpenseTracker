@@ -17,6 +17,7 @@ import 'features/budget/data/models/budget_model.dart';
 import 'features/budget/data/datasources/budget_local_data_source.dart';
 import 'features/expense/data/models/receipt_photo_model.dart';
 import 'features/expense/data/datasources/receipt_photo_local_data_source.dart';
+import 'features/export/domain/entities/export_history.dart';
 
 import 'shared/widgets/platform_widgets.dart';
 import 'l10n/app_localizations.dart';
@@ -36,6 +37,8 @@ void main() async {
   // Use a more robust registration approach to prevent conflicts
   _registerHiveAdapters();
 
+  // Note: Notification service is now lightweight and doesn't need initialization
+
   // Launch the app immediately with loading screen
   runApp(const ProviderScope(child: ExpenseTrackerApp()));
 }
@@ -54,6 +57,15 @@ void _registerHiveAdapters() {
   }
   if (!Hive.isAdapterRegistered(3)) {
     Hive.registerAdapter(ReceiptPhotoModelAdapter());
+  }
+  if (!Hive.isAdapterRegistered(12)) {
+    Hive.registerAdapter(ExportFormatAdapter());
+  }
+  if (!Hive.isAdapterRegistered(13)) {
+    Hive.registerAdapter(ExportStatusAdapter());
+  }
+  if (!Hive.isAdapterRegistered(14)) {
+    Hive.registerAdapter(ExportHistoryAdapter());
   }
 }
 

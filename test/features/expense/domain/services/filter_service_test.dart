@@ -273,7 +273,7 @@ void main() {
     group('applyFilters', () {
       test('should apply multiple filters', () {
         // Arrange
-        final filterCriteria = FilterCriteria(
+        const filterCriteria = FilterCriteria(
           categories: ['food'],
           amountRange: Range(max: 50.0),
           isActive: true,
@@ -305,8 +305,8 @@ void main() {
             start: DateTime(2024, 1, 10),
             end: DateTime(2024, 1, 25),
           ),
-          categories: ['food'],
-          amountRange: Range(min: 20.0, max: 80.0),
+          categories: const ['food'],
+          amountRange: const Range(min: 20.0, max: 80.0),
           expenseType: ExpenseType.expense,
           searchQuery: 'lunch',
           isActive: true,
@@ -325,7 +325,7 @@ void main() {
       test('should create search result with correct data', () {
         // Arrange
         final filteredExpenses = [testExpenses[0], testExpenses[1]];
-        final filterCriteria = FilterCriteria(
+        const filterCriteria = FilterCriteria(
           categories: ['food', 'transport'],
           isActive: true,
         );
@@ -414,7 +414,7 @@ void main() {
             start: DateTime(2024, 1, 1),
             end: DateTime(2024, 12, 31),
           ),
-          amountRange: Range(min: 10.0, max: 100.0),
+          amountRange: const Range(min: 10.0, max: 100.0),
           searchQuery: 'test',
           isActive: true,
         );
@@ -445,7 +445,7 @@ void main() {
 
       test('should return false for invalid amount range', () {
         // Arrange
-        final filterCriteria = FilterCriteria(
+        const filterCriteria = FilterCriteria(
           amountRange: Range(min: 100.0, max: 10.0),
           isActive: true,
         );
@@ -459,7 +459,7 @@ void main() {
 
       test('should return false for empty search query', () {
         // Arrange
-        final filterCriteria = FilterCriteria(
+        const filterCriteria = FilterCriteria(
           searchQuery: '   ',
           isActive: true,
         );
@@ -480,8 +480,8 @@ void main() {
             start: DateTime(2024, 1, 1),
             end: DateTime(2024, 12, 31),
           ),
-          categories: ['food', 'transport'],
-          amountRange: Range(min: 10.0, max: 100.0),
+          categories: const ['food', 'transport'],
+          amountRange: const Range(min: 10.0, max: 100.0),
           expenseType: ExpenseType.expense,
           searchQuery: 'lunch',
           isActive: true,

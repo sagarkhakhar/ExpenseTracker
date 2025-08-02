@@ -4,10 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_constants.dart';
-import 'dart:io';
 
 /// Application theme configuration that provides consistent styling.
 /// Supports both light and dark modes with platform-appropriate design.

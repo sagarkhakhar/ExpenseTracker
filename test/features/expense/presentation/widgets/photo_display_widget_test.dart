@@ -40,7 +40,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           parent: container,
-          child: MaterialApp(
+          child: const MaterialApp(
             home: Scaffold(
               body: PhotoDisplayWidget(
                 expenseId: 'test-expense-id',
@@ -81,7 +81,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           parent: container,
-          child: MaterialApp(
+          child: const MaterialApp(
             home: Scaffold(
               body: PhotoDisplayWidget(
                 expenseId: 'test-expense-id',
@@ -102,13 +102,13 @@ void main() {
         (WidgetTester tester) async {
       // Arrange
       when(() => mockRepository.getReceiptPhotosForExpense(any())).thenAnswer(
-          (_) async => Left(ServerFailure('Failed to load photos')));
+          (_) async => const Left(ServerFailure('Failed to load photos')));
 
       // Act
       await tester.pumpWidget(
         ProviderScope(
           parent: container,
-          child: MaterialApp(
+          child: const MaterialApp(
             home: Scaffold(
               body: PhotoDisplayWidget(
                 expenseId: 'test-expense-id',

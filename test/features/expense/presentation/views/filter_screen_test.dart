@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/features/expense/presentation/views/filter_screen.dart';
-import 'package:expense_tracker/features/expense/presentation/providers/filter_providers.dart';
-import 'package:expense_tracker/features/expense/domain/entities/filter_criteria.dart';
 import 'package:hive/hive.dart';
 import 'dart:io';
 import 'package:expense_tracker/features/expense/data/models/expense_model.dart';

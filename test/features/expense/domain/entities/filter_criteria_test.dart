@@ -74,7 +74,7 @@ void main() {
 
     test('hasActiveFilters should return true when amount range is set', () {
       // Arrange
-      final filterCriteria = FilterCriteria(
+      const filterCriteria = FilterCriteria(
         amountRange: Range(min: 10.0, max: 100.0),
         isActive: true,
       );
@@ -163,8 +163,8 @@ void main() {
           start: DateTime(2024, 1, 1),
           end: DateTime(2024, 12, 31),
         ),
-        categories: ['food'],
-        amountRange: Range(min: 10.0, max: 100.0),
+        categories: const ['food'],
+        amountRange: const Range(min: 10.0, max: 100.0),
         expenseType: ExpenseType.expense,
         searchQuery: 'lunch',
         isActive: true,

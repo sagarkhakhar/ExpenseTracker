@@ -19,7 +19,7 @@ class GetPhotosForExpense {
     try {
       // Validate expense ID
       if (expenseId.isEmpty) {
-        return Left(ValidationFailure('Expense ID cannot be empty'));
+        return const Left(ValidationFailure('Expense ID cannot be empty'));
       }
 
       // Get photos for the expense

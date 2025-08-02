@@ -75,7 +75,7 @@ void main() {
     test('should return Failure when repository call fails', () async {
       // Arrange
       const query = 'test';
-      final failure = DatabaseFailure('Database error');
+      const failure = DatabaseFailure('Database error');
 
       when(() => mockRepository.searchByText(query))
           .thenAnswer((_) async => Left(failure));

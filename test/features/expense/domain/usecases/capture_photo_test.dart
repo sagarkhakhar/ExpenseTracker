@@ -79,7 +79,7 @@ void main() {
     // Arrange
     const failure = DatabaseFailure('Failed to save photo');
     when(() => mockRepository.saveReceiptPhoto(any()))
-        .thenAnswer((_) async => Left(failure));
+        .thenAnswer((_) async => const Left(failure));
 
     // Act
     final result = await useCase(

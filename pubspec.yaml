@@ -44,6 +44,14 @@ dependencies:
   # Device Info
   device_info_plus: ^9.1.2
 
+  # Export and Sharing
+  csv: ^5.1.1
+  share_plus: ^7.2.1
+  path_provider: ^2.1.2
+
+  # File Operations
+  open_file: ^3.3.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

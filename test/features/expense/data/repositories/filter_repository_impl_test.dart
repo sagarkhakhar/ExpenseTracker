@@ -50,7 +50,7 @@ void main() {
             updatedAt: DateTime(2024, 1, 1),
           ),
         ];
-        final filterCriteria = FilterCriteria(
+        const filterCriteria = FilterCriteria(
           searchQuery: 'test',
           isActive: true,
         );
@@ -88,7 +88,7 @@ void main() {
       test('should return DatabaseFailure when localDataSource throws',
           () async {
         // Arrange
-        final filterCriteria = FilterCriteria(
+        const filterCriteria = FilterCriteria(
           searchQuery: 'test',
           isActive: true,
         );
@@ -102,7 +102,7 @@ void main() {
         // Assert
         expect(
             result,
-            Left(DatabaseFailure(
+            const Left(DatabaseFailure(
                 'Failed to search expenses: Exception: Database error')));
       });
     });
@@ -134,7 +134,7 @@ void main() {
         final result = await repository.getAvailableCategories();
 
         // Assert
-        expect(result, Right(categories));
+        expect(result, const Right(categories));
         verify(() => mockLocalDataSource.getAllExpenses()).called(1);
         verify(() => mockFilterService.getAvailableCategories(any())).called(1);
       });
@@ -151,7 +151,7 @@ void main() {
         // Assert
         expect(
             result,
-            Left(DatabaseFailure(
+            const Left(DatabaseFailure(
                 'Failed to get categories: Exception: Database error')));
       });
     });
@@ -218,7 +218,7 @@ void main() {
         final result = await repository.getAmountRange();
 
         // Assert
-        expect(result, Right(amountRange));
+        expect(result, const Right(amountRange));
         verify(() => mockLocalDataSource.getAllExpenses()).called(1);
         verify(() => mockFilterService.getAmountRange(any())).called(1);
       });
@@ -447,7 +447,7 @@ void main() {
             updatedAt: DateTime(2024, 1, 1),
           ),
         ];
-        final filterCriteria = FilterCriteria(
+        const filterCriteria = FilterCriteria(
           searchQuery: 'test',
           isActive: true,
         );
@@ -462,7 +462,7 @@ void main() {
         final result = await repository.getFilteredExpenseCount(filterCriteria);
 
         // Assert
-        expect(result, Right(1));
+        expect(result, const Right(1));
         verify(() => mockLocalDataSource.getAllExpenses()).called(1);
         verify(() => mockFilterService.applyFilters(any(), filterCriteria))
             .called(1);
@@ -472,7 +472,7 @@ void main() {
     group('saveFilterCriteria', () {
       test('should return true when successful', () async {
         // Arrange
-        final filterCriteria = FilterCriteria(
+        const filterCriteria = FilterCriteria(
           searchQuery: 'test',
           isActive: true,
         );

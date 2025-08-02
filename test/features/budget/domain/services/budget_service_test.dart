@@ -261,7 +261,7 @@ void main() {
         when(() => mockExpenseRepository.getExpensesByDateRange(
           any(),
           any(),
-        )).thenAnswer((_) async => Left(DatabaseFailure('Database error')));
+        )).thenAnswer((_) async => const Left(DatabaseFailure('Database error')));
 
         // act
         final result = await budgetService.calculateSpentAmount(
