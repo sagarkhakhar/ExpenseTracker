@@ -109,21 +109,18 @@ class PhotoDisplayWidget extends ConsumerWidget {
           ),
         ),
 
-        // Photos grid
-        GridView.builder(
+        // Photos list - using a more compact thumbnail layout
+        ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-            childAspectRatio: 1,
-          ),
           itemCount: photos.length,
           itemBuilder: (context, index) {
             final photo = photos[index];
-            return _buildPhotoThumbnail(
-                context, ref, photo, photoDeletionState);
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12.0),
+              child:
+                  _buildPhotoThumbnail(context, ref, photo, photoDeletionState),
+            );
           },
         ),
 
@@ -152,7 +149,7 @@ class PhotoDisplayWidget extends ConsumerWidget {
     );
   }
 
-  /// Build individual photo thumbnail
+  /// Build individual photo thumbnail with compact design
   Widget _buildPhotoThumbnail(
     BuildContext context,
     WidgetRef ref,
@@ -162,11 +159,20 @@ class PhotoDisplayWidget extends ConsumerWidget {
     return GestureDetector(
       onTap: () => _showPhotoFullScreen(context, photo),
       child: Container(
+        height: 120,
         decoration: BoxDecoration(
+          color: Colors.white,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Stack(
           children: [
@@ -181,40 +187,51 @@ class PhotoDisplayWidget extends ConsumerWidget {
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     color: Theme.of(context).colorScheme.surface,
-                    child: Icon(
-                      Icons.broken_image,
-                      color: Theme.of(context).colorScheme.outline,
+                    child: Center(
+                      child: Icon(
+                        Icons.broken_image,
+                        color: Theme.of(context).colorScheme.outline,
+                        size: 32,
+                      ),
                     ),
                   );
                 },
               ),
             ),
 
-            // Delete button
+            // Delete button - positioned in top right corner
             Positioned(
-              top: 4,
-              right: 4,
+              top: 8,
+              right: 8,
               child: GestureDetector(
                 onTap: () => _deletePhoto(context, ref, photo),
                 child: Container(
-                  padding: const EdgeInsets.all(4),
+                  width: 24,
+                  height: 24,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.error,
+                    color: Colors.red,
                     shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.close,
-                    color: Theme.of(context).colorScheme.onError,
+                    color: Colors.white,
                     size: 16,
                   ),
                 ),
               ),
             ),
 
-            // File size indicator
+            // File size indicator - positioned in bottom left corner
             Positioned(
-              bottom: 4,
-              left: 4,
+              bottom: 8,
+              left: 8,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
@@ -226,6 +243,7 @@ class PhotoDisplayWidget extends ConsumerWidget {
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 10,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -305,7 +323,7 @@ class PhotoDisplayWidget extends ConsumerWidget {
                 File(photo.filePath),
                 fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) {
-                  return const Center(
+                  return Center(
                     child: Icon(
                       Icons.broken_image,
                       color: Colors.white,

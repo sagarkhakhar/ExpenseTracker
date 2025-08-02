@@ -9,6 +9,7 @@ import 'dart:io';
 import '../../../../l10n/app_localizations.dart';
 import '../providers/photo_providers.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'photo_display_widget.dart';
 
 /// Widget for capturing photos from camera or gallery with preview functionality.
 /// Provides buttons to select camera or gallery, shows preview, and handles the capture process.
@@ -42,11 +43,21 @@ class _PhotoCaptureWidgetState extends ConsumerState<PhotoCaptureWidget> {
         // Section header
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Text(
-            AppLocalizations.of(context)?.receiptPhotos ?? 'Receipt Photos',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.photo_library,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                AppLocalizations.of(context)?.receiptPhotos ?? 'Receipt Photos',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ],
           ),
         ),
 
@@ -66,12 +77,20 @@ class _PhotoCaptureWidgetState extends ConsumerState<PhotoCaptureWidget> {
                   onPressed: photoCaptureState.isLoading
                       ? null
                       : () => _captureFromCamera(context, ref),
-                  icon: const Icon(Icons.camera_alt),
+                  icon: const Icon(Icons.camera_alt, size: 20),
                   label: Text(
                     AppLocalizations.of(context)?.camera ?? 'Camera',
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    elevation: 2,
                   ),
                 ),
               ),
@@ -82,12 +101,20 @@ class _PhotoCaptureWidgetState extends ConsumerState<PhotoCaptureWidget> {
                   onPressed: photoCaptureState.isLoading
                       ? null
                       : () => _captureFromGallery(context, ref),
-                  icon: const Icon(Icons.photo_library),
+                  icon: const Icon(Icons.photo_library, size: 20),
                   label: Text(
                     AppLocalizations.of(context)?.gallery ?? 'Gallery',
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    elevation: 2,
                   ),
                 ),
               ),
@@ -110,11 +137,30 @@ class _PhotoCaptureWidgetState extends ConsumerState<PhotoCaptureWidget> {
             !photoCaptureState.error.toString().contains('Permission'))
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
-            child: Text(
-              'Error: ${photoCaptureState.error}',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
-                fontSize: 12,
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.errorContainer,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    color: Theme.of(context).colorScheme.error,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Error: ${photoCaptureState.error}',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -123,12 +169,32 @@ class _PhotoCaptureWidgetState extends ConsumerState<PhotoCaptureWidget> {
         if (photoCaptureState.value?.isRight() == true)
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
-            child: Text(
-              AppLocalizations.of(context)?.photoCapturedSuccessfully ??
-                  'Photo captured successfully!',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontSize: 12,
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.check_circle_outline,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      AppLocalizations.of(context)?.photoCapturedSuccessfully ??
+                          'Photo captured successfully!',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -140,29 +206,37 @@ class _PhotoCaptureWidgetState extends ConsumerState<PhotoCaptureWidget> {
   Widget _buildPreviewSection(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Preview header
           Padding(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(12),
             child: Row(
               children: [
                 Icon(
                   Icons.preview,
                   color: Theme.of(context).colorScheme.primary,
-                  size: 16,
+                  size: 20,
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 8),
                 Text(
                   AppLocalizations.of(context)?.preview ?? 'Preview',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
                 ),
                 const Spacer(),
@@ -184,7 +258,7 @@ class _PhotoCaptureWidgetState extends ConsumerState<PhotoCaptureWidget> {
           Container(
             height: 120,
             width: double.infinity,
-            margin: const EdgeInsets.symmetric(horizontal: 8),
+            margin: const EdgeInsets.symmetric(horizontal: 12),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(6),
               child: Image.file(
@@ -193,10 +267,12 @@ class _PhotoCaptureWidgetState extends ConsumerState<PhotoCaptureWidget> {
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     color: Theme.of(context).colorScheme.surface,
-                    child: Icon(
-                      Icons.broken_image,
-                      color: Theme.of(context).colorScheme.outline,
-                      size: 32,
+                    child: Center(
+                      child: Icon(
+                        Icons.broken_image,
+                        color: Theme.of(context).colorScheme.outline,
+                        size: 32,
+                      ),
                     ),
                   );
                 },
@@ -206,37 +282,46 @@ class _PhotoCaptureWidgetState extends ConsumerState<PhotoCaptureWidget> {
 
           // Action buttons
           Padding(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(12),
             child: Row(
               children: [
                 // Save button
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () => _savePreviewImage(context),
-                    icon: const Icon(Icons.save, size: 16),
+                    icon: const Icon(Icons.save, size: 18),
                     label: Text(
                       AppLocalizations.of(context)?.save ?? 'Save',
-                      style: const TextStyle(fontSize: 14),
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w500),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 2,
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 // Cancel button
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () => _cancelPreview(),
-                    icon: const Icon(Icons.close, size: 16),
+                    icon: const Icon(Icons.close, size: 18),
                     label: Text(
                       AppLocalizations.of(context)?.cancel ?? 'Cancel',
-                      style: const TextStyle(fontSize: 14),
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w500),
                     ),
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
                 ),

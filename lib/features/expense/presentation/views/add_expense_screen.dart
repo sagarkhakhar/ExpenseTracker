@@ -493,63 +493,6 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
           ),
         ),
       ],
-      // Photo capture section (only for new expenses)
-      if (widget.expense == null && _tempExpenseId != null) ...[
-        const SizedBox(height: AppConstants.paddingM),
-        PhotoCaptureWidget(
-          expenseId: _tempExpenseId!,
-          onPhotoCaptured: () {
-            // Refresh the form or show success message
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(localizations.photoCapturedSuccessfully ??
-                    'Photo captured successfully!'),
-                backgroundColor: Theme.of(context).colorScheme.primary,
-              ),
-            );
-          },
-          onError: () {
-            // Error handling is done in the widget
-          },
-        ),
-      ],
-      // Photo display section (for both new and existing expenses)
-      if (widget.expense != null) ...[
-        const SizedBox(height: AppConstants.paddingM),
-        PhotoDisplayWidget(
-          expenseId: widget.expense!.id,
-          onPhotoDeleted: () {
-            // Refresh the form or show success message
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(localizations.photoDeletedSuccessfully ??
-                    'Photo deleted successfully!'),
-                backgroundColor: Theme.of(context).colorScheme.primary,
-              ),
-            );
-          },
-        ),
-      ],
-      // Photo capture section for existing expenses (to add more photos)
-      if (widget.expense != null) ...[
-        const SizedBox(height: AppConstants.paddingM),
-        PhotoCaptureWidget(
-          expenseId: widget.expense!.id,
-          onPhotoCaptured: () {
-            // Refresh the form or show success message
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(localizations.photoCapturedSuccessfully ??
-                    'Photo captured successfully!'),
-                backgroundColor: Theme.of(context).colorScheme.primary,
-              ),
-            );
-          },
-          onError: () {
-            // Error handling is done in the widget
-          },
-        ),
-      ],
     ];
 
     final formContent = PlatformWidgets.isIOS
@@ -628,7 +571,85 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
           padding: PlatformWidgets.isIOS
               ? const EdgeInsets.symmetric(horizontal: 0, vertical: 0)
               : const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-          child: formContent,
+          child: Column(
+            children: [
+              formContent,
+              // Photo display section (thumbnails above buttons)
+              if (widget.expense != null) ...[
+                const SizedBox(height: AppConstants.paddingM),
+                PhotoDisplayWidget(
+                  expenseId: widget.expense!.id,
+                  onPhotoDeleted: () {
+                    // Refresh the form or show success message
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(localizations.photoDeletedSuccessfully ??
+                            'Photo deleted successfully!'),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                      ),
+                    );
+                  },
+                ),
+              ],
+              // Photo display section for new expenses (using temp ID)
+              if (widget.expense == null && _tempExpenseId != null) ...[
+                const SizedBox(height: AppConstants.paddingM),
+                PhotoDisplayWidget(
+                  expenseId: _tempExpenseId!,
+                  onPhotoDeleted: () {
+                    // Refresh the form or show success message
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(localizations.photoDeletedSuccessfully ??
+                            'Photo deleted successfully!'),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                      ),
+                    );
+                  },
+                ),
+              ],
+              // Photo capture section (buttons below thumbnails)
+              if (widget.expense == null && _tempExpenseId != null) ...[
+                const SizedBox(height: AppConstants.paddingM),
+                PhotoCaptureWidget(
+                  expenseId: _tempExpenseId!,
+                  onPhotoCaptured: () {
+                    // Refresh the form or show success message
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(localizations.photoCapturedSuccessfully ??
+                            'Photo captured successfully!'),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                      ),
+                    );
+                  },
+                  onError: () {
+                    // Error handling is done in the widget
+                  },
+                ),
+              ],
+              // Photo capture section for existing expenses (buttons below thumbnails)
+              if (widget.expense != null) ...[
+                const SizedBox(height: AppConstants.paddingM),
+                PhotoCaptureWidget(
+                  expenseId: widget.expense!.id,
+                  onPhotoCaptured: () {
+                    // Refresh the form or show success message
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(localizations.photoCapturedSuccessfully ??
+                            'Photo captured successfully!'),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                      ),
+                    );
+                  },
+                  onError: () {
+                    // Error handling is done in the widget
+                  },
+                ),
+              ],
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: saveButton,
