@@ -65,13 +65,13 @@ void main() {
       const failure = DatabaseFailure('Database error');
 
       when(() => mockRepository.searchExpenses(filterCriteria))
-          .thenAnswer((_) async => Left(failure));
+          .thenAnswer((_) async => const Left(failure));
 
       // Act
       final result = await useCase(filterCriteria);
 
       // Assert
-      expect(result, Left(failure));
+      expect(result, const Left(failure));
       verify(() => mockRepository.searchExpenses(filterCriteria)).called(1);
     });
   });

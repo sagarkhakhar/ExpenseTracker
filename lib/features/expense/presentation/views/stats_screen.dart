@@ -664,18 +664,18 @@ class StatsScreen extends ConsumerWidget {
                                   color: Colors.blue.withOpacity(0.3),
                                 ),
                               ),
-                              child: Row(
+                              child: const Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.analytics,
                                     size: 12,
                                     color: Colors.blue,
                                   ),
-                                  const SizedBox(width: 4),
+                                  SizedBox(width: 4),
                                   Text(
                                     'New',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: Colors.blue,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,

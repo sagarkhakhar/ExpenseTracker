@@ -69,7 +69,9 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
   Future<void> _loadExpenses() async {
     if (_isLoading || _hasLoaded) return; // Prevent multiple simultaneous loads
     _isLoading = true;
-    state = const AsyncValue.loading();
+    if (mounted) {
+      state = const AsyncValue.loading();
+    }
 
     try {
       debugPrint('Loading expenses...');
@@ -77,21 +79,25 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
       debugPrint('Got getAllExpenses use case');
       final result = await getAllExpenses();
       debugPrint('Got result: ${result.isRight()}');
-      state = result.fold(
-        (failure) {
-          debugPrint('Failure: ${failure.message}');
-          return AsyncValue.error(
-              Exception(failure.message), StackTrace.current);
-        },
-        (expenses) {
-          debugPrint('Success: ${expenses.length} expenses loaded');
-          return AsyncValue.data(expenses);
-        },
-      );
-      _hasLoaded = true;
+      if (mounted) {
+        state = result.fold(
+          (failure) {
+            debugPrint('Failure: ${failure.message}');
+            return AsyncValue.error(
+                Exception(failure.message), StackTrace.current);
+          },
+          (expenses) {
+            debugPrint('Success: ${expenses.length} expenses loaded');
+            return AsyncValue.data(expenses);
+          },
+        );
+        _hasLoaded = true;
+      }
     } catch (e, st) {
       debugPrint('Exception in _loadExpenses: $e');
-      state = AsyncValue.error(e, st);
+      if (mounted) {
+        state = AsyncValue.error(e, st);
+      }
     } finally {
       _isLoading = false;
     }
@@ -144,7 +150,9 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
         }
       },
       (_) {
-        _loadExpenses();
+        if (mounted) {
+          _loadExpenses();
+        }
       },
     );
   }
@@ -174,7 +182,9 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
     result.fold(
       (failure) => throw Exception(failure.message),
       (_) {
-        _loadExpenses();
+        if (mounted) {
+          _loadExpenses();
+        }
       },
     );
   }

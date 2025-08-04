@@ -11,20 +11,27 @@ class StatisticsRepositoryImpl implements StatisticsRepository {
 
   Box<FinancialGoal>? _financialGoalsBox;
   Box<TrendAnalysis>? _trendAnalysisBox;
+  bool _isInitializing = false;
 
   StatisticsRepositoryImpl() {
-    // Initialize boxes when repository is created
-    initializeBoxes();
+    // Remove automatic initialization from constructor
   }
 
   Future<void> initializeBoxes() async {
-    if (_financialGoalsBox == null) {
-      _financialGoalsBox =
-          await Hive.openBox<FinancialGoal>(_financialGoalsBoxName);
-    }
-    if (_trendAnalysisBox == null) {
-      _trendAnalysisBox =
-          await Hive.openBox<TrendAnalysis>(_trendAnalysisBoxName);
+    if (_isInitializing) return; // Prevent multiple initializations
+    _isInitializing = true;
+
+    try {
+      if (_financialGoalsBox == null || !_financialGoalsBox!.isOpen) {
+        _financialGoalsBox =
+            await Hive.openBox<FinancialGoal>(_financialGoalsBoxName);
+      }
+      if (_trendAnalysisBox == null || !_trendAnalysisBox!.isOpen) {
+        _trendAnalysisBox =
+            await Hive.openBox<TrendAnalysis>(_trendAnalysisBoxName);
+      }
+    } finally {
+      _isInitializing = false;
     }
   }
 
@@ -81,7 +88,7 @@ class StatisticsRepositoryImpl implements StatisticsRepository {
   Future<Either<Failure, void>> updateFinancialGoal(FinancialGoal goal) async {
     try {
       if (!_goalsBox.containsKey(goal.id)) {
-        return Left(DatabaseFailure('Financial goal not found'));
+        return const Left(DatabaseFailure('Financial goal not found'));
       }
       await _goalsBox.put(goal.id, goal);
       return const Right(null);
@@ -94,7 +101,7 @@ class StatisticsRepositoryImpl implements StatisticsRepository {
   Future<Either<Failure, void>> deleteFinancialGoal(String id) async {
     try {
       if (!_goalsBox.containsKey(id)) {
-        return Left(DatabaseFailure('Financial goal not found'));
+        return const Left(DatabaseFailure('Financial goal not found'));
       }
       await _goalsBox.delete(id);
       return const Right(null);

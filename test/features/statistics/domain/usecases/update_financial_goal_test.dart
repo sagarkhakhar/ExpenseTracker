@@ -141,32 +141,32 @@ void main() {
 
     test('should propagate repository failure when getting goal', () async {
       // arrange
-      final failure = ServerFailure('Database error');
+      const failure = ServerFailure('Database error');
       when(() => mockRepository.getFinancialGoalById('1'))
-          .thenAnswer((_) async => Left(failure));
+          .thenAnswer((_) async => const Left(failure));
 
       // act
       final result = await useCase(tGoal);
 
       // assert
-      expect(result, Left(failure));
+      expect(result, const Left(failure));
       verify(() => mockRepository.getFinancialGoalById('1')).called(1);
       verifyNever(() => mockRepository.updateFinancialGoal(any()));
     });
 
     test('should propagate repository failure when updating goal', () async {
       // arrange
-      final failure = ServerFailure('Update error');
+      const failure = ServerFailure('Update error');
       when(() => mockRepository.getFinancialGoalById('1'))
           .thenAnswer((_) async => Right(tGoal));
       when(() => mockRepository.updateFinancialGoal(tGoal))
-          .thenAnswer((_) async => Left(failure));
+          .thenAnswer((_) async => const Left(failure));
 
       // act
       final result = await useCase(tGoal);
 
       // assert
-      expect(result, Left(failure));
+      expect(result, const Left(failure));
       verify(() => mockRepository.getFinancialGoalById('1')).called(1);
       verify(() => mockRepository.updateFinancialGoal(tGoal)).called(1);
     });

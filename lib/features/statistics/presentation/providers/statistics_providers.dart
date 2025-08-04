@@ -3,7 +3,6 @@
 // Providers connect the UI to the domain and data layers, enforcing Clean Architecture and SOLID.
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/foundation.dart';
 import '../../data/repositories/statistics_repository_impl.dart';
 import '../../domain/entities/financial_goal.dart';
 import '../../domain/entities/trend_analysis.dart';
@@ -12,7 +11,6 @@ import '../../domain/usecases/get_financial_goals.dart';
 import '../../domain/usecases/update_financial_goal.dart';
 import '../../domain/usecases/get_trend_analysis.dart';
 import '../../domain/services/statistics_service.dart';
-import 'package:expense_tracker/core/errors/failures.dart';
 import '../../../expense/presentation/providers/expense_providers.dart';
 
 // Repository Provider (async)
@@ -70,20 +68,26 @@ class FinancialGoalsNotifier
   Future<void> _loadGoals() async {
     if (_isLoading) return;
     _isLoading = true;
-    state = const AsyncValue.loading();
+    if (mounted) {
+      state = const AsyncValue.loading();
+    }
 
     try {
       final getFinancialGoals =
           await ref.read(getFinancialGoalsProvider.future);
       final result = await getFinancialGoals();
 
-      state = result.fold(
-        (failure) =>
-            AsyncValue.error(Exception(failure.message), StackTrace.current),
-        (goals) => AsyncValue.data(goals),
-      );
+      if (mounted) {
+        state = result.fold(
+          (failure) =>
+              AsyncValue.error(Exception(failure.message), StackTrace.current),
+          (goals) => AsyncValue.data(goals),
+        );
+      }
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      if (mounted) {
+        state = AsyncValue.error(e, st);
+      }
     } finally {
       _isLoading = false;
     }
@@ -96,12 +100,22 @@ class FinancialGoalsNotifier
       final result = await createFinancialGoal.call(goal);
 
       result.fold(
-        (failure) => state =
-            AsyncValue.error(Exception(failure.message), StackTrace.current),
-        (_) => _loadGoals(), // Reload goals after creation
+        (failure) {
+          if (mounted) {
+            state = AsyncValue.error(
+                Exception(failure.message), StackTrace.current);
+          }
+        },
+        (_) {
+          if (mounted) {
+            _loadGoals(); // Reload goals after creation
+          }
+        },
       );
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      if (mounted) {
+        state = AsyncValue.error(e, st);
+      }
     }
   }
 
@@ -112,12 +126,22 @@ class FinancialGoalsNotifier
       final result = await updateFinancialGoal.call(goal);
 
       result.fold(
-        (failure) => state =
-            AsyncValue.error(Exception(failure.message), StackTrace.current),
-        (_) => _loadGoals(), // Reload goals after update
+        (failure) {
+          if (mounted) {
+            state = AsyncValue.error(
+                Exception(failure.message), StackTrace.current);
+          }
+        },
+        (_) {
+          if (mounted) {
+            _loadGoals(); // Reload goals after update
+          }
+        },
       );
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      if (mounted) {
+        state = AsyncValue.error(e, st);
+      }
     }
   }
 
@@ -144,19 +168,25 @@ class TrendAnalysisNotifier
   Future<void> _loadTrendAnalysis() async {
     if (_isLoading) return;
     _isLoading = true;
-    state = const AsyncValue.loading();
+    if (mounted) {
+      state = const AsyncValue.loading();
+    }
 
     try {
       final getTrendAnalysis = await ref.read(getTrendAnalysisProvider.future);
       final result = await getTrendAnalysis.callByPeriod('monthly');
 
-      state = result.fold(
-        (failure) =>
-            AsyncValue.error(Exception(failure.message), StackTrace.current),
-        (trends) => AsyncValue.data(trends),
-      );
+      if (mounted) {
+        state = result.fold(
+          (failure) =>
+              AsyncValue.error(Exception(failure.message), StackTrace.current),
+          (trends) => AsyncValue.data(trends),
+        );
+      }
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      if (mounted) {
+        state = AsyncValue.error(e, st);
+      }
     } finally {
       _isLoading = false;
     }
@@ -167,13 +197,17 @@ class TrendAnalysisNotifier
       final getTrendAnalysis = await ref.read(getTrendAnalysisProvider.future);
       final result = await getTrendAnalysis.callByPeriod(period);
 
-      state = result.fold(
-        (failure) =>
-            AsyncValue.error(Exception(failure.message), StackTrace.current),
-        (trends) => AsyncValue.data(trends),
-      );
+      if (mounted) {
+        state = result.fold(
+          (failure) =>
+              AsyncValue.error(Exception(failure.message), StackTrace.current),
+          (trends) => AsyncValue.data(trends),
+        );
+      }
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      if (mounted) {
+        state = AsyncValue.error(e, st);
+      }
     }
   }
 
@@ -183,13 +217,17 @@ class TrendAnalysisNotifier
       final getTrendAnalysis = await ref.read(getTrendAnalysisProvider.future);
       final result = await getTrendAnalysis.callByDateRange(startDate, endDate);
 
-      state = result.fold(
-        (failure) =>
-            AsyncValue.error(Exception(failure.message), StackTrace.current),
-        (trends) => AsyncValue.data(trends),
-      );
+      if (mounted) {
+        state = result.fold(
+          (failure) =>
+              AsyncValue.error(Exception(failure.message), StackTrace.current),
+          (trends) => AsyncValue.data(trends),
+        );
+      }
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      if (mounted) {
+        state = AsyncValue.error(e, st);
+      }
     }
   }
 
@@ -208,7 +246,8 @@ class EnhancedStatsNotifier
     extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
   final Ref ref;
   bool _isLoading = false;
-  late final ProviderSubscription<AsyncValue<List<dynamic>>> _expensesSub;
+  ProviderSubscription<AsyncValue<List<dynamic>>>? _expensesSub;
+  ProviderSubscription<AsyncValue<List<FinancialGoal>>>? _goalsSub;
 
   EnhancedStatsNotifier(this.ref) : super(const AsyncValue.loading()) {
     // Listen to expense changes to update statistics
@@ -221,18 +260,32 @@ class EnhancedStatsNotifier
       },
       fireImmediately: true,
     );
+
+    // Listen to goal changes to update statistics
+    _goalsSub = ref.listen<AsyncValue<List<FinancialGoal>>>(
+      financialGoalsNotifierProvider,
+      (prev, next) {
+        if (next is AsyncData<List<FinancialGoal>>) {
+          _loadEnhancedStats();
+        }
+      },
+      fireImmediately: true,
+    );
   }
 
   @override
   void dispose() {
-    _expensesSub.close();
+    _expensesSub?.close();
+    _goalsSub?.close();
     super.dispose();
   }
 
   Future<void> _loadEnhancedStats() async {
     if (_isLoading) return;
     _isLoading = true;
-    state = const AsyncValue.loading();
+    if (mounted) {
+      state = const AsyncValue.loading();
+    }
 
     try {
       final statisticsService =
@@ -251,14 +304,34 @@ class EnhancedStatsNotifier
       final trendsResult = await getTrendAnalysis.callByPeriod('monthly');
 
       if (goalsResult.isLeft() || trendsResult.isLeft()) {
-        state = AsyncValue.error(
-            Exception('Failed to load enhanced statistics'),
-            StackTrace.current);
+        if (mounted) {
+          state = AsyncValue.error(
+              Exception('Failed to load enhanced statistics'),
+              StackTrace.current);
+        }
         return;
       }
 
       final goals = goalsResult.getOrElse(() => []);
       final trends = trendsResult.getOrElse(() => []);
+
+      // Generate trend analysis from existing expenses if no trends exist
+      if (expenses.isNotEmpty && trends.isEmpty) {
+        final newTrends = statisticsService.calculateTrendsForPeriods(
+          expenses: expenses,
+          period: 'monthly',
+          numberOfPeriods: 6,
+        );
+
+        // Save trend analysis to repository
+        final repository = await ref.read(statisticsRepositoryProvider.future);
+        for (final trend in newTrends) {
+          await repository.saveTrendAnalysis(trend);
+        }
+
+        // Update trends list with newly generated data
+        trends.addAll(newTrends);
+      }
 
       // Generate enhanced statistics data with current expenses
       final enhancedStats =
@@ -268,9 +341,13 @@ class EnhancedStatsNotifier
       enhancedStats['currentExpenses'] = expenses;
       enhancedStats['totalExpensesCount'] = expenses.length;
 
-      state = AsyncValue.data(enhancedStats);
+      if (mounted) {
+        state = AsyncValue.data(enhancedStats);
+      }
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      if (mounted) {
+        state = AsyncValue.error(e, st);
+      }
     } finally {
       _isLoading = false;
     }

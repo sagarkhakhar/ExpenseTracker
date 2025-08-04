@@ -18,6 +18,8 @@ import 'features/budget/data/datasources/budget_local_data_source.dart';
 import 'features/expense/data/models/receipt_photo_model.dart';
 import 'features/expense/data/datasources/receipt_photo_local_data_source.dart';
 import 'features/export/domain/entities/export_history.dart';
+import 'features/statistics/domain/entities/financial_goal.dart';
+import 'features/statistics/domain/entities/trend_analysis.dart';
 
 import 'shared/widgets/platform_widgets.dart';
 import 'l10n/app_localizations.dart';
@@ -66,6 +68,19 @@ void _registerHiveAdapters() {
   }
   if (!Hive.isAdapterRegistered(14)) {
     Hive.registerAdapter(ExportHistoryAdapter());
+  }
+  // Add missing adapters for statistics feature
+  if (!Hive.isAdapterRegistered(10)) {
+    Hive.registerAdapter(FinancialGoalAdapter());
+  }
+  if (!Hive.isAdapterRegistered(11)) {
+    Hive.registerAdapter(GoalStatusAdapter());
+  }
+  if (!Hive.isAdapterRegistered(17)) {
+    Hive.registerAdapter(TrendDirectionAdapter());
+  }
+  if (!Hive.isAdapterRegistered(18)) {
+    Hive.registerAdapter(TrendAnalysisAdapter());
   }
 }
 

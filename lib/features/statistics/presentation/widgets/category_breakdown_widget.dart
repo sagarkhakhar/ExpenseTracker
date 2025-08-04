@@ -29,36 +29,53 @@ class CategoryBreakdownWidget extends StatelessWidget {
     // Convert category breakdown to chart data
     final chartData = _convertCategoryBreakdownToChartData();
 
+    // Additional validation for chart data
+    if (chartData.isEmpty) {
+      return const Center(
+        child: Text('Invalid category data'),
+      );
+    }
+
     return Column(
       children: [
         // Pie chart
         SizedBox(
           height: 150,
-          child: PieChart(
-            PieChartData(
-              pieTouchData: PieTouchData(
-                enabled: true,
-                touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                  // Handle touch events if needed
-                },
-              ),
-              borderData: FlBorderData(show: false),
-              sectionsSpace: 2,
-              centerSpaceRadius: 40,
-              sections: chartData.map((data) {
-                return PieChartSectionData(
-                  color: data.color,
-                  value: data.value,
-                  title: '${data.percentage.toStringAsFixed(1)}%',
-                  radius: 60,
-                  titleStyle: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+          child: Builder(
+            builder: (context) {
+              try {
+                return PieChart(
+                  PieChartData(
+                    pieTouchData: PieTouchData(
+                      enabled: true,
+                      touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                        // Handle touch events if needed
+                      },
+                    ),
+                    borderData: FlBorderData(show: false),
+                    sectionsSpace: 2,
+                    centerSpaceRadius: 40,
+                    sections: chartData.map((data) {
+                      return PieChartSectionData(
+                        color: data.color,
+                        value: data.value,
+                        title: '${data.percentage.toStringAsFixed(1)}%',
+                        radius: 60,
+                        titleStyle: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      );
+                    }).toList(),
                   ),
                 );
-              }).toList(),
-            ),
+              } catch (e) {
+                return const Center(
+                  child: Text('Error rendering chart'),
+                );
+              }
+            },
           ),
         ),
         const SizedBox(height: AppConstants.paddingM),

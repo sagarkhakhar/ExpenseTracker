@@ -344,15 +344,15 @@ void main() {
 
     test('should propagate repository failure', () async {
       // arrange
-      final failure = ServerFailure('Database error');
+      const failure = ServerFailure('Database error');
       when(() => mockRepository.saveFinancialGoal(tGoal))
-          .thenAnswer((_) async => Left(failure));
+          .thenAnswer((_) async => const Left(failure));
 
       // act
       final result = await useCase(tGoal);
 
       // assert
-      expect(result, Left(failure));
+      expect(result, const Left(failure));
       verify(() => mockRepository.saveFinancialGoal(tGoal)).called(1);
     });
   });

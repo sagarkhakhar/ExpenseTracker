@@ -2,13 +2,35 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:expense_tracker/features/statistics/domain/entities/financial_goal.dart';
 import 'package:expense_tracker/features/statistics/domain/entities/trend_analysis.dart';
 import 'package:expense_tracker/features/statistics/data/repositories/statistics_repository_impl.dart';
+import 'package:hive/hive.dart';
+import 'dart:io';
+import 'package:expense_tracker/features/expense/data/models/expense_model.dart';
+import 'package:expense_tracker/features/expense/domain/entities/expense.dart';
 
 void main() {
+  setUpAll(() async {
+    final testDir = Directory('./test/hive_testing').absolute;
+    if (!testDir.existsSync()) {
+      testDir.createSync(recursive: true);
+    }
+    Hive.init(testDir.path);
+    Hive.registerAdapter(ExpenseModelAdapter());
+    Hive.registerAdapter(ExpenseTypeAdapter());
+    Hive.registerAdapter(FinancialGoalAdapter());
+    Hive.registerAdapter(GoalStatusAdapter());
+    Hive.registerAdapter(TrendAnalysisAdapter());
+    Hive.registerAdapter(TrendDirectionAdapter());
+  });
+
   group('StatisticsRepositoryImpl', () {
     late StatisticsRepositoryImpl repository;
 
-    setUp(() {
+    setUp(() async {
       repository = StatisticsRepositoryImpl();
+    });
+
+    tearDown(() async {
+      await repository.close();
     });
 
     group('Constructor', () {

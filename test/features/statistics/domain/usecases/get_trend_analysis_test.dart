@@ -98,15 +98,15 @@ void main() {
 
       test('should propagate repository failure', () async {
         // arrange
-        final failure = ServerFailure('Database error');
+        const failure = ServerFailure('Database error');
         when(() => mockRepository.getTrendAnalysisByPeriod('daily'))
-            .thenAnswer((_) async => Left(failure));
+            .thenAnswer((_) async => const Left(failure));
 
         // act
         final result = await useCase.callByPeriod('daily');
 
         // assert
-        expect(result, Left(failure));
+        expect(result, const Left(failure));
         verify(() => mockRepository.getTrendAnalysisByPeriod('daily'))
             .called(1);
       });
@@ -207,16 +207,16 @@ void main() {
         // arrange
         final startDate = DateTime.now().subtract(const Duration(days: 30));
         final endDate = DateTime.now();
-        final failure = ServerFailure('Database error');
+        const failure = ServerFailure('Database error');
         when(() =>
                 mockRepository.getTrendAnalysisByDateRange(startDate, endDate))
-            .thenAnswer((_) async => Left(failure));
+            .thenAnswer((_) async => const Left(failure));
 
         // act
         final result = await useCase.callByDateRange(startDate, endDate);
 
         // assert
-        expect(result, Left(failure));
+        expect(result, const Left(failure));
         verify(() =>
                 mockRepository.getTrendAnalysisByDateRange(startDate, endDate))
             .called(1);
@@ -291,15 +291,15 @@ void main() {
 
       test('should propagate repository failure', () async {
         // arrange
-        final failure = ServerFailure('Database error');
+        const failure = ServerFailure('Database error');
         when(() => mockRepository.getLatestTrendAnalysis('yearly'))
-            .thenAnswer((_) async => Left(failure));
+            .thenAnswer((_) async => const Left(failure));
 
         // act
         final result = await useCase.callLatest('yearly');
 
         // assert
-        expect(result, Left(failure));
+        expect(result, const Left(failure));
         verify(() => mockRepository.getLatestTrendAnalysis('yearly')).called(1);
       });
     });

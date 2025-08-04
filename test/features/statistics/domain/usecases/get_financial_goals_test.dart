@@ -70,29 +70,29 @@ void main() {
 
     test('should propagate repository failure', () async {
       // arrange
-      final failure = ServerFailure('Database error');
+      const failure = ServerFailure('Database error');
       when(() => mockRepository.getFinancialGoals())
-          .thenAnswer((_) async => Left(failure));
+          .thenAnswer((_) async => const Left(failure));
 
       // act
       final result = await useCase();
 
       // assert
-      expect(result, Left(failure));
+      expect(result, const Left(failure));
       verify(() => mockRepository.getFinancialGoals()).called(1);
     });
 
     test('should propagate cache failure', () async {
       // arrange
-      final failure = CacheFailure('Cache error');
+      const failure = CacheFailure('Cache error');
       when(() => mockRepository.getFinancialGoals())
-          .thenAnswer((_) async => Left(failure));
+          .thenAnswer((_) async => const Left(failure));
 
       // act
       final result = await useCase();
 
       // assert
-      expect(result, Left(failure));
+      expect(result, const Left(failure));
       verify(() => mockRepository.getFinancialGoals()).called(1);
     });
   });

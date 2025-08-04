@@ -78,13 +78,13 @@ void main() {
       const failure = DatabaseFailure('Database error');
 
       when(() => mockRepository.searchByText(query))
-          .thenAnswer((_) async => Left(failure));
+          .thenAnswer((_) async => const Left(failure));
 
       // Act
       final result = await useCase(query);
 
       // Assert
-      expect(result, Left(failure));
+      expect(result, const Left(failure));
       verify(() => mockRepository.searchByText(query)).called(1);
     });
   });

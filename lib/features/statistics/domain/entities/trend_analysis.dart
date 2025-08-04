@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'trend_analysis.g.dart';
 
-@HiveType(typeId: 12)
+@HiveType(typeId: 17)
 enum TrendDirection {
   @HiveField(0)
   increasing,
@@ -12,7 +12,7 @@ enum TrendDirection {
   stable,
 }
 
-@HiveType(typeId: 13)
+@HiveType(typeId: 18)
 class TrendAnalysis extends HiveObject {
   @HiveField(0)
   final String period;
