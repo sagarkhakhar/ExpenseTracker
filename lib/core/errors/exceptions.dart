@@ -21,7 +21,7 @@ abstract class AppException extends Equatable implements Exception {
   final Map<String, dynamic>? context;
   
   /// Timestamp when the error occurred
-  final DateTime timestamp;
+  final DateTime? timestamp;
   
   /// Severity level for proper logging and alerting
   final ErrorSeverity severity;
@@ -33,7 +33,8 @@ abstract class AppException extends Equatable implements Exception {
     this.stackTrace,
     this.context,
     this.severity = ErrorSeverity.medium,
-  }) : timestamp = null; // Will be set in constructor body
+    this.timestamp,
+  });
 
   /// Factory constructor that automatically sets timestamp
   factory AppException.create({

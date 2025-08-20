@@ -259,12 +259,8 @@ class PerformanceMonitor {
 
   /// Get current memory usage
   MemoryUsage _getCurrentMemoryUsage() {
-    if (kDebugMode) {
-      final info = developer.Service.getIsolateMemoryUsage();
-      // This is a simplified implementation
-      // Real implementation would extract actual memory data
-      return const MemoryUsage(rss: 0, heap: 0);
-    }
+    // Simplified implementation - in production, this would integrate with
+    // platform-specific memory APIs or profiling tools
     return const MemoryUsage(rss: 0, heap: 0);
   }
 }
