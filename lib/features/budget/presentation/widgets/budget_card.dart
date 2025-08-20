@@ -184,13 +184,10 @@ class BudgetCard extends ConsumerWidget {
 
   /// Builds the delete button for budget items.
   Widget _buildDeleteButton(BuildContext context, WidgetRef ref) {
-    return IconButton(
+    return PlatformWidgets.platformActionButton(
+      context: context,
+      icon: PlatformWidgets.isIOS ? CupertinoIcons.delete : Icons.delete_outline,
       onPressed: () => _showDeleteConfirmation(context, ref),
-      icon: Icon(
-        PlatformWidgets.isIOS ? CupertinoIcons.delete : Icons.delete_outline,
-        color: const Color(AppConstants.errorColor),
-        size: AppConstants.iconSizeM,
-      ),
       tooltip: 'Delete budget',
     );
   }
@@ -228,18 +225,19 @@ class BudgetCard extends ConsumerWidget {
           title: const Text('Delete Budget'),
           content: Text('Are you sure you want to delete the budget for "${budget.categoryId}"?'),
           actions: [
-            TextButton(
+            PlatformWidgets.buildButton(
+              context: context,
               onPressed: () => Navigator.pop(context),
+              isPrimary: false,
               child: const Text('Cancel'),
             ),
-            TextButton(
+            PlatformWidgets.buildButton(
+              context: context,
               onPressed: () {
                 Navigator.pop(context);
                 _deleteBudget(ref);
               },
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(AppConstants.errorColor),
-              ),
+              isPrimary: true,
               child: const Text('Delete'),
             ),
           ],
@@ -256,22 +254,16 @@ class BudgetCard extends ConsumerWidget {
       // For now, we'll show a placeholder message
       
       if (ref.context.mounted) {
-        ScaffoldMessenger.of(ref.context).showSnackBar(
-          SnackBar(
-            content: Text('Budget "${budget.categoryId}" deleted successfully'),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 2),
-          ),
+        PlatformWidgets.showPlatformSnackbar(
+          context: ref.context,
+          message: 'Budget "${budget.categoryId}" deleted successfully',
         );
       }
     } catch (error) {
       if (ref.context.mounted) {
-        ScaffoldMessenger.of(ref.context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to delete budget: $error'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
+        PlatformWidgets.showPlatformSnackbar(
+          context: ref.context,
+          message: 'Failed to delete budget: $error',
         );
       }
     }

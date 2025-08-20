@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../../domain/entities/budget.dart';
 import '../providers/budget_providers.dart';
 import '../widgets/budget_card.dart';
+import '../../../../shared/widgets/platform_widgets.dart';
 
 class BudgetManagementScreen extends ConsumerStatefulWidget {
   const BudgetManagementScreen({super.key});
@@ -38,12 +39,10 @@ class _BudgetManagementScreenState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextFormField(
+              PlatformWidgets.buildTextField(
+                context: context,
+                label: 'Category',
                 controller: _categoryController,
-                decoration: const InputDecoration(
-                  labelText: 'Category',
-                  border: OutlineInputBorder(),
-                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a category';
@@ -52,13 +51,11 @@ class _BudgetManagementScreenState
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              PlatformWidgets.buildTextField(
+                context: context,
+                label: 'Amount',
+                hint: '\$0.00',
                 controller: _amountController,
-                decoration: const InputDecoration(
-                  labelText: 'Amount',
-                  border: OutlineInputBorder(),
-                  prefixText: '\$',
-                ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -74,34 +71,32 @@ class _BudgetManagementScreenState
                 },
               ),
               const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
+              PlatformWidgets.buildPlatformDropdown<String>(
+                context: context,
                 value: _selectedPeriod,
-                decoration: const InputDecoration(
-                  labelText: 'Period',
-                  border: OutlineInputBorder(),
-                ),
-                items: _periods.map((period) {
-                  return DropdownMenuItem(
-                    value: period,
-                    child: Text(period.capitalize()),
-                  );
-                }).toList(),
+                items: _periods,
+                itemBuilder: (period) => Text(period.capitalize()),
                 onChanged: (value) {
                   setState(() {
                     _selectedPeriod = value!;
                   });
                 },
+                label: 'Period',
               ),
             ],
           ),
         ),
         actions: [
-          TextButton(
+          PlatformWidgets.buildButton(
+            context: context,
             onPressed: () => Navigator.of(context).pop(),
+            isPrimary: false,
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
+          PlatformWidgets.buildButton(
+            context: context,
             onPressed: _addBudget,
+            isPrimary: true,
             child: const Text('Add'),
           ),
         ],
@@ -159,23 +154,27 @@ class _BudgetManagementScreenState
     final budgetsAsync = ref.watch(budgetsProvider);
     final budgetNotifier = ref.watch(budgetNotifierProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Budget Management'),
+    return PlatformWidgets.buildScaffold(
+      context: context,
+      appBar: PlatformWidgets.buildAppBar(
+        context: context,
+        title: 'Budget Management',
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
+          PlatformWidgets.platformActionButton(
+            context: context,
+            icon: Icons.add,
             onPressed: _showAddBudgetDialog,
+            tooltip: 'Add Budget',
           ),
         ],
       ),
       body: budgetNotifier.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => Center(child: PlatformWidgets.buildLoadingIndicator()),
         error: (error, stack) => Center(
           child: Text('Error: $error'),
         ),
         data: (_) => budgetsAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => Center(child: PlatformWidgets.buildLoadingIndicator()),
           error: (error, stack) => Center(
             child: Text('Error: $error'),
           ),

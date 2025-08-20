@@ -96,10 +96,7 @@ class ExpenseTrackerApp extends ConsumerWidget {
     if (PlatformWidgets.isIOS) {
       return CupertinoApp(
         title: AppLocalizations.of(context)?.appTitle ?? 'Expense Tracker',
-        theme: const CupertinoThemeData(
-          brightness: Brightness.light,
-          primaryColor: CupertinoColors.systemBlue,
-        ),
+        theme: AppTheme.getCupertinoTheme(Brightness.light),
         home: const AppLoadingScreen(),
         debugShowCheckedModeBanner: false,
         routes: {'/add-expense': (context) => const AddExpenseScreen()},

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:expense_tracker/features/export/domain/entities/export_history.dart';
 import 'package:expense_tracker/features/export/presentation/providers/export_providers.dart';
+import 'package:expense_tracker/shared/widgets/platform_widgets.dart';
 
 /// Widget for displaying export history
 class ExportHistoryList extends ConsumerWidget {
@@ -53,8 +54,8 @@ class ExportHistoryList extends ConsumerWidget {
           },
         );
       },
-      loading: () => const Center(
-        child: CircularProgressIndicator(),
+      loading: () => Center(
+        child: PlatformWidgets.buildLoadingIndicator(),
       ),
       error: (error, stack) => Center(
         child: Column(
@@ -159,10 +160,10 @@ class _ExportHistoryCard extends StatelessWidget {
           color: Colors.red,
         );
       case ExportStatus.inProgress:
-        return const SizedBox(
+        return SizedBox(
           width: 20,
           height: 20,
-          child: CircularProgressIndicator(strokeWidth: 2),
+          child: PlatformWidgets.buildLoadingIndicator(),
         );
     }
   }
