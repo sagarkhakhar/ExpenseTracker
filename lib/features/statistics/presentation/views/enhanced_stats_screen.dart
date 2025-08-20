@@ -14,6 +14,7 @@ import '../widgets/trend_chart_widget.dart';
 import '../widgets/goal_tracker_widget.dart';
 import '../widgets/category_breakdown_widget.dart';
 import '../../domain/entities/financial_goal.dart';
+import '../../domain/entities/trend_analysis.dart';
 
 /// The enhanced statistics screen that displays advanced financial analysis and charts.
 /// This screen provides detailed insights into spending patterns, financial goals, and trends.
@@ -319,8 +320,9 @@ class EnhancedStatsScreen extends ConsumerWidget {
     Map<String, dynamic> trendSummary,
   ) {
     final latestPeriod = trendSummary['latestPeriod'] as String? ?? 'Monthly';
-    final latestTrendDirection =
-        trendSummary['latestTrendDirection'] as String? ?? 'stable';
+    final latestTrendDirectionEnum = 
+        trendSummary['latestTrendDirection'] as TrendDirection?;
+    final latestTrendDirection = latestTrendDirectionEnum?.name ?? 'stable';
 
     return Card(
       child: Padding(

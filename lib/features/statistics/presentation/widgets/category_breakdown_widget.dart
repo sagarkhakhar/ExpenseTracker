@@ -36,53 +36,58 @@ class CategoryBreakdownWidget extends StatelessWidget {
       );
     }
 
-    return Column(
-      children: [
-        // Pie chart
-        SizedBox(
-          height: 150,
-          child: Builder(
-            builder: (context) {
-              try {
-                return PieChart(
-                  PieChartData(
-                    pieTouchData: PieTouchData(
-                      enabled: true,
-                      touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                        // Handle touch events if needed
-                      },
+    return SizedBox(
+      height: 400, // Set a bounded height for the entire widget
+      child: Column(
+        children: [
+          // Pie chart
+          SizedBox(
+            height: 150,
+            child: Builder(
+              builder: (context) {
+                try {
+                  return PieChart(
+                    PieChartData(
+                      pieTouchData: PieTouchData(
+                        enabled: true,
+                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                          // Handle touch events if needed
+                        },
+                      ),
+                      borderData: FlBorderData(show: false),
+                      sectionsSpace: 2,
+                      centerSpaceRadius: 40,
+                      sections: chartData.map((data) {
+                        return PieChartSectionData(
+                          color: data.color,
+                          value: data.value,
+                          title: '${data.percentage.toStringAsFixed(1)}%',
+                          radius: 60,
+                          titleStyle: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        );
+                      }).toList(),
                     ),
-                    borderData: FlBorderData(show: false),
-                    sectionsSpace: 2,
-                    centerSpaceRadius: 40,
-                    sections: chartData.map((data) {
-                      return PieChartSectionData(
-                        color: data.color,
-                        value: data.value,
-                        title: '${data.percentage.toStringAsFixed(1)}%',
-                        radius: 60,
-                        titleStyle: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                );
-              } catch (e) {
-                return const Center(
-                  child: Text('Error rendering chart'),
-                );
-              }
-            },
+                  );
+                } catch (e) {
+                  return const Center(
+                    child: Text('Error rendering chart'),
+                  );
+                }
+              },
+            ),
           ),
-        ),
-        const SizedBox(height: AppConstants.paddingM),
+          const SizedBox(height: AppConstants.paddingM),
 
-        // Category legend
-        _buildCategoryLegend(chartData),
-      ],
+          // Category legend with flexible scrollable area
+          Expanded(
+            child: _buildCategoryLegend(chartData),
+          ),
+        ],
+      ),
     );
   }
 
@@ -128,59 +133,61 @@ class CategoryBreakdownWidget extends StatelessWidget {
 
   /// Builds the category legend with amounts and percentages.
   Widget _buildCategoryLegend(List<CategoryChartData> chartData) {
-    return Column(
-      children: chartData.map((data) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
-            children: [
-              // Color indicator
-              Container(
-                width: 16,
-                height: 16,
-                decoration: BoxDecoration(
-                  color: data.color,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 8),
-
-              // Category name
-              Expanded(
-                child: Text(
-                  data.category,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+    return SingleChildScrollView(
+      child: Column(
+        children: chartData.map((data) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              children: [
+                // Color indicator
+                Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: data.color,
+                    shape: BoxShape.circle,
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
+                const SizedBox(width: 8),
 
-              // Amount and percentage
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    CurrencyUtils.formatCurrency(data.value),
+                // Category name
+                Expanded(
+                  child: Text(
+                    data.category,
                     style: const TextStyle(
                       fontSize: 14,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  Text(
-                    '${data.percentage.toStringAsFixed(1)}%',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
+                ),
+
+                // Amount and percentage
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      CurrencyUtils.formatCurrency(data.value),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      }).toList(),
+                    Text(
+                      '${data.percentage.toStringAsFixed(1)}%',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 }

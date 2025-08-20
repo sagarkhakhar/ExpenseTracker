@@ -71,10 +71,10 @@ void _registerHiveAdapters() {
   }
   // Add missing adapters for statistics feature
   if (!Hive.isAdapterRegistered(10)) {
-    Hive.registerAdapter(FinancialGoalAdapter());
+    Hive.registerAdapter(GoalStatusAdapter()); // typeId 10
   }
   if (!Hive.isAdapterRegistered(11)) {
-    Hive.registerAdapter(GoalStatusAdapter());
+    Hive.registerAdapter(FinancialGoalAdapter()); // typeId 11
   }
   if (!Hive.isAdapterRegistered(17)) {
     Hive.registerAdapter(TrendDirectionAdapter());

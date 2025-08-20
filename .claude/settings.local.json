@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter test:*)",
+      "Bash(grep:*)",
+      "Bash(flutter run:*)",
+      "Bash(flutter packages pub run build_runner build:*)",
+      "Bash(flutter clean:*)",
+      "Bash(flutter pub:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(rm:*)",
+      "Bash(flutter build:*)",
+      "Bash(timeout 30 flutter test test/features/statistics/domain/entities/financial_goal_test.dart --plain-name 'should')",
+      "Bash(gtimeout:*)",
+      "Bash(git add:*)",
+      "Bash(dart run:*)",
+      "Bash(dart analyze:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

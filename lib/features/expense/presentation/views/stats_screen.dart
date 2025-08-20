@@ -17,6 +17,7 @@ import '../../../statistics/presentation/providers/statistics_providers.dart';
 import '../../../statistics/presentation/widgets/trend_chart_widget.dart';
 import '../../../statistics/presentation/widgets/goal_tracker_widget.dart';
 import '../../../statistics/presentation/widgets/category_breakdown_widget.dart';
+import '../../../statistics/presentation/views/enhanced_stats_screen.dart';
 
 /// The statistics screen that displays detailed financial analysis and charts.
 /// This screen provides insights into spending patterns and financial trends.
@@ -72,6 +73,7 @@ class StatsScreen extends ConsumerWidget {
         return SingleChildScrollView(
           padding: const EdgeInsets.all(AppConstants.paddingM),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Main financial summary section
@@ -604,6 +606,7 @@ class StatsScreen extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.all(AppConstants.paddingM),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -636,6 +639,7 @@ class StatsScreen extends ConsumerWidget {
                 enhancedStats['currentExpenses'] as List? ?? [];
 
             return Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Enhanced Analytics Header
@@ -738,7 +742,15 @@ class StatsScreen extends ConsumerWidget {
                               child: PlatformWidgets.buildButton(
                                 context: context,
                                 onPressed: () {
-                                  // TODO: Navigate to goal creation
+                                  Navigator.of(context).push(
+                                    PlatformWidgets.isIOS
+                                        ? CupertinoPageRoute(
+                                            builder: (context) => const EnhancedStatsScreen(),
+                                          )
+                                        : MaterialPageRoute(
+                                            builder: (context) => const EnhancedStatsScreen(),
+                                          ),
+                                  );
                                 },
                                 child: const Text('Add Goal'),
                               ),
@@ -748,7 +760,15 @@ class StatsScreen extends ConsumerWidget {
                               child: PlatformWidgets.buildButton(
                                 context: context,
                                 onPressed: () {
-                                  // TODO: Navigate to detailed analytics
+                                  Navigator.of(context).push(
+                                    PlatformWidgets.isIOS
+                                        ? CupertinoPageRoute(
+                                            builder: (context) => const EnhancedStatsScreen(),
+                                          )
+                                        : MaterialPageRoute(
+                                            builder: (context) => const EnhancedStatsScreen(),
+                                          ),
+                                  );
                                 },
                                 child: const Text('View Details'),
                               ),

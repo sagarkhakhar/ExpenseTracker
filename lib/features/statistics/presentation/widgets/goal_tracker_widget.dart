@@ -19,13 +19,13 @@ class GoalTrackerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = goal.title as String? ?? 'Unknown Goal';
-    final targetAmount = goal.targetAmount as double? ?? 0.0;
-    final currentAmount = goal.currentAmount as double? ?? 0.0;
-    final startDate = goal.startDate as DateTime? ?? DateTime.now();
-    final targetDate = goal.targetDate as DateTime? ?? DateTime.now();
-    final status = goal.status as String? ?? 'active';
-    final category = goal.category as String?;
+    final title = goal.title;
+    final targetAmount = goal.targetAmount;
+    final currentAmount = goal.currentAmount;
+    final startDate = goal.startDate;
+    final targetDate = goal.targetDate;
+    final status = goal.status.toString().split('.').last;
+    final category = goal.category;
 
     final progress = targetAmount > 0 ? (currentAmount / targetAmount) : 0.0;
     final daysRemaining = targetDate.difference(DateTime.now()).inDays;
