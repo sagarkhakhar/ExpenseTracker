@@ -18,6 +18,7 @@ import '../../../statistics/presentation/widgets/trend_chart_widget.dart';
 import '../../../statistics/presentation/widgets/goal_tracker_widget.dart';
 import '../../../statistics/presentation/widgets/category_breakdown_widget.dart';
 import '../../../statistics/presentation/views/enhanced_stats_screen.dart';
+import '../../../statistics/domain/entities/financial_goal.dart';
 
 /// The statistics screen that displays detailed financial analysis and charts.
 /// This screen provides insights into spending patterns and financial trends.
@@ -742,15 +743,7 @@ class StatsScreen extends ConsumerWidget {
                               child: PlatformWidgets.buildButton(
                                 context: context,
                                 onPressed: () {
-                                  Navigator.of(context).push(
-                                    PlatformWidgets.isIOS
-                                        ? CupertinoPageRoute(
-                                            builder: (context) => const EnhancedStatsScreen(),
-                                          )
-                                        : MaterialPageRoute(
-                                            builder: (context) => const EnhancedStatsScreen(),
-                                          ),
-                                  );
+                                  _showAddGoalDialog(context, ref);
                                 },
                                 child: const Text('Add Goal'),
                               ),
@@ -783,5 +776,250 @@ class StatsScreen extends ConsumerWidget {
             );
           },
         );
+  }
+
+  /// Shows a dialog to add a new financial goal.
+  void _showAddGoalDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent accidental dismissal
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: () async => false, // Prevent back button dismissal
+          child: _AddGoalDialog(
+            key: const ValueKey(
+                'add_goal_dialog'), // Ensure consistent widget identity
+            ref: ref,
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Stateful dialog widget for adding financial goals.
+/// This preserves form state during date picker interactions.
+class _AddGoalDialog extends StatefulWidget {
+  final WidgetRef ref;
+
+  const _AddGoalDialog({super.key, required this.ref});
+
+  @override
+  State<_AddGoalDialog> createState() => _AddGoalDialogState();
+}
+
+class _AddGoalDialogState extends State<_AddGoalDialog> {
+  final titleController = TextEditingController();
+  final targetAmountController = TextEditingController();
+  final categoryController = TextEditingController();
+  DateTime? selectedTargetDate = DateTime.now().add(const Duration(days: 30));
+
+  // Add focus nodes to manage focus and prevent data loss
+  final FocusNode titleFocusNode = FocusNode();
+  final FocusNode amountFocusNode = FocusNode();
+  final FocusNode categoryFocusNode = FocusNode();
+
+  // Store form data as backup during date picker interactions
+  String? _backupTitle;
+  String? _backupAmount;
+  String? _backupCategory;
+
+  /// Backup current form data before date picker interaction
+  void _backupFormData() {
+    _backupTitle = titleController.text;
+    _backupAmount = targetAmountController.text;
+    _backupCategory = categoryController.text;
+  }
+
+  /// Restore form data if it was lost during date picker interaction
+  void _restoreFormDataIfNeeded() {
+    // Always restore form data to ensure consistency
+    if (_backupTitle != null) {
+      titleController.text = _backupTitle!;
+    }
+    if (_backupAmount != null) {
+      targetAmountController.text = _backupAmount!;
+    }
+    if (_backupCategory != null) {
+      categoryController.text = _backupCategory!;
+    }
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    targetAmountController.dispose();
+    categoryController.dispose();
+    titleFocusNode.dispose();
+    amountFocusNode.dispose();
+    categoryFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Add Financial Goal'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleController,
+              focusNode: titleFocusNode,
+              decoration: const InputDecoration(
+                labelText: 'Goal Title',
+                hintText: 'e.g., Save for Vacation',
+              ),
+              onChanged: (value) {
+                // Update backup data on change
+                _backupTitle = value;
+              },
+              onTap: () {
+                // Ensure backup data is current when field is tapped
+                _backupTitle = titleController.text;
+              },
+            ),
+            const SizedBox(height: AppConstants.paddingM),
+            TextField(
+              controller: targetAmountController,
+              focusNode: amountFocusNode,
+              decoration: const InputDecoration(
+                labelText: 'Target Amount',
+                hintText: '1000.00',
+              ),
+              keyboardType: TextInputType.number,
+              onChanged: (value) {
+                // Update backup data on change
+                _backupAmount = value;
+              },
+              onTap: () {
+                // Ensure backup data is current when field is tapped
+                _backupAmount = targetAmountController.text;
+              },
+            ),
+            const SizedBox(height: AppConstants.paddingM),
+            TextField(
+              controller: categoryController,
+              focusNode: categoryFocusNode,
+              decoration: const InputDecoration(
+                labelText: 'Category (Optional)',
+                hintText: 'e.g., Travel, Home',
+              ),
+              onChanged: (value) {
+                // Update backup data on change
+                _backupCategory = value;
+              },
+              onTap: () {
+                // Ensure backup data is current when field is tapped
+                _backupCategory = categoryController.text;
+              },
+            ),
+            const SizedBox(height: AppConstants.paddingM),
+            ListTile(
+              title: const Text('Target Date'),
+              subtitle: Text(
+                selectedTargetDate != null
+                    ? '${selectedTargetDate!.day}/${selectedTargetDate!.month}/${selectedTargetDate!.year}'
+                    : 'Select date',
+              ),
+              trailing: const Icon(Icons.calendar_today),
+              onTap: () async {
+                // Backup current form data before date picker interaction
+                _backupFormData();
+
+                // Unfocus current field to prevent data loss
+                FocusScope.of(context).unfocus();
+
+                final date = await showDatePicker(
+                  context: context,
+                  initialDate: selectedTargetDate ?? DateTime.now(),
+                  firstDate: DateTime.now(),
+                  lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
+                );
+
+                if (date != null) {
+                  setState(() {
+                    selectedTargetDate = date;
+                  });
+                }
+
+                // Always restore form data after date picker interaction
+                // This ensures form data is preserved regardless of whether a date was selected
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _restoreFormDataIfNeeded();
+                });
+              },
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () async {
+            if (titleController.text.trim().isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Please enter a goal title')),
+              );
+              return;
+            }
+
+            final targetAmount = double.tryParse(targetAmountController.text);
+            if (targetAmount == null || targetAmount <= 0) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Please enter a valid target amount')),
+              );
+              return;
+            }
+
+            if (selectedTargetDate == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Please select a target date')),
+              );
+              return;
+            }
+
+            // Create the goal
+            final goal = FinancialGoal(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              title: titleController.text.trim(),
+              targetAmount: targetAmount,
+              currentAmount: 0.0,
+              startDate: DateTime.now(),
+              targetDate: selectedTargetDate!,
+              category: categoryController.text.trim().isEmpty
+                  ? null
+                  : categoryController.text.trim(),
+            );
+
+            // Add the goal using the provider
+            final goalsNotifier =
+                widget.ref.read(financialGoalsNotifierProvider.notifier);
+            await goalsNotifier.createGoal(goal);
+
+            Navigator.of(context).pop();
+
+            // Refresh enhanced stats after goal creation
+            widget.ref.refresh(enhancedStatsNotifierProvider);
+
+            // Show success message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Goal "${goal.title}" created successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          },
+          child: const Text('Add Goal'),
+        ),
+      ],
+    );
   }
 }
