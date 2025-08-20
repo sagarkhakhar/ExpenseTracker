@@ -202,6 +202,40 @@ class ExpenseOverviewTab extends ConsumerWidget {
     }
   }
 
+  /// Deletes an expense and ensures proper refresh of the overview list.
+  /// Handles the deletion process for the main expense list.
+  void _deleteExpense(Expense expense, WidgetRef ref) async {
+    try {
+      // Delete the expense using the provider
+      await ref.read(expenseNotifierProvider.notifier).deleteExpense(expense.id);
+      
+      // Force refresh the provider to ensure immediate UI update
+      ref.invalidate(expenseNotifierProvider);
+      
+      // Show success feedback to the user
+      if (ref.context.mounted) {
+        ScaffoldMessenger.of(ref.context).showSnackBar(
+          SnackBar(
+            content: Text('Expense "${expense.title}" deleted successfully'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (error) {
+      // Show error feedback to the user
+      if (ref.context.mounted) {
+        ScaffoldMessenger.of(ref.context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete expense: $error'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context)!;
@@ -290,6 +324,7 @@ class ExpenseOverviewTab extends ConsumerWidget {
                 expenses: expenses,
                 onExpenseTap: (expense) =>
                     _navigateToEditExpense(context, expense),
+                onExpenseDelete: (expense) => _deleteExpense(expense, ref),
               ),
             ],
           ),

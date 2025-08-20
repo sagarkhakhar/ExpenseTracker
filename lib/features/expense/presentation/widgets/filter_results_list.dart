@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/features/expense/domain/entities/expense.dart';
 import 'package:expense_tracker/features/expense/presentation/widgets/expense_list.dart';
+import 'package:expense_tracker/features/expense/presentation/views/add_expense_screen.dart';
+import 'package:expense_tracker/features/expense/presentation/providers/expense_providers.dart';
+import 'package:expense_tracker/features/expense/presentation/providers/filter_providers.dart';
+import 'package:expense_tracker/shared/widgets/platform_widgets.dart';
 
-class FilterResultsList extends StatelessWidget {
+class FilterResultsList extends ConsumerWidget {
   final List<Expense> expenses;
 
   const FilterResultsList({
@@ -11,7 +17,7 @@ class FilterResultsList extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (expenses.isEmpty) {
       return const Center(
         child: Column(
@@ -93,6 +99,8 @@ class FilterResultsList extends StatelessWidget {
           child: SingleChildScrollView(
             child: ExpenseList(
               expenses: expenses,
+              onExpenseTap: (expense) => _navigateToEditExpense(context, expense),
+              onExpenseDelete: (expense) => _deleteExpense(expense, ref),
             ),
           ),
         ),
@@ -102,5 +110,68 @@ class FilterResultsList extends StatelessWidget {
 
   double _calculateTotal() {
     return expenses.fold(0.0, (sum, expense) => sum + expense.amount);
+  }
+
+  /// Navigates to the edit expense screen with the selected expense.
+  /// Handles the navigation logic for editing expenses from filtered results.
+  void _navigateToEditExpense(BuildContext context, Expense expense) {
+    if (PlatformWidgets.isIOS) {
+      // iOS-style navigation with slide transition
+      Navigator.of(context).push(
+        CupertinoPageRoute(
+          builder: (context) => AddExpenseScreen(expense: expense),
+        ),
+      );
+    } else {
+      // Android-style navigation with default transition
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => AddExpenseScreen(expense: expense),
+        ),
+      );
+    }
+  }
+
+  /// Deletes an expense and refreshes the filtered results.
+  /// Handles the deletion process for filtered expense lists.
+  void _deleteExpense(Expense expense, WidgetRef ref) async {
+    try {
+      // Delete from the main expense provider
+      await ref.read(expenseNotifierProvider.notifier).deleteExpense(expense.id);
+      
+      // Invalidate and refresh the filtered results provider to get updated data
+      ref.invalidate(filteredExpensesProvider);
+      
+      // Re-apply current filters if they are active
+      final currentFilters = ref.read(filterCriteriaProvider);
+      if (currentFilters.isActive) {
+        // Small delay to ensure state has propagated
+        Future.microtask(() {
+          ref.read(filteredExpensesProvider.notifier).applyFilters(currentFilters);
+        });
+      }
+      
+      // Show success feedback to the user
+      if (ref.context.mounted) {
+        ScaffoldMessenger.of(ref.context).showSnackBar(
+          SnackBar(
+            content: Text('Expense "${expense.title}" deleted successfully'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (error) {
+      // Show error feedback to the user
+      if (ref.context.mounted) {
+        ScaffoldMessenger.of(ref.context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete expense: $error'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 }

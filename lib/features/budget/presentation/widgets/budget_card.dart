@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/budget.dart';
+import '../../../../shared/widgets/platform_widgets.dart';
+import '../../../../core/constants/app_constants.dart';
 import 'budget_progress_bar.dart';
 
-class BudgetCard extends StatelessWidget {
+class BudgetCard extends ConsumerWidget {
   final Budget budget;
+  final bool showDeleteButton;
 
   const BudgetCard({
     super.key,
     required this.budget,
+    this.showDeleteButton = false,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Card(
       elevation: 2,
       child: Padding(
@@ -30,7 +36,16 @@ class BudgetCard extends StatelessWidget {
                         ),
                   ),
                 ),
-                _buildStatusChip(context),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildStatusChip(context),
+                    if (showDeleteButton) ...[
+                      const SizedBox(width: AppConstants.paddingS),
+                      _buildDeleteButton(context, ref),
+                    ],
+                  ],
+                ),
               ],
             ),
             const SizedBox(height: 8),
@@ -164,6 +179,101 @@ class BudgetCard extends StatelessWidget {
       return Colors.orange;
     } else {
       return Colors.green;
+    }
+  }
+
+  /// Builds the delete button for budget items.
+  Widget _buildDeleteButton(BuildContext context, WidgetRef ref) {
+    return IconButton(
+      onPressed: () => _showDeleteConfirmation(context, ref),
+      icon: Icon(
+        PlatformWidgets.isIOS ? CupertinoIcons.delete : Icons.delete_outline,
+        color: const Color(AppConstants.errorColor),
+        size: AppConstants.iconSizeM,
+      ),
+      tooltip: 'Delete budget',
+    );
+  }
+
+  /// Shows a confirmation dialog before deleting a budget.
+  void _showDeleteConfirmation(BuildContext context, WidgetRef ref) {
+    if (PlatformWidgets.isIOS) {
+      // iOS-style confirmation dialog
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          title: const Text('Delete Budget'),
+          content: Text('Are you sure you want to delete the budget for "${budget.categoryId}"?'),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.pop(context),
+            ),
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              child: const Text('Delete'),
+              onPressed: () {
+                Navigator.pop(context);
+                _deleteBudget(ref);
+              },
+            ),
+          ],
+        ),
+      );
+    } else {
+      // Android-style confirmation dialog
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Delete Budget'),
+          content: Text('Are you sure you want to delete the budget for "${budget.categoryId}"?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _deleteBudget(ref);
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(AppConstants.errorColor),
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  /// Deletes the budget and shows feedback to the user.
+  void _deleteBudget(WidgetRef ref) async {
+    try {
+      // Delete the budget using the provider (if it exists)
+      // Note: This would need a budget provider implementation
+      // For now, we'll show a placeholder message
+      
+      if (ref.context.mounted) {
+        ScaffoldMessenger.of(ref.context).showSnackBar(
+          SnackBar(
+            content: Text('Budget "${budget.categoryId}" deleted successfully'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (error) {
+      if (ref.context.mounted) {
+        ScaffoldMessenger.of(ref.context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete budget: $error'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 }

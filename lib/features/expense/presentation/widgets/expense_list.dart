@@ -340,13 +340,38 @@ class ExpenseList extends ConsumerWidget {
 
   /// Deletes the expense and shows feedback to the user.
   /// Handles the actual deletion process and user notification.
-  void _deleteExpense(Expense expense, WidgetRef ref) {
-    // Call the delete function from the provider
-    if (onExpenseDelete != null) {
-      onExpenseDelete!(expense);
-    } else {
-      // Default deletion through the provider
-      ref.read(expenseNotifierProvider.notifier).deleteExpense(expense.id);
+  void _deleteExpense(Expense expense, WidgetRef ref) async {
+    try {
+      // Call the delete function from the provider
+      if (onExpenseDelete != null) {
+        // Use custom delete callback (parent handles feedback)
+        onExpenseDelete!(expense);
+      } else {
+        // Default deletion through the provider with feedback
+        await ref.read(expenseNotifierProvider.notifier).deleteExpense(expense.id);
+        
+        // Show success feedback when using default deletion
+        if (ref.context.mounted) {
+          ScaffoldMessenger.of(ref.context).showSnackBar(
+            SnackBar(
+              content: Text('Expense "${expense.title}" deleted successfully'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } catch (error) {
+      // Show error feedback for any deletion failure
+      if (ref.context.mounted) {
+        ScaffoldMessenger.of(ref.context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete expense: $error'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 
