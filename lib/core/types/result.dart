@@ -9,13 +9,13 @@ sealed class Result<T> extends Equatable {
   const Result();
 
   /// Create a success result
-  factory Result.success(T value) = Success<T>;
+  const factory Result.success(T value) = Success<T>;
 
   /// Create a failure result
-  factory Result.failure(AppException exception) = Failure<T>;
+  const factory Result.failure(AppException exception) = Failure<T>;
 
   /// Create a loading state (for async operations)
-  factory Result.loading([String? message]) = Loading<T>;
+  const factory Result.loading([String? message]) = Loading<T>;
 
   /// Pattern matching for exhaustive handling
   R when<R>({
@@ -174,9 +174,9 @@ extension FutureResultExtensions<T> on Future<Result<T>> {
 sealed class ValidationState<T> extends Equatable {
   const ValidationState();
 
-  factory ValidationState.valid(T value) = Valid<T>;
-  factory ValidationState.invalid(List<String> errors) = Invalid<T>;
-  factory ValidationState.pending() = Pending<T>;
+  const factory ValidationState.valid(T value) = Valid<T>;
+  const factory ValidationState.invalid(List<String> errors) = Invalid<T>;
+  const factory ValidationState.pending() = Pending<T>;
 
   R when<R>({
     required R Function(T value) valid,
@@ -232,10 +232,10 @@ final class Pending<T> extends ValidationState<T> {
 sealed class LoadingState<T> extends Equatable {
   const LoadingState();
 
-  factory LoadingState.idle() = Idle<T>;
-  factory LoadingState.loading([double? progress, String? message]) = LoadingProgress<T>;
-  factory LoadingState.success(T data) = LoadingSuccess<T>;
-  factory LoadingState.error(AppException exception) = LoadingError<T>;
+  const factory LoadingState.idle() = Idle<T>;
+  const factory LoadingState.loading([double? progress, String? message]) = LoadingProgress<T>;
+  const factory LoadingState.success(T data) = LoadingSuccess<T>;
+  const factory LoadingState.error(AppException exception) = LoadingError<T>;
 
   R when<R>({
     required R Function() idle,
@@ -296,8 +296,8 @@ final class LoadingError<T> extends LoadingState<T> {
 sealed class Option<T> extends Equatable {
   const Option();
 
-  factory Option.some(T value) = Some<T>;
-  factory Option.none() = None<T>;
+  const factory Option.some(T value) = Some<T>;
+  const factory Option.none() = None<T>;
 
   /// Create option from nullable value
   factory Option.fromNullable(T? value) {
@@ -317,14 +317,14 @@ sealed class Option<T> extends Equatable {
   Option<R> map<R>(R Function(T value) mapper) {
     return switch (this) {
       Some<T> s => Option.some(mapper(s.value)),
-      None<T> _ => Option.none(),
+      None<T> _ => const Option.none(),
     };
   }
 
   Option<R> flatMap<R>(Option<R> Function(T value) mapper) {
     return switch (this) {
       Some<T> s => mapper(s.value),
-      None<T> _ => Option.none(),
+      None<T> _ => const Option.none(),
     };
   }
 

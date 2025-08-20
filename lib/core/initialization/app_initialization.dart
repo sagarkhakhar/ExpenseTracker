@@ -83,7 +83,7 @@ class AppInitialization {
         'outputs': kDebugMode ? ['console', 'developer'] : ['console'],
       });
 
-    } catch (error, stackTrace) {
+    } catch (error) {
       // Fallback to basic logging if structured logging fails
       debugPrint('Failed to initialize logging system: $error');
       rethrow;

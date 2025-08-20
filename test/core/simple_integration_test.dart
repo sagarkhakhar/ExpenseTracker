@@ -8,7 +8,7 @@ void main() {
   group('Simple Integration Test', () {
     test('Result types work correctly', () {
       // Test success case
-      final successResult = Result.success('test value');
+      const successResult = Result.success('test value');
       expect(successResult.isSuccess, true);
       expect(successResult.isFailure, false);
       expect(successResult.valueOrNull, 'test value');

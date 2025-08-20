@@ -3,7 +3,6 @@
 
 import 'dart:async';
 import 'dart:collection';
-import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import '../logging/app_logger.dart';
