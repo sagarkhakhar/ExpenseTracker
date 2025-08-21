@@ -20,6 +20,7 @@
 ## 📋 Table of Contents
 
 - [🌟 Features](#-features)
+- [🌍 Internationalization & Localization](#-internationalization-i18n--localization)
 - [📱 Screenshots](#-screenshots) 
 - [🏗️ Architecture](#️-architecture)
 - [🚀 Quick Start](#-quick-start)
@@ -57,6 +58,287 @@
 - ✅ **Fast Performance** - Optimized with Riverpod state management
 - ✅ **Secure** - No external data transmission
 - ✅ **Multi-Language** - English/Spanish localization support
+
+---
+
+## 🌍 Internationalization (i18n) & Localization
+
+This app includes comprehensive internationalization support with Flutter's built-in `l10n` system, making it easy to add new languages and maintain localized content.
+
+### 📋 Current Language Support
+
+| Language | Code | Status | Coverage |
+|----------|------|--------|----------|
+| **English** | `en` | ✅ Complete | 100% |
+| **Spanish** | `es` | ✅ Complete | 100% |
+
+### 🚀 Quick Start for Developers
+
+#### **Using Localized Strings in Your Code**
+
+```dart
+// In any widget with BuildContext
+Text(AppLocalizations.of(context)!.appTitle)  // "Expense Tracker"
+
+// With parameters
+Text(AppLocalizations.of(context)!.expenseDeletedSuccessfully(expense.title))
+// "Expense 'Coffee' deleted successfully"
+
+// In validation (with fallback for tests)
+ExpenseValidators.validateTitle(title, AppLocalizations.of(context))
+```
+
+#### **Available Localization Keys**
+
+<details>
+<summary><strong>🔍 Click to see all available localization keys</strong></summary>
+
+##### **Core UI Elements**
+```dart
+AppLocalizations.of(context)!.appTitle           // "Expense Tracker"
+AppLocalizations.of(context)!.overview           // "Overview"  
+AppLocalizations.of(context)!.stats              // "Statistics"
+AppLocalizations.of(context)!.addExpense         // "Add Expense"
+AppLocalizations.of(context)!.editExpense        // "Edit Expense"
+```
+
+##### **Button & Actions**
+```dart
+AppLocalizations.of(context)!.cancel             // "Cancel"
+AppLocalizations.of(context)!.done               // "Done"
+AppLocalizations.of(context)!.save               // "Save"
+AppLocalizations.of(context)!.delete             // "Delete"
+AppLocalizations.of(context)!.retry              // "Retry"
+AppLocalizations.of(context)!.refresh            // "Refresh"
+```
+
+##### **Form Fields**
+```dart
+AppLocalizations.of(context)!.title              // "Title"
+AppLocalizations.of(context)!.description        // "Description"
+AppLocalizations.of(context)!.amount             // "Amount"
+AppLocalizations.of(context)!.category           // "Category"
+AppLocalizations.of(context)!.date               // "Date"
+```
+
+##### **Validation Messages**
+```dart
+AppLocalizations.of(context)!.titleRequired      // "Title is required"
+AppLocalizations.of(context)!.titleTooLong       // "Title cannot exceed 100 characters"
+AppLocalizations.of(context)!.amountMustBePositive // "Amount must be positive"
+AppLocalizations.of(context)!.dateRequired       // "Date is required"
+```
+
+##### **Error Messages**
+```dart
+AppLocalizations.of(context)!.errorSharingFile(error)     // "Error sharing file: {error}"
+AppLocalizations.of(context)!.fileDoesNotExist            // "File does not exist"
+AppLocalizations.of(context)!.errorLoadingExpenses        // "Error loading expenses"
+```
+
+##### **Status & Success Messages**
+```dart
+AppLocalizations.of(context)!.expenseDeletedSuccessfully(title)  // "Expense '{title}' deleted successfully"
+AppLocalizations.of(context)!.goalCreatedSuccessfully(title)     // "Goal '{title}' created successfully!"
+AppLocalizations.of(context)!.filePathCopied                     // "File path copied to clipboard!"
+```
+
+</details>
+
+### 🛠️ Adding New Localized Strings
+
+#### **Step 1: Add to English ARB file**
+
+Edit `lib/l10n/app_en.arb`:
+
+```json
+{
+  "existingKey": "Existing text",
+  
+  "newSimpleKey": "Your new text here",
+  
+  "newKeyWithParameter": "Hello {userName}!",
+  "@newKeyWithParameter": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  }
+}
+```
+
+#### **Step 2: Add to Spanish ARB file**
+
+Edit `lib/l10n/app_es.arb`:
+
+```json
+{
+  "existingKey": "Texto existente",
+  
+  "newSimpleKey": "Tu nuevo texto aquí",
+  
+  "newKeyWithParameter": "¡Hola {userName}!"
+}
+```
+
+#### **Step 3: Generate Localization Files**
+
+```bash
+flutter gen-l10n
+```
+
+This automatically generates `lib/l10n/app_localizations.dart` and related files.
+
+#### **Step 4: Use in Your Code**
+
+```dart
+// Simple usage
+Text(AppLocalizations.of(context)!.newSimpleKey)
+
+// With parameters
+Text(AppLocalizations.of(context)!.newKeyWithParameter('John'))
+
+// In validation with fallback
+ExpenseValidators.validateSomething(value, AppLocalizations.of(context))
+```
+
+### 🌐 Adding a New Language
+
+#### **Step 1: Create New ARB File**
+
+Create `lib/l10n/app_fr.arb` for French:
+
+```json
+{
+  "appTitle": "Suivi des Dépenses",
+  "overview": "Aperçu",
+  "stats": "Statistiques",
+  "addExpense": "Ajouter une Dépense",
+  "cancel": "Annuler",
+  "save": "Enregistrer"
+}
+```
+
+#### **Step 2: Update l10n Configuration**
+
+No changes needed! Flutter automatically detects new ARB files.
+
+#### **Step 3: Test the New Language**
+
+```dart
+// In your app, the new language will be automatically available
+// if the device is set to French, it will use the French translations
+```
+
+### 🔧 Configuration Files
+
+#### **l10n.yaml**
+```yaml
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+synthetic-package: false
+```
+
+#### **pubspec.yaml**
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+
+flutter:
+  generate: true
+```
+
+### 🧪 Testing Localized Content
+
+#### **Unit Tests**
+```dart
+// Validators work with fallback strings for testing
+test('should validate title with localization', () {
+  final result = ExpenseValidators.validateTitle('', null);
+  expect(result.isLeft(), true);
+  expect(result.fold((l) => l, (r) => ''), 'Title is required');
+});
+```
+
+#### **Widget Tests**
+```dart
+testWidgets('displays localized text', (tester) async {
+  await tester.pumpWidget(
+    MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: MyWidget(),
+    ),
+  );
+  
+  expect(find.text('Add Expense'), findsOneWidget);
+});
+```
+
+### 🎯 Best Practices
+
+#### **✅ Do's**
+- Always use `AppLocalizations.of(context)!.keyName` for user-facing text
+- Add placeholder documentation in ARB files for complex strings
+- Test your app in different languages during development
+- Keep ARB files in sync across all languages
+- Use meaningful key names that describe the content
+
+#### **❌ Don'ts**
+- Never use hardcoded strings like `Text('Cancel')` in UI
+- Don't use `const` with widgets containing localized text
+- Don't forget to add new keys to all language files
+- Don't use localization keys for internal/technical strings
+
+### 🔍 Advanced Features
+
+#### **Pluralization** (Future Enhancement)
+```json
+{
+  "photoCount": "{count, plural, =0{No photos} =1{1 photo} other{{count} photos}}",
+  "@photoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}
+```
+
+#### **Context-based Translations** (Future Enhancement)
+```json
+{
+  "deleteTitle": "{context, select, expense{Delete Expense} budget{Delete Budget} other{Delete}}",
+  "@deleteTitle": {
+    "placeholders": {
+      "context": {
+        "type": "String"
+      }
+    }
+  }
+}
+```
+
+### 📊 Localization Coverage
+
+All user-facing strings are now localized:
+
+- ✅ **UI Labels & Buttons** (25+ strings)
+- ✅ **Form Validation Messages** (10+ strings)  
+- ✅ **Error Messages** (15+ strings)
+- ✅ **Success Notifications** (8+ strings)
+- ✅ **Dialog Titles & Content** (10+ strings)
+- ✅ **Chart & Statistics Labels** (12+ strings)
+
+**Total: 70+ localized strings** across English and Spanish
 
 ---
 
@@ -440,6 +722,7 @@ flutter build web --release          # Web
 | `flutter analyze` | Static code analysis |
 | `flutter doctor` | Check setup |
 | `dart run build_runner build` | Generate code |
+| `flutter gen-l10n` | 🌍 Generate localization files |
 
 ---
 
@@ -482,12 +765,16 @@ flutter build web --release          # Web
 │   │   ├── 📁 theme/             # App theming
 │   │   └── 📁 widgets/           # Reusable widgets
 │   │
-│   ├── 📁 l10n/                  # Internationalization
+│   ├── 📁 l10n/                  # 🌍 Internationalization
+│   │   ├── 📄 app_en.arb         # English translations (70+ strings)
+│   │   ├── 📄 app_es.arb         # Spanish translations  
+│   │   └── 📄 app_localizations.dart # Generated localization class
 │   └── 📄 main.dart              # App entry point
 │
 ├── 📁 test/                       # Test files (mirrors lib structure)
 ├── 📁 docs/                       # Documentation
 ├── 📁 assets/                     # Static assets
+├── 📄 l10n.yaml                  # 🌍 Localization configuration
 ├── 📄 pubspec.yaml               # Project configuration
 └── 📄 analysis_options.yaml      # Linting rules
 ```
