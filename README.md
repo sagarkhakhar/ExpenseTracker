@@ -344,7 +344,131 @@ All user-facing strings are now localized:
 
 ## 📱 Screenshots
 
-> 🚧 *Screenshots will be added after the first successful build*
+<div align="center">
+
+### 🏠 **Dashboard & Overview**
+Experience the beautiful, intuitive interface that provides a comprehensive view of your financial health.
+
+<img src="screen_shots/Screenshot_1755752187.png" width="300" alt="Financial Summary Dashboard" />
+
+*Main dashboard showcasing financial summary with expense tracking, budget alerts, and quick navigation*
+
+---
+
+### 💰 **Financial Analytics**
+Powerful visualizations help you understand your spending patterns and financial trends.
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="screen_shots/Screenshot_1755752340.png" width="280" alt="Expense Categories Analysis" />
+      <br>
+      <b>Expense Categories</b><br>
+      <em>Detailed breakdown of spending by category with interactive pie charts</em>
+    </td>
+    <td align="center">
+      <img src="screen_shots/Screenshot_1755752351.png" width="280" alt="Income Categories Analysis" />
+      <br>
+      <b>Income Categories</b><br>
+      <em>Income distribution and budget overview with progress tracking</em>
+    </td>
+  </tr>
+</table>
+
+---
+
+### 📊 **Advanced Statistics & Goal Tracking**
+Enhanced analytics provide deep insights into your financial journey and goal progress.
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="screen_shots/Screenshot_1755752364.png" width="280" alt="Enhanced Analytics Dashboard" />
+      <br>
+      <b>Enhanced Analytics</b><br>
+      <em>Advanced insights with goal tracking and smart tips</em>
+    </td>
+    <td align="center">
+      <img src="screen_shots/Screenshot_1755752375.png" width="280" alt="Enhanced Statistics with Trends" />
+      <br>
+      <b>Trend Analysis</b><br>
+      <em>Spending trends and category breakdown with visual charts</em>
+    </td>
+  </tr>
+</table>
+
+---
+
+### 💡 **Smart Goal Management**
+Set and track financial goals with intuitive goal creation and progress monitoring.
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="screen_shots/Screenshot_1755752368.png" width="280" alt="Add Financial Goal Modal" />
+      <br>
+      <b>Goal Creation</b><br>
+      <em>Easy goal setup with target amounts and dates</em>
+    </td>
+    <td align="center">
+      <img src="screen_shots/Screenshot_1755752382.png" width="280" alt="Enhanced Statistics Goal Modal" />
+      <br>
+      <b>Goal Management</b><br>
+      <em>Comprehensive goal tracking from statistics view</em>
+    </td>
+  </tr>
+</table>
+
+---
+
+### 🚨 **Budget Management & Alerts**
+Stay on track with intelligent budget monitoring and proactive spending alerts.
+
+<img src="screen_shots/Screenshot_1755752194.png" width="300" alt="Budget Alerts Dashboard" />
+
+*Budget alerts system with warning indicators and spending progress for multiple categories*
+
+---
+
+### 📝 **Transaction Management**
+Effortless expense and income tracking with comprehensive transaction views.
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="screen_shots/Screenshot_1755752204.png" width="280" alt="Expense List Overview" />
+      <br>
+      <b>Transaction List</b><br>
+      <em>Clean expense overview with categories and amounts</em>
+    </td>
+    <td align="center">
+      <img src="screen_shots/Screenshot_1755752259.png" width="280" alt="Add New Expense Form" />
+      <br>
+      <b>Add Expense</b><br>
+      <em>Intuitive expense entry with categories and recurring options</em>
+    </td>
+  </tr>
+</table>
+
+---
+
+### 🔍 **Advanced Filtering & Search**
+Powerful search and filtering capabilities to find exactly what you're looking for.
+
+<img src="screen_shots/Screenshot_1755752232.png" width="300" alt="Filter Expenses Screen" />
+
+*Advanced filtering with date ranges, categories, and real-time search*
+
+---
+
+### 📤 **Data Export & Management**
+Export your financial data in multiple formats for external analysis and backup.
+
+<img src="screen_shots/Screenshot_1755752294.png" width="300" alt="Export Data Options" />
+
+*Data export functionality with CSV and JSON format support*
+
+</div>
 
 ---
 
