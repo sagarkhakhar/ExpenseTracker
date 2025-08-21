@@ -121,7 +121,7 @@ void main() {
 
       test('photosForExpenseProvider should throw exception on failure', () async {
         when(() => mockGetPhotos('expense-1'))
-            .thenAnswer((_) async => Left(testFailure));
+            .thenAnswer((_) async => const Left(testFailure));
 
         final container = ProviderContainer(
           overrides: [
@@ -154,7 +154,7 @@ void main() {
 
       test('photoCountProvider should throw exception on failure', () async {
         when(() => mockPhotoService.getPhotoCountForExpense('expense-1'))
-            .thenAnswer((_) async => Left(testFailure));
+            .thenAnswer((_) async => const Left(testFailure));
 
         final container = ProviderContainer(
           overrides: [
@@ -294,7 +294,7 @@ void main() {
               fileSize: any(named: 'fileSize'),
               mimeType: any(named: 'mimeType'),
               capturedAt: any(named: 'capturedAt'),
-            )).thenAnswer((_) async => Left(testFailure));
+            )).thenAnswer((_) async => const Left(testFailure));
 
         final container = ProviderContainer(
           overrides: [

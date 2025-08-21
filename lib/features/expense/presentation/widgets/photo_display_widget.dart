@@ -299,7 +299,7 @@ class PhotoDisplayWidget extends ConsumerWidget {
               // Refresh the photos
               ref.invalidate(photosForExpenseProvider(expenseId));
             },
-            child: const Text('Retry'),
+            child: Text(AppLocalizations.of(context)!.retry),
           ),
         ],
       ),
@@ -345,8 +345,8 @@ class PhotoDisplayWidget extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Photo'),
-        content: const Text('Are you sure you want to delete this photo?'),
+        title: Text(AppLocalizations.of(context)!.deletePhoto),
+        content: Text(AppLocalizations.of(context)!.deletePhotoConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),

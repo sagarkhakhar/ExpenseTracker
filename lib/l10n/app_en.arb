@@ -71,5 +71,213 @@
   "noPhotos": "No photos attached",
   "photosAttached": "{count} photos attached",
   "preview": "Preview",
-  "save": "Save"
+  "save": "Save",
+
+  "done": "Done",
+  "ok": "OK",
+  "close": "Close",
+  "delete": "Delete",
+  "retry": "Retry",
+  "addGoal": "Add Goal",
+  "viewDetails": "View Details",
+  "applyFilters": "Apply Filters",
+  "clearAll": "Clear All",
+  "refresh": "Refresh",
+  "openSettings": "Open Settings",
+  "copyPath": "Copy Path",
+  "copyAll": "Copy All",
+  "share": "Share",
+  "openFile": "Open File",
+  "add": "Add",
+
+  "deleteBudget": "Delete Budget",
+  "deletePhoto": "Delete Photo",
+  "addFinancialGoal": "Add Financial Goal",
+  "exportData": "Export Data",
+  "permissionRequired": "Permission Required",
+  "fileOpeningFailed": "File Opening Failed",
+  "fileContents": "File Contents: {fileName}",
+  "@fileContents": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  },
+
+  "deleteBudgetConfirm": "Are you sure you want to delete the budget for \"{categoryId}\"?",
+  "@deleteBudgetConfirm": {
+    "placeholders": {
+      "categoryId": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePhotoConfirm": "Are you sure you want to delete this photo?",
+
+  "titleRequired": "Title is required",
+  "titleTooLong": "Title cannot exceed 100 characters",
+  "amountMustBePositive": "Amount must be positive",
+  "amountTooLarge": "Amount cannot exceed $1,000,000",
+  "categoryRequired": "Category is required",
+  "categoryTooLong": "Category cannot exceed 50 characters",
+  "dateRequired": "Date is required",
+  "dateOutOfRange": "Date must be within one year of today",
+
+  "errorSharingFile": "Error sharing file: {error}",
+  "@errorSharingFile": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "fileDoesNotExist": "File does not exist",
+  "fileAppearsEmpty": "File appears to be empty",
+  "couldNotOpenFile": "Could not open file. File is saved at: {filePath}",
+  "@couldNotOpenFile": {
+    "placeholders": {
+      "filePath": {
+        "type": "String"
+      }
+    }
+  },
+  "filePathCopied": "File path copied to clipboard!",
+  "viewContents": "View Contents",
+  "errorOpeningFile": "Error opening file: {error}",
+  "@errorOpeningFile": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorReadingFile": "Error reading file: {error}",
+  "@errorReadingFile": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "fileContentsCopied": "File contents copied to clipboard!",
+
+  "noCategoryData": "No category data available",
+  "invalidCategoryData": "Invalid category data",
+  "errorRenderingChart": "Error rendering chart",
+  "noTrendData": "No trend data available",
+  "chartAreaTooSmall": "Chart area too small",
+  "chartNeedsDimensions": "Chart needs defined dimensions",
+  "insufficientDataForChart": "Insufficient data for chart",
+  "noSpendingData": "No spending data to display",
+  "expenseDeletedSuccessfully": "Expense \"{title}\" deleted successfully",
+  "@expenseDeletedSuccessfully": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "failedToDeleteExpense": "Failed to delete expense: {error}",
+  "@failedToDeleteExpense": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "goalCreatedSuccessfully": "Goal \"{title}\" created successfully!",
+  "@goalCreatedSuccessfully": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "pleaseEnterGoalTitle": "Please enter a goal title",
+  "pleaseEnterValidAmount": "Please enter a valid target amount",
+  "pleaseSelectTargetDate": "Please select a target date",
+
+  "targetDate": "Target Date",
+  "categoryLabel": "Category: {category}",
+  "@categoryLabel": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "typeLabel": "Type: {type}",
+  "@typeLabel": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "searchLabel": "Search: \"{searchText}\"",
+  "@searchLabel": {
+    "placeholders": {
+      "searchText": {
+        "type": "String"
+      }
+    }
+  },
+
+  "addBudget": "Add Budget",
+  "errorGeneric": "Error: {error}",
+  "@errorGeneric": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoadingBudgets": "Error loading budgets: {error}",
+  "@errorLoadingBudgets": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoadingTips": "Error loading tips: {error}",
+  "@errorLoadingTips": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoadingEnhancedStats": "Error loading enhanced statistics: {error}",
+  "@errorLoadingEnhancedStats": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noExpensesToExport": "No expenses to export",
+  "exportFileNotFound": "Export file not found. Please try exporting again.",
+  "fileNotFoundAt": "File not found at: {filePath}",
+  "@fileNotFoundAt": {
+    "placeholders": {
+      "filePath": {
+        "type": "String"
+      }
+    }
+  },
+  "enhancedStatistics": "Enhanced Statistics",
+  "filterExpenses": "Filter Expenses",
+  "dateFormat": "{day}/{month}",
+  "@dateFormat": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  }
 } 

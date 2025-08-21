@@ -17,7 +17,10 @@
       "Bash(dart analyze:*)",
       "Bash(chmod:*)",
       "Bash(git checkout:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(flutter gen-l10n:*)",
+      "Bash(find:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []

@@ -146,7 +146,7 @@ void main() {
 
       test('should handle filter error', () async {
         when(() => mockApplyFilters(any()))
-            .thenAnswer((_) async => Left(testFailure));
+            .thenAnswer((_) async => const Left(testFailure));
 
         final container = ProviderContainer(
           overrides: [
@@ -186,7 +186,7 @@ void main() {
 
       test('should handle search error', () async {
         when(() => mockSearchExpenses(any()))
-            .thenAnswer((_) async => Left(testFailure));
+            .thenAnswer((_) async => const Left(testFailure));
 
         final container = ProviderContainer(
           overrides: [

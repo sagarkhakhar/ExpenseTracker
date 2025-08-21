@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/budget.dart';
 import '../../../../shared/widgets/platform_widgets.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'budget_progress_bar.dart';
 
 class BudgetCard extends ConsumerWidget {
@@ -199,16 +200,16 @@ class BudgetCard extends ConsumerWidget {
       showCupertinoDialog(
         context: context,
         builder: (context) => CupertinoAlertDialog(
-          title: const Text('Delete Budget'),
-          content: Text('Are you sure you want to delete the budget for "${budget.categoryId}"?'),
+          title: Text(AppLocalizations.of(context)!.deleteBudget),
+          content: Text(AppLocalizations.of(context)!.deleteBudgetConfirm(budget.categoryId)),
           actions: [
             CupertinoDialogAction(
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
               onPressed: () => Navigator.pop(context),
             ),
             CupertinoDialogAction(
               isDestructiveAction: true,
-              child: const Text('Delete'),
+              child: Text(AppLocalizations.of(context)!.delete),
               onPressed: () {
                 Navigator.pop(context);
                 _deleteBudget(ref);
@@ -222,14 +223,14 @@ class BudgetCard extends ConsumerWidget {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Delete Budget'),
-          content: Text('Are you sure you want to delete the budget for "${budget.categoryId}"?'),
+          title: Text(AppLocalizations.of(context)!.deleteBudget),
+          content: Text(AppLocalizations.of(context)!.deleteBudgetConfirm(budget.categoryId)),
           actions: [
             PlatformWidgets.buildButton(
               context: context,
               onPressed: () => Navigator.pop(context),
               isPrimary: false,
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             PlatformWidgets.buildButton(
               context: context,
@@ -238,7 +239,7 @@ class BudgetCard extends ConsumerWidget {
                 _deleteBudget(ref);
               },
               isPrimary: true,
-              child: const Text('Delete'),
+              child: Text(AppLocalizations.of(context)!.delete),
             ),
           ],
         ),

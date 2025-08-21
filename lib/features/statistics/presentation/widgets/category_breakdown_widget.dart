@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/currency_utils.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// A widget that displays category spending breakdown as a pie chart.
 /// Uses fl_chart for enhanced visualizations.
@@ -21,8 +22,8 @@ class CategoryBreakdownWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (categoryBreakdown.isEmpty) {
-      return const Center(
-        child: Text('No category data available'),
+      return Center(
+        child: Text(AppLocalizations.of(context)!.noCategoryData),
       );
     }
 
@@ -31,8 +32,8 @@ class CategoryBreakdownWidget extends StatelessWidget {
 
     // Additional validation for chart data
     if (chartData.isEmpty) {
-      return const Center(
-        child: Text('Invalid category data'),
+      return Center(
+        child: Text(AppLocalizations.of(context)!.invalidCategoryData),
       );
     }
 
@@ -73,8 +74,8 @@ class CategoryBreakdownWidget extends StatelessWidget {
                     ),
                   );
                 } catch (e) {
-                  return const Center(
-                    child: Text('Error rendering chart'),
+                  return Center(
+                    child: Text(AppLocalizations.of(context)!.errorRenderingChart),
                   );
                 }
               },

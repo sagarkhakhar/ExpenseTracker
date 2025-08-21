@@ -293,7 +293,7 @@ class ExpenseList extends ConsumerWidget {
         context: context,
         builder: (context) => CupertinoAlertDialog(
           title: Text(localizations.deleteExpense),
-          content: const Text('Are you sure you want to delete this expense?'),
+          content: Text(AppLocalizations.of(context)!.deleteExpenseConfirm),
           actions: [
             CupertinoDialogAction(
               child: Text(localizations.cancel),
@@ -316,7 +316,7 @@ class ExpenseList extends ConsumerWidget {
         context: context,
         builder: (context) => AlertDialog(
           title: Text(localizations.deleteExpense),
-          content: const Text('Are you sure you want to delete this expense?'),
+          content: Text(AppLocalizations.of(context)!.deleteExpenseConfirm),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -354,7 +354,7 @@ class ExpenseList extends ConsumerWidget {
         if (ref.context.mounted) {
           ScaffoldMessenger.of(ref.context).showSnackBar(
             SnackBar(
-              content: Text('Expense "${expense.title}" deleted successfully'),
+              content: Text(AppLocalizations.of(ref.context)!.expenseDeletedSuccessfully(expense.title)),
               backgroundColor: Colors.green,
               duration: const Duration(seconds: 2),
             ),
@@ -366,7 +366,7 @@ class ExpenseList extends ConsumerWidget {
       if (ref.context.mounted) {
         ScaffoldMessenger.of(ref.context).showSnackBar(
           SnackBar(
-            content: Text('Failed to delete expense: $error'),
+            content: Text(AppLocalizations.of(ref.context)!.failedToDeleteExpense(error.toString())),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 3),
           ),

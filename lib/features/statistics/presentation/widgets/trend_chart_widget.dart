@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/currency_utils.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// A widget that displays spending trends as a line chart.
 /// Uses fl_chart for enhanced visualizations.
@@ -47,8 +48,8 @@ class _TrendChartWidgetState extends State<TrendChartWidget> {
     }
 
     if (widget.trends.isEmpty) {
-      return const Center(
-        child: Text('No trend data available'),
+      return Center(
+        child: Text(AppLocalizations.of(context)!.noTrendData),
       );
     }
 
@@ -57,23 +58,23 @@ class _TrendChartWidgetState extends State<TrendChartWidget> {
 
     // Additional validation for chart data
     if (chartData.isEmpty) {
-      return const Center(
-        child: Text('Invalid trend data'),
+      return Center(
+        child: Text(AppLocalizations.of(context)!.invalidCategoryData),
       );
     }
 
     // Ensure we have valid chart data
     if (chartData.length < 2) {
-      return const Center(
-        child: Text('Insufficient data for chart'),
+      return Center(
+        child: Text(AppLocalizations.of(context)!.insufficientDataForChart),
       );
     }
 
     // Validate chart data values
     final hasValidData = chartData.any((point) => point.value > 0);
     if (!hasValidData) {
-      return const Center(
-        child: Text('No spending data to display'),
+      return Center(
+        child: Text(AppLocalizations.of(context)!.noSpendingData),
       );
     }
 
@@ -81,16 +82,16 @@ class _TrendChartWidgetState extends State<TrendChartWidget> {
       builder: (context, constraints) {
         // Ensure we have valid constraints with minimum size
         if (constraints.maxWidth <= 50 || constraints.maxHeight <= 50) {
-          return const Center(
-            child: Text('Chart area too small'),
+          return Center(
+            child: Text(AppLocalizations.of(context)!.chartAreaTooSmall),
           );
         }
 
         // Ensure we have reasonable constraints
         if (constraints.maxWidth.isInfinite ||
             constraints.maxHeight.isInfinite) {
-          return const Center(
-            child: Text('Chart needs defined dimensions'),
+          return Center(
+            child: Text(AppLocalizations.of(context)!.chartNeedsDimensions),
           );
         }
 
@@ -234,8 +235,8 @@ class _TrendChartWidgetState extends State<TrendChartWidget> {
           );
         } catch (e) {
           // Fallback to error message if chart rendering fails
-          return const Center(
-            child: Text('Error rendering chart'),
+          return Center(
+            child: Text(AppLocalizations.of(context)!.errorRenderingChart),
           );
         }
       },

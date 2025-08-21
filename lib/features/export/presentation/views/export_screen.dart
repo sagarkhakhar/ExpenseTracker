@@ -6,6 +6,7 @@ import 'package:expense_tracker/features/export/presentation/widgets/export_form
 import 'package:expense_tracker/features/export/presentation/widgets/export_history_list.dart';
 import 'package:expense_tracker/features/expense/presentation/providers/expense_providers.dart';
 import 'package:expense_tracker/core/services/notification_service.dart';
+import 'package:expense_tracker/l10n/app_localizations.dart';
 import 'dart:io'; // Added for File
 
 /// Screen for exporting expense data
@@ -30,7 +31,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Export Data'),
+        title: Text(AppLocalizations.of(context)!.exportData),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Padding(
@@ -165,7 +166,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                             onPressed: () =>
                                 _openExportedFile(exportState.lastExport!),
                             icon: const Icon(Icons.open_in_new, size: 16),
-                            label: const Text('Open File'),
+                            label: Text(AppLocalizations.of(context)!.openFile),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 8),
                             ),
@@ -177,7 +178,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                             onPressed: () =>
                                 _shareExportedFile(exportState.lastExport!),
                             icon: const Icon(Icons.share, size: 16),
-                            label: const Text('Share'),
+                            label: Text(AppLocalizations.of(context)!.share),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 8),
                             ),
@@ -236,8 +237,8 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     expensesAsync.whenData((expenses) {
       if (expenses.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No expenses to export'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.noExpensesToExport),
             backgroundColor: Colors.orange,
           ),
         );
@@ -268,9 +269,9 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       if (!fileExists) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content:
-                  Text('Export file not found. Please try exporting again.'),
+                  Text(AppLocalizations.of(context)!.exportFileNotFound),
               backgroundColor: Colors.orange,
             ),
           );
@@ -287,7 +288,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('File not found at: $filePath'),
+              content: Text(AppLocalizations.of(context)!.fileNotFoundAt(filePath)),
               backgroundColor: Colors.orange,
             ),
           );
@@ -301,7 +302,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error opening file: $e'),
+            content: Text(AppLocalizations.of(context)!.errorOpeningFile(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -320,9 +321,9 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       if (!fileExists) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content:
-                  Text('Export file not found. Please try exporting again.'),
+                  Text(AppLocalizations.of(context)!.exportFileNotFound),
               backgroundColor: Colors.orange,
             ),
           );
@@ -339,7 +340,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('File not found at: $filePath'),
+              content: Text(AppLocalizations.of(context)!.fileNotFoundAt(filePath)),
               backgroundColor: Colors.orange,
             ),
           );
@@ -354,7 +355,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error sharing file: $e'),
+            content: Text(AppLocalizations.of(context)!.errorSharingFile(e.toString())),
             backgroundColor: Colors.red,
           ),
         );

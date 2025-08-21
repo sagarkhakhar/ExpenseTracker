@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io';
+import '../../l10n/app_localizations.dart';
 
 /// Utility class that provides platform-adaptive UI components.
 /// This class abstracts platform differences and provides consistent widgets across iOS and Android.
@@ -223,11 +224,11 @@ class PlatformWidgets {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         CupertinoButton(
-                          child: const Text('Cancel'),
+                          child: Text(AppLocalizations.of(context)?.cancel ?? 'Cancel'),
                           onPressed: () => Navigator.pop(context),
                         ),
                         CupertinoButton(
-                          child: const Text('Done'),
+                          child: Text(AppLocalizations.of(context)?.done ?? 'Done'),
                           onPressed: () => Navigator.pop(context),
                         ),
                       ],
@@ -372,11 +373,11 @@ class PlatformWidgets {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     CupertinoButton(
-                      child: const Text('Cancel'),
+                      child: Text(AppLocalizations.of(context)?.cancel ?? 'Cancel'),
                       onPressed: () => Navigator.pop(context),
                     ),
                     CupertinoButton(
-                      child: const Text('Done'),
+                      child: Text(AppLocalizations.of(context)?.done ?? 'Done'),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -422,7 +423,7 @@ class PlatformWidgets {
           content: Text(message),
           actions: [
             CupertinoDialogAction(
-              child: const Text('OK'),
+              child: Text(AppLocalizations.of(context)?.ok ?? 'OK'),
               onPressed: () => Navigator.pop(context),
             ),
           ],

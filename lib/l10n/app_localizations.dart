@@ -532,6 +532,408 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save'**
   String get save;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @addGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Goal'**
+  String get addGoal;
+
+  /// No description provided for @viewDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'View Details'**
+  String get viewDetails;
+
+  /// No description provided for @applyFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply Filters'**
+  String get applyFilters;
+
+  /// No description provided for @clearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear All'**
+  String get clearAll;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
+  /// No description provided for @openSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings'**
+  String get openSettings;
+
+  /// No description provided for @copyPath.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Path'**
+  String get copyPath;
+
+  /// No description provided for @copyAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy All'**
+  String get copyAll;
+
+  /// No description provided for @share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get share;
+
+  /// No description provided for @openFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Open File'**
+  String get openFile;
+
+  /// No description provided for @add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
+  /// No description provided for @deleteBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Budget'**
+  String get deleteBudget;
+
+  /// No description provided for @deletePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Photo'**
+  String get deletePhoto;
+
+  /// No description provided for @addFinancialGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Financial Goal'**
+  String get addFinancialGoal;
+
+  /// No description provided for @exportData.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Data'**
+  String get exportData;
+
+  /// No description provided for @permissionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission Required'**
+  String get permissionRequired;
+
+  /// No description provided for @fileOpeningFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'File Opening Failed'**
+  String get fileOpeningFailed;
+
+  /// No description provided for @fileContents.
+  ///
+  /// In en, this message translates to:
+  /// **'File Contents: {fileName}'**
+  String fileContents(String fileName);
+
+  /// No description provided for @deleteBudgetConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete the budget for \"{categoryId}\"?'**
+  String deleteBudgetConfirm(String categoryId);
+
+  /// No description provided for @deletePhotoConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this photo?'**
+  String get deletePhotoConfirm;
+
+  /// No description provided for @titleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Title is required'**
+  String get titleRequired;
+
+  /// No description provided for @titleTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Title cannot exceed 100 characters'**
+  String get titleTooLong;
+
+  /// No description provided for @amountMustBePositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount must be positive'**
+  String get amountMustBePositive;
+
+  /// No description provided for @amountTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount cannot exceed \$1,000,000'**
+  String get amountTooLarge;
+
+  /// No description provided for @categoryRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Category is required'**
+  String get categoryRequired;
+
+  /// No description provided for @categoryTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Category cannot exceed 50 characters'**
+  String get categoryTooLong;
+
+  /// No description provided for @dateRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Date is required'**
+  String get dateRequired;
+
+  /// No description provided for @dateOutOfRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Date must be within one year of today'**
+  String get dateOutOfRange;
+
+  /// No description provided for @errorSharingFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Error sharing file: {error}'**
+  String errorSharingFile(String error);
+
+  /// No description provided for @fileDoesNotExist.
+  ///
+  /// In en, this message translates to:
+  /// **'File does not exist'**
+  String get fileDoesNotExist;
+
+  /// No description provided for @fileAppearsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'File appears to be empty'**
+  String get fileAppearsEmpty;
+
+  /// No description provided for @couldNotOpenFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open file. File is saved at: {filePath}'**
+  String couldNotOpenFile(String filePath);
+
+  /// No description provided for @filePathCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'File path copied to clipboard!'**
+  String get filePathCopied;
+
+  /// No description provided for @viewContents.
+  ///
+  /// In en, this message translates to:
+  /// **'View Contents'**
+  String get viewContents;
+
+  /// No description provided for @errorOpeningFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Error opening file: {error}'**
+  String errorOpeningFile(String error);
+
+  /// No description provided for @errorReadingFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Error reading file: {error}'**
+  String errorReadingFile(String error);
+
+  /// No description provided for @fileContentsCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'File contents copied to clipboard!'**
+  String get fileContentsCopied;
+
+  /// No description provided for @noCategoryData.
+  ///
+  /// In en, this message translates to:
+  /// **'No category data available'**
+  String get noCategoryData;
+
+  /// No description provided for @invalidCategoryData.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid category data'**
+  String get invalidCategoryData;
+
+  /// No description provided for @errorRenderingChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Error rendering chart'**
+  String get errorRenderingChart;
+
+  /// No description provided for @noTrendData.
+  ///
+  /// In en, this message translates to:
+  /// **'No trend data available'**
+  String get noTrendData;
+
+  /// No description provided for @chartAreaTooSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Chart area too small'**
+  String get chartAreaTooSmall;
+
+  /// No description provided for @chartNeedsDimensions.
+  ///
+  /// In en, this message translates to:
+  /// **'Chart needs defined dimensions'**
+  String get chartNeedsDimensions;
+
+  /// No description provided for @insufficientDataForChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient data for chart'**
+  String get insufficientDataForChart;
+
+  /// No description provided for @noSpendingData.
+  ///
+  /// In en, this message translates to:
+  /// **'No spending data to display'**
+  String get noSpendingData;
+
+  /// No description provided for @expenseDeletedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense \"{title}\" deleted successfully'**
+  String expenseDeletedSuccessfully(String title);
+
+  /// No description provided for @failedToDeleteExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete expense: {error}'**
+  String failedToDeleteExpense(String error);
+
+  /// No description provided for @goalCreatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal \"{title}\" created successfully!'**
+  String goalCreatedSuccessfully(String title);
+
+  /// No description provided for @pleaseEnterGoalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a goal title'**
+  String get pleaseEnterGoalTitle;
+
+  /// No description provided for @pleaseEnterValidAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid target amount'**
+  String get pleaseEnterValidAmount;
+
+  /// No description provided for @pleaseSelectTargetDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a target date'**
+  String get pleaseSelectTargetDate;
+
+  /// No description provided for @targetDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Target Date'**
+  String get targetDate;
+
+  /// No description provided for @categoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category: {category}'**
+  String categoryLabel(String category);
+
+  /// No description provided for @typeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type: {type}'**
+  String typeLabel(String type);
+
+  /// No description provided for @searchLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Search: \"{searchText}\"'**
+  String searchLabel(String searchText);
+
+  /// No description provided for @addBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Budget'**
+  String get addBudget;
+
+  /// No description provided for @errorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String errorGeneric(String error);
+
+  /// No description provided for @errorLoadingBudgets.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading budgets: {error}'**
+  String errorLoadingBudgets(String error);
+
+  /// No description provided for @errorLoadingTips.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading tips: {error}'**
+  String errorLoadingTips(String error);
+
+  /// No description provided for @errorLoadingEnhancedStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading enhanced statistics: {error}'**
+  String errorLoadingEnhancedStats(String error);
+
+  /// No description provided for @noExpensesToExport.
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses to export'**
+  String get noExpensesToExport;
+
+  /// No description provided for @exportFileNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Export file not found. Please try exporting again.'**
+  String get exportFileNotFound;
+
+  /// No description provided for @fileNotFoundAt.
+  ///
+  /// In en, this message translates to:
+  /// **'File not found at: {filePath}'**
+  String fileNotFoundAt(String filePath);
+
+  /// No description provided for @enhancedStatistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Enhanced Statistics'**
+  String get enhancedStatistics;
+
+  /// No description provided for @filterExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter Expenses'**
+  String get filterExpenses;
+
+  /// No description provided for @dateFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}/{month}'**
+  String dateFormat(String day, String month);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

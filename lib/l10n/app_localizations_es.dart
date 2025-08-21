@@ -234,4 +234,241 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get save => 'Guardar';
+
+  @override
+  String get done => 'Listo';
+
+  @override
+  String get addGoal => 'Agregar Meta';
+
+  @override
+  String get viewDetails => 'Ver Detalles';
+
+  @override
+  String get applyFilters => 'Aplicar Filtros';
+
+  @override
+  String get clearAll => 'Limpiar Todo';
+
+  @override
+  String get refresh => 'Actualizar';
+
+  @override
+  String get openSettings => 'Abrir Configuración';
+
+  @override
+  String get copyPath => 'Copiar Ruta';
+
+  @override
+  String get copyAll => 'Copiar Todo';
+
+  @override
+  String get share => 'Compartir';
+
+  @override
+  String get openFile => 'Abrir Archivo';
+
+  @override
+  String get add => 'Agregar';
+
+  @override
+  String get deleteBudget => 'Eliminar Presupuesto';
+
+  @override
+  String get deletePhoto => 'Eliminar Foto';
+
+  @override
+  String get addFinancialGoal => 'Agregar Meta Financiera';
+
+  @override
+  String get exportData => 'Exportar Datos';
+
+  @override
+  String get permissionRequired => 'Permiso Requerido';
+
+  @override
+  String get fileOpeningFailed => 'Error al Abrir Archivo';
+
+  @override
+  String fileContents(String fileName) {
+    return 'Contenido del Archivo: $fileName';
+  }
+
+  @override
+  String deleteBudgetConfirm(String categoryId) {
+    return '¿Seguro que deseas eliminar el presupuesto para \"$categoryId\"?';
+  }
+
+  @override
+  String get deletePhotoConfirm => '¿Seguro que deseas eliminar esta foto?';
+
+  @override
+  String get titleRequired => 'El título es requerido';
+
+  @override
+  String get titleTooLong => 'El título no puede exceder 100 caracteres';
+
+  @override
+  String get amountMustBePositive => 'La cantidad debe ser positiva';
+
+  @override
+  String get amountTooLarge => 'La cantidad no puede exceder \$1,000,000';
+
+  @override
+  String get categoryRequired => 'La categoría es requerida';
+
+  @override
+  String get categoryTooLong => 'La categoría no puede exceder 50 caracteres';
+
+  @override
+  String get dateRequired => 'La fecha es requerida';
+
+  @override
+  String get dateOutOfRange => 'La fecha debe estar dentro de un año desde hoy';
+
+  @override
+  String errorSharingFile(String error) {
+    return 'Error compartiendo archivo: $error';
+  }
+
+  @override
+  String get fileDoesNotExist => 'El archivo no existe';
+
+  @override
+  String get fileAppearsEmpty => 'El archivo parece estar vacío';
+
+  @override
+  String couldNotOpenFile(String filePath) {
+    return 'No se pudo abrir el archivo. Archivo guardado en: $filePath';
+  }
+
+  @override
+  String get filePathCopied => '¡Ruta del archivo copiada al portapapeles!';
+
+  @override
+  String get viewContents => 'Ver Contenido';
+
+  @override
+  String errorOpeningFile(String error) {
+    return 'Error abriendo archivo: $error';
+  }
+
+  @override
+  String errorReadingFile(String error) {
+    return 'Error leyendo archivo: $error';
+  }
+
+  @override
+  String get fileContentsCopied => '¡Contenido del archivo copiado al portapapeles!';
+
+  @override
+  String get noCategoryData => 'No hay datos de categoría disponibles';
+
+  @override
+  String get invalidCategoryData => 'Datos de categoría inválidos';
+
+  @override
+  String get errorRenderingChart => 'Error renderizando gráfico';
+
+  @override
+  String get noTrendData => 'No hay datos de tendencia disponibles';
+
+  @override
+  String get chartAreaTooSmall => 'Área del gráfico muy pequeña';
+
+  @override
+  String get chartNeedsDimensions => 'El gráfico necesita dimensiones definidas';
+
+  @override
+  String get insufficientDataForChart => 'Datos insuficientes para el gráfico';
+
+  @override
+  String get noSpendingData => 'No hay datos de gastos para mostrar';
+
+  @override
+  String expenseDeletedSuccessfully(String title) {
+    return 'Gasto \"$title\" eliminado exitosamente';
+  }
+
+  @override
+  String failedToDeleteExpense(String error) {
+    return 'Error al eliminar gasto: $error';
+  }
+
+  @override
+  String goalCreatedSuccessfully(String title) {
+    return '¡Meta \"$title\" creada exitosamente!';
+  }
+
+  @override
+  String get pleaseEnterGoalTitle => 'Por favor ingrese un título para la meta';
+
+  @override
+  String get pleaseEnterValidAmount => 'Por favor ingrese una cantidad objetivo válida';
+
+  @override
+  String get pleaseSelectTargetDate => 'Por favor seleccione una fecha objetivo';
+
+  @override
+  String get targetDate => 'Fecha Objetivo';
+
+  @override
+  String categoryLabel(String category) {
+    return 'Categoría: $category';
+  }
+
+  @override
+  String typeLabel(String type) {
+    return 'Tipo: $type';
+  }
+
+  @override
+  String searchLabel(String searchText) {
+    return 'Búsqueda: \"$searchText\"';
+  }
+
+  @override
+  String get addBudget => 'Agregar Presupuesto';
+
+  @override
+  String errorGeneric(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String errorLoadingBudgets(String error) {
+    return 'Error cargando presupuestos: $error';
+  }
+
+  @override
+  String errorLoadingTips(String error) {
+    return 'Error cargando consejos: $error';
+  }
+
+  @override
+  String errorLoadingEnhancedStats(String error) {
+    return 'Error cargando estadísticas mejoradas: $error';
+  }
+
+  @override
+  String get noExpensesToExport => 'No hay gastos para exportar';
+
+  @override
+  String get exportFileNotFound => 'Archivo de exportación no encontrado. Por favor intente exportar nuevamente.';
+
+  @override
+  String fileNotFoundAt(String filePath) {
+    return 'Archivo no encontrado en: $filePath';
+  }
+
+  @override
+  String get enhancedStatistics => 'Estadísticas Mejoradas';
+
+  @override
+  String get filterExpenses => 'Filtrar Gastos';
+
+  @override
+  String dateFormat(String day, String month) {
+    return '$day/$month';
+  }
 }

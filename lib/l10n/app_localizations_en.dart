@@ -234,4 +234,241 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get save => 'Save';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get addGoal => 'Add Goal';
+
+  @override
+  String get viewDetails => 'View Details';
+
+  @override
+  String get applyFilters => 'Apply Filters';
+
+  @override
+  String get clearAll => 'Clear All';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get openSettings => 'Open Settings';
+
+  @override
+  String get copyPath => 'Copy Path';
+
+  @override
+  String get copyAll => 'Copy All';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get openFile => 'Open File';
+
+  @override
+  String get add => 'Add';
+
+  @override
+  String get deleteBudget => 'Delete Budget';
+
+  @override
+  String get deletePhoto => 'Delete Photo';
+
+  @override
+  String get addFinancialGoal => 'Add Financial Goal';
+
+  @override
+  String get exportData => 'Export Data';
+
+  @override
+  String get permissionRequired => 'Permission Required';
+
+  @override
+  String get fileOpeningFailed => 'File Opening Failed';
+
+  @override
+  String fileContents(String fileName) {
+    return 'File Contents: $fileName';
+  }
+
+  @override
+  String deleteBudgetConfirm(String categoryId) {
+    return 'Are you sure you want to delete the budget for \"$categoryId\"?';
+  }
+
+  @override
+  String get deletePhotoConfirm => 'Are you sure you want to delete this photo?';
+
+  @override
+  String get titleRequired => 'Title is required';
+
+  @override
+  String get titleTooLong => 'Title cannot exceed 100 characters';
+
+  @override
+  String get amountMustBePositive => 'Amount must be positive';
+
+  @override
+  String get amountTooLarge => 'Amount cannot exceed \$1,000,000';
+
+  @override
+  String get categoryRequired => 'Category is required';
+
+  @override
+  String get categoryTooLong => 'Category cannot exceed 50 characters';
+
+  @override
+  String get dateRequired => 'Date is required';
+
+  @override
+  String get dateOutOfRange => 'Date must be within one year of today';
+
+  @override
+  String errorSharingFile(String error) {
+    return 'Error sharing file: $error';
+  }
+
+  @override
+  String get fileDoesNotExist => 'File does not exist';
+
+  @override
+  String get fileAppearsEmpty => 'File appears to be empty';
+
+  @override
+  String couldNotOpenFile(String filePath) {
+    return 'Could not open file. File is saved at: $filePath';
+  }
+
+  @override
+  String get filePathCopied => 'File path copied to clipboard!';
+
+  @override
+  String get viewContents => 'View Contents';
+
+  @override
+  String errorOpeningFile(String error) {
+    return 'Error opening file: $error';
+  }
+
+  @override
+  String errorReadingFile(String error) {
+    return 'Error reading file: $error';
+  }
+
+  @override
+  String get fileContentsCopied => 'File contents copied to clipboard!';
+
+  @override
+  String get noCategoryData => 'No category data available';
+
+  @override
+  String get invalidCategoryData => 'Invalid category data';
+
+  @override
+  String get errorRenderingChart => 'Error rendering chart';
+
+  @override
+  String get noTrendData => 'No trend data available';
+
+  @override
+  String get chartAreaTooSmall => 'Chart area too small';
+
+  @override
+  String get chartNeedsDimensions => 'Chart needs defined dimensions';
+
+  @override
+  String get insufficientDataForChart => 'Insufficient data for chart';
+
+  @override
+  String get noSpendingData => 'No spending data to display';
+
+  @override
+  String expenseDeletedSuccessfully(String title) {
+    return 'Expense \"$title\" deleted successfully';
+  }
+
+  @override
+  String failedToDeleteExpense(String error) {
+    return 'Failed to delete expense: $error';
+  }
+
+  @override
+  String goalCreatedSuccessfully(String title) {
+    return 'Goal \"$title\" created successfully!';
+  }
+
+  @override
+  String get pleaseEnterGoalTitle => 'Please enter a goal title';
+
+  @override
+  String get pleaseEnterValidAmount => 'Please enter a valid target amount';
+
+  @override
+  String get pleaseSelectTargetDate => 'Please select a target date';
+
+  @override
+  String get targetDate => 'Target Date';
+
+  @override
+  String categoryLabel(String category) {
+    return 'Category: $category';
+  }
+
+  @override
+  String typeLabel(String type) {
+    return 'Type: $type';
+  }
+
+  @override
+  String searchLabel(String searchText) {
+    return 'Search: \"$searchText\"';
+  }
+
+  @override
+  String get addBudget => 'Add Budget';
+
+  @override
+  String errorGeneric(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String errorLoadingBudgets(String error) {
+    return 'Error loading budgets: $error';
+  }
+
+  @override
+  String errorLoadingTips(String error) {
+    return 'Error loading tips: $error';
+  }
+
+  @override
+  String errorLoadingEnhancedStats(String error) {
+    return 'Error loading enhanced statistics: $error';
+  }
+
+  @override
+  String get noExpensesToExport => 'No expenses to export';
+
+  @override
+  String get exportFileNotFound => 'Export file not found. Please try exporting again.';
+
+  @override
+  String fileNotFoundAt(String filePath) {
+    return 'File not found at: $filePath';
+  }
+
+  @override
+  String get enhancedStatistics => 'Enhanced Statistics';
+
+  @override
+  String get filterExpenses => 'Filter Expenses';
+
+  @override
+  String dateFormat(String day, String month) {
+    return '$day/$month';
+  }
 }

@@ -30,7 +30,7 @@ class EnhancedStatsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Enhanced Statistics'),
+        title: Text(AppLocalizations.of(context)!.enhancedStatistics),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -55,14 +55,14 @@ class EnhancedStatsScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Error loading enhanced statistics: $error'),
+              Text(AppLocalizations.of(context)!.errorLoadingEnhancedStats(error.toString())),
               const SizedBox(height: AppConstants.paddingM),
               PlatformWidgets.buildButton(
                 context: context,
                 onPressed: () {
                   ref.refresh(enhancedStatsNotifierProvider);
                 },
-                child: const Text('Retry'),
+                child: Text(AppLocalizations.of(context)!.retry),
               ),
             ],
           ),
@@ -438,7 +438,7 @@ class EnhancedStatsScreen extends ConsumerWidget {
                     onPressed: () {
                       _showAddGoalDialog(context, ref);
                     },
-                    child: const Text('Add Goal'),
+                    child: Text(AppLocalizations.of(context)!.addGoal),
                   ),
                 ),
                 const SizedBox(width: AppConstants.paddingM),
@@ -451,7 +451,7 @@ class EnhancedStatsScreen extends ConsumerWidget {
                       ref.refresh(enhancedStatsNotifierProvider);
                       ref.refresh(trendAnalysisNotifierProvider);
                     },
-                    child: const Text('Refresh'),
+                    child: Text(AppLocalizations.of(context)!.refresh),
                   ),
                 ),
               ],
@@ -596,7 +596,7 @@ class _AddGoalDialogState extends State<_AddGoalDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Add Financial Goal'),
+      title: Text(AppLocalizations.of(context)!.addFinancialGoal),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -654,7 +654,7 @@ class _AddGoalDialogState extends State<_AddGoalDialog> {
             ),
             const SizedBox(height: AppConstants.paddingM),
             ListTile(
-              title: const Text('Target Date'),
+              title: Text(AppLocalizations.of(context)!.targetDate),
               subtitle: Text(
                 selectedTargetDate != null
                     ? '${selectedTargetDate!.day}/${selectedTargetDate!.month}/${selectedTargetDate!.year}'
@@ -696,13 +696,13 @@ class _AddGoalDialogState extends State<_AddGoalDialog> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context)!.cancel),
         ),
         TextButton(
           onPressed: () async {
             if (titleController.text.trim().isEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Please enter a goal title')),
+                SnackBar(content: Text(AppLocalizations.of(context)!.pleaseEnterGoalTitle)),
               );
               return;
             }
@@ -710,15 +710,15 @@ class _AddGoalDialogState extends State<_AddGoalDialog> {
             final targetAmount = double.tryParse(targetAmountController.text);
             if (targetAmount == null || targetAmount <= 0) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Please enter a valid target amount')),
+                SnackBar(
+                    content: Text(AppLocalizations.of(context)!.pleaseEnterValidAmount)),
               );
               return;
             }
 
             if (selectedTargetDate == null) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Please select a target date')),
+                SnackBar(content: Text(AppLocalizations.of(context)!.pleaseSelectTargetDate)),
               );
               return;
             }
@@ -749,12 +749,12 @@ class _AddGoalDialogState extends State<_AddGoalDialog> {
             // Show success message
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Goal "${goal.title}" created successfully!'),
+                content: Text(AppLocalizations.of(context)!.goalCreatedSuccessfully(goal.title)),
                 backgroundColor: Colors.green,
               ),
             );
           },
-          child: const Text('Add Goal'),
+          child: Text(AppLocalizations.of(context)!.addGoal),
         ),
       ],
     );

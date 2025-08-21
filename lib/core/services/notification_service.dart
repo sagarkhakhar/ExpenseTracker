@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Lightweight service for handling file operations and user feedback
 class NotificationService {
@@ -91,7 +92,7 @@ class NotificationService {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error sharing file: $e'),
+            content: Text(AppLocalizations.of(context)!.errorSharingFile(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -205,8 +206,8 @@ class NotificationService {
       if (!fileInfo['exists']) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('File does not exist'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.fileDoesNotExist),
               backgroundColor: Colors.red,
             ),
           );
@@ -217,8 +218,8 @@ class NotificationService {
       if (!fileInfo['hasContent']) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('File appears to be empty'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.fileAppearsEmpty),
               backgroundColor: Colors.orange,
             ),
           );
@@ -282,7 +283,7 @@ class NotificationService {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Could not open file. File is saved at: $filePath'),
+              content: Text(AppLocalizations.of(context)!.couldNotOpenFile(filePath)),
               backgroundColor: Colors.orange,
               duration: const Duration(seconds: 5),
               action: SnackBarAction(
@@ -290,8 +291,8 @@ class NotificationService {
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: filePath));
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('File path copied to clipboard!'),
+                    SnackBar(
+                      content: Text(AppLocalizations.of(context)!.filePathCopied),
                       backgroundColor: Colors.green,
                     ),
                   );
@@ -304,34 +305,34 @@ class NotificationService {
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              title: const Text('File Opening Failed'),
+              title: Text(AppLocalizations.of(context)!.fileOpeningFailed),
               content: const Text(
                 'The file could not be opened with an external app. You can view the contents here or copy the file path.',
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
+                  child: Text(AppLocalizations.of(context)!.cancel),
                 ),
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                     _showFileContentsDialog(context, filePath);
                   },
-                  child: const Text('View Contents'),
+                  child: Text(AppLocalizations.of(context)!.viewContents),
                 ),
                 TextButton(
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: filePath));
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('File path copied to clipboard!'),
+                      SnackBar(
+                        content: Text(AppLocalizations.of(context)!.filePathCopied),
                         backgroundColor: Colors.green,
                       ),
                     );
                   },
-                  child: const Text('Copy Path'),
+                  child: Text(AppLocalizations.of(context)!.copyPath),
                 ),
               ],
             ),
@@ -344,7 +345,7 @@ class NotificationService {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Could not open file: ${result.message}'),
+                content: Text(AppLocalizations.of(context)!.errorOpeningFile(result.message)),
                 backgroundColor: Colors.orange,
               ),
             );
@@ -355,7 +356,7 @@ class NotificationService {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error opening file: $e'),
+            content: Text(AppLocalizations.of(context)!.errorOpeningFile(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -419,7 +420,7 @@ class NotificationService {
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              title: Text('File Contents: $fileName'),
+              title: Text(AppLocalizations.of(context)!.fileContents(fileName)),
               content: SizedBox(
                 width: double.maxFinite,
                 height: 400,
@@ -433,19 +434,19 @@ class NotificationService {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Close'),
+                  child: Text(AppLocalizations.of(context)!.close),
                 ),
                 TextButton(
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: contents));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('File contents copied to clipboard!'),
+                      SnackBar(
+                        content: Text(AppLocalizations.of(context)!.fileContentsCopied),
                         backgroundColor: Colors.green,
                       ),
                     );
                   },
-                  child: const Text('Copy All'),
+                  child: Text(AppLocalizations.of(context)!.copyAll),
                 ),
               ],
             ),
@@ -456,7 +457,7 @@ class NotificationService {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error reading file: $e'),
+            content: Text(AppLocalizations.of(context)!.errorReadingFile(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -488,7 +489,7 @@ class NotificationService {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error sharing file: $e'),
+            content: Text(AppLocalizations.of(context)!.errorSharingFile(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
