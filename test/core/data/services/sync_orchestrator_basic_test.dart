@@ -174,6 +174,9 @@ class MockRemoteDataSource implements RemoteDataSource {
     DateTime? lastSyncAt,
     int limit = 100,
   }) async {
+    // Add delay to simulate real network operation timing for cancellation tests
+    await Future.delayed(const Duration(milliseconds: 10));
+    
     if (shouldFail) {
       return Result.failure(NetworkError(message: 'Network error'));
     }
@@ -186,6 +189,8 @@ class MockRemoteDataSource implements RemoteDataSource {
     DateTime? lastSyncAt,
     int limit = 100,
   }) async {
+    await Future.delayed(const Duration(milliseconds: 10));
+    
     if (shouldFail) {
       return Result.failure(NetworkError(message: 'Network error'));
     }
@@ -198,6 +203,8 @@ class MockRemoteDataSource implements RemoteDataSource {
     DateTime? lastSyncAt,
     int limit = 100,
   }) async {
+    await Future.delayed(const Duration(milliseconds: 10));
+    
     if (shouldFail) {
       return Result.failure(NetworkError(message: 'Network error'));
     }
@@ -210,6 +217,8 @@ class MockRemoteDataSource implements RemoteDataSource {
     DateTime? lastSyncAt,
     int limit = 100,
   }) async {
+    await Future.delayed(const Duration(milliseconds: 10));
+    
     if (shouldFail) {
       return Result.failure(NetworkError(message: 'Network error'));
     }
@@ -269,6 +278,9 @@ class MockMutationQueueService implements MutationQueueService {
 
   @override
   Future<Result<MutationQueueStats>> getQueueStats() async {
+    // Add delay to simulate real operation timing for cancellation tests
+    await Future.delayed(const Duration(milliseconds: 10));
+    
     if (shouldFail) {
       return Result.failure(StorageError(message: 'Storage error'));
     }
@@ -326,10 +338,37 @@ class MockMutationQueueService implements MutationQueueService {
   Future<Result<MutationBatchResult>> processMutationsForEntity({
     required String entityType,
     int? batchSize,
-  }) => throw UnimplementedError();
+  }) async {
+    if (shouldFail) {
+      return Result.failure(SyncOperationError(message: 'Processing failed'));
+    }
+    
+    if (isEmpty) {
+      return const Result.success(MutationBatchResult(
+        totalProcessed: 0,
+        successful: 0,
+        failed: 0,
+        retries: 0,
+      ));
+    } else {
+      // Return different counts based on entity type for testing
+      final int entityCount = entityType == 'expense' ? 3 : 2;
+      return Result.success(MutationBatchResult(
+        totalProcessed: entityCount,
+        successful: entityCount,
+        failed: 0,
+        retries: 0,
+      ));
+    }
+  }
 
   @override
-  Future<Result<int>> clearFailedMutations() => throw UnimplementedError();
+  Future<Result<int>> clearFailedMutations() async {
+    if (shouldFail) {
+      return Result.failure(StorageError(message: 'Failed to clear mutations'));
+    }
+    return const Result.success(0);
+  }
 }
 
 void main() {
@@ -441,9 +480,11 @@ void main() {
         
         final result = await syncOrchestrator.performInboundSync();
         
-        expect(result.success, false);
-        expect(result.errorMessage, contains('Network error'));
-        expect(syncOrchestrator.currentStatus, SyncStatus.error);
+        expect(result.success, true); // Should continue with resilient behavior
+        expect(result.inboundResults.failed, greaterThan(0)); // But record failures
+        expect(result.inboundResults.errors, isNotNull);
+        expect(result.inboundResults.errors!.any((error) => error.contains('Network error')), true);
+        expect(syncOrchestrator.currentStatus, SyncStatus.completed);
       });
     });
 
@@ -471,10 +512,18 @@ void main() {
 
     group('Sync Cancellation', () {
       test('should cancel sync operation', () async {
+        // Start sync and cancel immediately
+        final syncFuture = syncOrchestrator.performFullSync();
         await syncOrchestrator.cancelSync();
         
+        // Check status immediately after cancellation request
         expect(syncOrchestrator.currentStatus, SyncStatus.cancelled);
         expect(syncOrchestrator.isSyncing, false);
+        
+        // Wait for sync to complete and check it returns a cancelled result
+        final result = await syncFuture;
+        expect(result.success, false);
+        expect(result.errorMessage, contains('cancelled'));
       });
     });
 

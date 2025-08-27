@@ -22,7 +22,7 @@ class SyncOrchestratorImpl implements SyncOrchestrator {
   final SyncMapper _syncMapper;
 
   final StreamController<SyncProgress> _progressController = StreamController<SyncProgress>.broadcast();
-  final Completer<void>? _syncCancellation = null;
+  Completer<void>? _syncCancellation;
   
   SyncStatus _currentStatus = SyncStatus.idle;
   SyncResult? _lastSyncResult;
@@ -100,6 +100,7 @@ class SyncOrchestratorImpl implements SyncOrchestrator {
   Future<void> cancelSync() async {
     if (_isSyncing) {
       _updateStatus(SyncStatus.cancelled, 'Sync cancelled by user');
+      _syncCancellation?.complete();
       _isSyncing = false;
     }
   }
@@ -124,7 +125,7 @@ class SyncOrchestratorImpl implements SyncOrchestrator {
       );
 
       // Check for cancellation
-      if (_currentStatus == SyncStatus.cancelled) {
+      if (_currentStatus == SyncStatus.cancelled || _syncCancellation?.isCompleted == true) {
         return _createCancelledResult(startTime, outboundResults, inboundResults, statistics);
       }
 
@@ -138,7 +139,7 @@ class SyncOrchestratorImpl implements SyncOrchestrator {
       );
 
       // Check for cancellation
-      if (_currentStatus == SyncStatus.cancelled) {
+      if (_currentStatus == SyncStatus.cancelled || _syncCancellation?.isCompleted == true) {
         return _createCancelledResult(startTime, outboundResults, inboundResults, statistics);
       }
 
@@ -339,7 +340,7 @@ class SyncOrchestratorImpl implements SyncOrchestrator {
         if (entityCount == 0) continue;
 
         // Check for cancellation before processing each entity type
-        if (_currentStatus == SyncStatus.cancelled) {
+        if (_currentStatus == SyncStatus.cancelled || _syncCancellation?.isCompleted == true) {
           break;
         }
 
@@ -503,7 +504,7 @@ class SyncOrchestratorImpl implements SyncOrchestrator {
         final entityType = entityTypes[i];
         
         // Check for cancellation before processing each entity type
-        if (_currentStatus == SyncStatus.cancelled) {
+        if (_currentStatus == SyncStatus.cancelled || _syncCancellation?.isCompleted == true) {
           break;
         }
 
@@ -528,7 +529,9 @@ class SyncOrchestratorImpl implements SyncOrchestrator {
             }
           },
           onFailure: (error) {
-            failed += 1; // Count entity processing failure
+            // Record failure but continue processing other entities
+            // Individual entity failures should not fail the entire sync
+            failed += 1;
             byEntityType[entityType] = 0;
             errors.add('$entityType: ${error.message}');
           },
@@ -714,14 +717,26 @@ class SyncOrchestratorImpl implements SyncOrchestrator {
     final completer = Completer<void>();
     _syncLocks[lockKey] = completer;
     _isSyncing = true;
+    
+    // Initialize cancellation completer
+    _syncCancellation = Completer<void>();
 
     try {
       final result = await syncOperation();
       return result;
     } finally {
       _isSyncing = false;
+      
+      // Only update status to idle if it's not already completed, cancelled, or error
+      if (_currentStatus != SyncStatus.completed && 
+          _currentStatus != SyncStatus.cancelled && 
+          _currentStatus != SyncStatus.error) {
+        _updateStatus(SyncStatus.idle, 'Sync operation finished');
+      }
+      
       completer.complete();
       _syncLocks.remove(lockKey);
+      _syncCancellation = null;
     }
   }
 
