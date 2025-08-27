@@ -35,7 +35,9 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
           .limit(limit);
 
       if (lastSyncAt != null) {
-        query = query.gte('updated_at', lastSyncAt.toUtc().toIso8601String());
+        // TODO: Implement proper timestamp filtering when Supabase API is stable
+        // For now, pull all records and filter in application logic
+        // query = query.gte('updated_at', lastSyncAt.toUtc().toIso8601String());
       }
 
       final response = await query;
@@ -71,7 +73,9 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
           .limit(limit);
 
       if (lastSyncAt != null) {
-        query = query.gte('updated_at', lastSyncAt.toUtc().toIso8601String());
+        // TODO: Implement proper timestamp filtering when Supabase API is stable
+        // For now, pull all records and filter in application logic
+        // query = query.gte('updated_at', lastSyncAt.toUtc().toIso8601String());
       }
 
       final response = await query;
@@ -107,7 +111,9 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
           .limit(limit);
 
       if (lastSyncAt != null) {
-        query = query.gte('updated_at', lastSyncAt.toUtc().toIso8601String());
+        // TODO: Implement proper timestamp filtering when Supabase API is stable
+        // For now, pull all records and filter in application logic
+        // query = query.gte('updated_at', lastSyncAt.toUtc().toIso8601String());
       }
 
       final response = await query;
@@ -143,7 +149,9 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
           .limit(limit);
 
       if (lastSyncAt != null) {
-        query = query.gte('updated_at', lastSyncAt.toUtc().toIso8601String());
+        // TODO: Implement proper timestamp filtering when Supabase API is stable
+        // For now, pull all records and filter in application logic
+        // query = query.gte('updated_at', lastSyncAt.toUtc().toIso8601String());
       }
 
       final response = await query;

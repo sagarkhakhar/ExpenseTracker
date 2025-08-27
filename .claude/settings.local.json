@@ -22,7 +22,9 @@
       "Bash(find:*)",
       "Bash(timeout:*)",
       "Bash(claude mcp:*)",
-      "Bash(flutter packages pub run:*)"
+      "Bash(flutter packages pub run:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs"
     ],
     "deny": [],
     "ask": []

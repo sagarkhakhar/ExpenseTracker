@@ -379,6 +379,195 @@ class StartupDiagnosticsScreen extends ConsumerWidget {
   }
 }
 
+/// Content-only version for embedding (no Scaffold)
+class _StartupDiagnosticsContent extends ConsumerWidget {
+  const _StartupDiagnosticsContent({
+    required this.state,
+  });
+
+  final StartupState state;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildStatusCard(context, state),
+        const SizedBox(height: 16),
+        if (state.configValidation != null)
+          _buildConfigCard(context, state.configValidation!),
+        const SizedBox(height: 16),
+        if (state.networkProbe != null)
+          _buildNetworkCard(context, state.networkProbe!),
+        const SizedBox(height: 16),
+        if (state.bootstrapDetails != null)
+          _buildBootstrapCard(context, state.bootstrapDetails!),
+        const SizedBox(height: 24),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: state.canRetry
+                ? () => ref.read(startupGuardProvider.notifier).retry()
+                : null,
+            child: const Text('Retry Validation'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatusCard(BuildContext context, StartupState state) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Startup Status',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(
+                  state.isHealthy ? Icons.check_circle : Icons.error,
+                  color: state.isHealthy ? Colors.green : Colors.red,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  state.isHealthy ? 'Healthy' : 'Issues Detected',
+                  style: TextStyle(
+                    color: state.isHealthy ? Colors.green : Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Current State: ${state.status.name}',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            if (state.error != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Error: ${state.error}',
+                style: TextStyle(color: Colors.red[700]),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildConfigCard(BuildContext context, ConfigValidationResult validation) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Configuration',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(
+                  validation.isValid ? Icons.check_circle : Icons.error,
+                  color: validation.isValid ? Colors.green : Colors.red,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  validation.isValid ? 'Valid' : 'Invalid',
+                  style: TextStyle(
+                    color: validation.isValid ? Colors.green : Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            if (validation.errors.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              ...validation.errors.map((error) => Text(
+                '• $error',
+                style: TextStyle(color: Colors.red[700]),
+              )),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNetworkCard(BuildContext context, NetworkProbeResult probe) {
+    final isOnline = probe.isConnected;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Network',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(
+                  isOnline ? Icons.wifi : Icons.wifi_off,
+                  color: isOnline ? Colors.green : Colors.red,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  isOnline ? 'Online' : 'Offline',
+                  style: TextStyle(
+                    color: isOnline ? Colors.green : Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text('Can reach Supabase: ${probe.canReachSupabase}'),
+            if (probe.latencyMs != null)
+              Text('Latency: ${probe.latencyMs}ms'),
+            if (probe.error != null)
+              Text('Error: ${probe.error}', style: TextStyle(color: Colors.red[700])),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBootstrapCard(BuildContext context, Map<String, dynamic> details) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Database Bootstrap',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            ...details.entries.map((entry) => Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text('${entry.key}: ${entry.value}'),
+            )),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// Full-page diagnostics view
 class StartupDiagnosticsPage extends ConsumerWidget {
   const StartupDiagnosticsPage({super.key});
@@ -403,7 +592,7 @@ class StartupDiagnosticsPage extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (startupState != null)
-              StartupDiagnosticsScreen(state: startupState)
+              _StartupDiagnosticsContent(state: startupState)
             else
               const Text('Loading diagnostics...'),
           ],

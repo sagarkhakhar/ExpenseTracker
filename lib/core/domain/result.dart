@@ -63,6 +63,15 @@ sealed class Result<T> {
     }
     return this;
   }
+
+  /// Pattern matching method for Result (similar to Rust's match)
+  U when<U>({
+    required U Function(T data) success,
+    required U Function(AppError error) failure,
+  }) => switch (this) {
+    Success<T>(data: final data) => success(data),
+    Failure<T>(error: final error) => failure(error),
+  };
 }
 
 /// Success case of Result
