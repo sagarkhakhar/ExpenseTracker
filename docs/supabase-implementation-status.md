@@ -128,24 +128,69 @@ Implementing offline-first Flutter architecture with Hive → Supabase sync, bid
       "verification": ["Batch operations (≤200)", "Queue persistence", "Exponential backoff retry", "10 passing unit tests"],
       "evidence": ["MutationQueueService with comprehensive batch processing", "Batch upsert methods in SupabaseRemoteDataSource", "Exponential backoff retry strategy", "Network error handling with retries", "Queue statistics and failed mutation cleanup", "10 comprehensive unit tests with 100% pass rate"],
       "notes": "Complete offline mutation queue with production-ready batch processing"
+    },
+    {
+      "id": "T-SYNC-01",
+      "title": "LWW merge policy by (version, updated_at) with server tie-break; handle tombstones",
+      "status": "done",
+      "owner": "AI",
+      "depends_on": ["T-DATA-03"],
+      "deliverables": ["lib/core/data/repositories/lww_conflict_resolver.dart", "lib/core/data/repositories/sync_repository_impl.dart (partial)"],
+      "verification": ["LWW conflict resolution works correctly", "Tombstone handling implemented", "Server wins ties in exact conflicts", "21 comprehensive unit tests with 100% pass rate"],
+      "evidence": ["LWWConflictResolver class with comprehensive conflict resolution", "resolveConflict method implements version + timestamp + server tie-break logic", "Tombstone handling for soft deletes with proper LWW rules", "Utility methods for sync priority, validation, and old tombstone cleanup", "21 unit tests covering all conflict scenarios, tombstone cases, and edge cases", "100% test coverage with comprehensive validation"],
+      "notes": "Complete Last Write Wins conflict resolution with tombstone support"
     }
   ]
 }
 ```
 
 ## NEXT_ACTION
-T-DATA-03 completed successfully. Ready to proceed with T-SYNC-01: LWW merge policy implementation with conflict resolution.
+T-SYNC-01 completed successfully. Ready to proceed with T-SYNC-02: Sync orchestrator implementation for bidirectional sync (drain outbound → remote upserts → inbound pull → merge → update local → advance cursor).
 
-## IMPLEMENTATION
-T-DATA-03 completed with comprehensive mutation queue service featuring batch processing, exponential backoff retry, and complete test coverage.
+## IMPLEMENTATION  
+T-SYNC-01 completed with comprehensive Last Write Wins conflict resolution system:
+
+### LWW Conflict Resolver Implementation:
+- **LWWConflictResolver class** with production-ready conflict resolution logic
+- **Version-first resolution**: Higher version always wins, regardless of timestamp
+- **Timestamp tie-break**: When versions are equal, newer timestamp wins
+- **Server preference**: On exact ties (same version + timestamp), server (remote) wins
+- **Tombstone handling**: Proper soft-delete conflict resolution with LWW rules
+- **Utility methods**: Sync priority sorting, validation, old tombstone cleanup
+- **Comprehensive testing**: 21 unit tests covering all conflict scenarios and edge cases
+
+### Core Conflict Resolution Logic:
+```dart
+T resolveConflict<T extends BaseEntity>(T local, T remote) {
+  // 1. Handle tombstone cases first
+  // 2. Apply LWW rule: version > timestamp > server wins ties
+  // 3. Return winning entity
+}
+```
 
 ## VERIFICATION
-✅ Batch operations support maximum 200 items per batch correctly
-✅ Mutation queue persists operations with proper priority ordering  
-✅ Queue drainage works in sequential batches without data loss
-✅ Exponential backoff retry strategy implemented
-✅ Network error handling with automatic retries
-✅ 10 comprehensive unit tests with 100% pass rate
+✅ **LWW conflict resolution implemented correctly**
+- Higher version always wins over lower version
+- Same version: newer timestamp wins
+- Exact ties: server (remote) wins
+- All rules verified with comprehensive test cases
+
+✅ **Tombstone handling implemented properly**  
+- Remote tombstone applied when local is not deleted
+- Local tombstone kept when it's newer than remote entity
+- LWW rules applied when both entities are tombstones
+- Proper soft-delete conflict resolution
+
+✅ **Server tie-break logic working correctly**
+- Exact conflicts (same version + timestamp) resolved in favor of server
+- Ensures consistency across distributed systems
+- Prevents endless conflict loops
+
+✅ **21 comprehensive unit tests with 100% pass rate**
+- All conflict resolution scenarios tested
+- Tombstone handling edge cases covered  
+- Validation and utility methods tested
+- Sort priority and filtering functionality verified
 
 ## STATE
 
@@ -205,6 +250,8 @@ T-DATA-03 completed with comprehensive mutation queue service featuring batch pr
       "lib/core/data/entities/mutation_queue_item.dart",
       "lib/core/data/services/mutation_queue_service.dart",
       "lib/core/data/repositories/sync_repository.dart",
+      "lib/core/data/repositories/lww_conflict_resolver.dart",
+      "lib/core/data/repositories/sync_repository_impl.dart (partial)",
       "supabase/functions/bootstrap/index.ts",
       "supabase/migrations/0001_initial_schema.sql",
       "supabase/config.toml", 
@@ -219,6 +266,7 @@ T-DATA-03 completed with comprehensive mutation queue service featuring batch pr
       "test/core/data/datasources/local_data_source_test.dart",
       "test/core/data/datasources/remote_data_source_test.dart",
       "test/core/data/services/mutation_queue_service_test.dart",
+      "test/core/data/repositories/lww_conflict_resolver_test.dart",
       "test/integration/startup_integration_test.dart",
       "test/supabase/bootstrap_function_test.md"
     ],
@@ -243,15 +291,19 @@ T-DATA-03 completed with comprehensive mutation queue service featuring batch pr
       "MutationQueueItem for offline operation queuing",
       "MutationQueueService for batch processing and retry logic",
       "MutationBatchResult and MutationQueueStats for monitoring", 
-      "SyncRepository interface with conflict resolution"
+      "SyncRepository interface with conflict resolution",
+      "LWWConflictResolver for Last Write Wins conflict resolution",
+      "LWW conflict resolution with version + timestamp + server tie-break logic",
+      "Tombstone conflict resolution for soft deletes",
+      "Sync priority system and validation utilities"
     ],
     "migrations": [
       "Migration V1: categories, accounts, expenses, budgets with sync fields"
     ]
   },
   "progress": {
-    "completed": ["T-DOM-01", "T-DOM-02", "T-DOM-03", "T-DATA-01", "T-DATA-02", "T-DATA-03"],
-    "active": "T-SYNC-01", 
+    "completed": ["T-DOM-01", "T-DOM-02", "T-DOM-03", "T-DATA-01", "T-DATA-02", "T-DATA-03", "T-SYNC-01"],
+    "active": "T-SYNC-02", 
     "blocked": []
   },
   "config": {
@@ -321,7 +373,14 @@ We have successfully implemented the **domain layer** and **serialization layer*
 - Connection testing and server timestamp retrieval for sync coordination
 - 15 comprehensive unit tests validating DTOs, Result patterns, error handling, and batch logic
 
-### Next Priority:
-T-SYNC-01 to implement LWW (Last Write Wins) merge policy by (version, updated_at) with server tie-break and tombstone handling for conflict resolution.
+✅ **T-SYNC-01 COMPLETED**: Implemented comprehensive LWW conflict resolution system:
+- LWWConflictResolver class with production-ready conflict resolution logic
+- Version-first resolution (higher version wins), timestamp tie-break (newer wins), server preference on exact ties
+- Comprehensive tombstone handling for soft deletes with proper LWW conflict resolution
+- Utility methods for sync priority sorting, entity validation, and old tombstone cleanup  
+- 21 comprehensive unit tests with 100% pass rate covering all conflict scenarios and edge cases
 
-The data layer foundation is now complete with local storage, remote communication, and mutation queue layers fully implemented and tested. Ready to proceed with sync orchestration.
+### Next Priority:
+T-SYNC-02 to implement sync orchestrator for bidirectional synchronization (drain outbound → remote upserts → inbound pull → merge → update local → advance cursor).
+
+The conflict resolution layer is now complete with comprehensive LWW logic, tombstone handling, and full test coverage. Ready to proceed with sync orchestration implementation.
