@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import '../../domain/sync_result.dart';
 import '../../domain/sync_status.dart';
 import '../../domain/result.dart';
 import '../../domain/errors/sync_errors.dart';
+import '../../domain/base_entity.dart';
 import '../datasources/local_data_source.dart';
 import '../datasources/remote_data_source.dart';
 import '../repositories/lww_conflict_resolver.dart';
@@ -482,31 +484,68 @@ class SyncOrchestratorImpl implements SyncOrchestrator {
     }
   }
 
-  /// Perform inbound sync phase  
+  /// Perform inbound sync phase with enhanced delta processing and conflict resolution
   Future<Result<SyncPhaseResults>> _performInboundPhase(String userId) async {
     try {
+      _updateStatus(SyncStatus.syncingInbound, 'Starting inbound delta sync');
+
       int totalProcessed = 0;
       int successful = 0;
       int failed = 0;
       int conflicts = 0;
       final byEntityType = <String, int>{};
+      final errors = <String>[];
 
-      // Process each entity type
-      for (final entityType in ['expense', 'category', 'account', 'budget']) {
-        _updateStatus(SyncStatus.syncingInbound, 'Pulling $entityType deltas');
+      // Process each entity type with detailed progress tracking
+      final entityTypes = ['expense', 'category', 'account', 'budget'];
+      
+      for (int i = 0; i < entityTypes.length; i++) {
+        final entityType = entityTypes[i];
         
-        final phaseResult = await _processEntityInbound(userId, entityType);
-        totalProcessed += phaseResult['processed'] as int;
-        successful += phaseResult['successful'] as int;
-        failed += phaseResult['failed'] as int;
-        conflicts += phaseResult['conflicts'] as int;
-        byEntityType[entityType] = phaseResult['processed'] as int;
-
-        // Check for cancellation between entity types
+        // Check for cancellation before processing each entity type
         if (_currentStatus == SyncStatus.cancelled) {
           break;
         }
+
+        _updateStatus(
+          SyncStatus.syncingInbound, 
+          'Processing $entityType deltas (${i + 1}/${entityTypes.length})'
+        );
+
+        // Process inbound deltas for this entity type
+        final entityResult = await _processEntityInboundDeltas(userId, entityType);
+        
+        entityResult.fold(
+          onSuccess: (result) {
+            totalProcessed += result.processed;
+            successful += result.successful;
+            failed += result.failed;
+            conflicts += result.conflicts;
+            byEntityType[entityType] = result.processed;
+            
+            if (result.processed > 0) {
+              _logInboundProgress(entityType, result);
+            }
+          },
+          onFailure: (error) {
+            failed += 1; // Count entity processing failure
+            byEntityType[entityType] = 0;
+            errors.add('$entityType: ${error.message}');
+          },
+        );
+
+        // Update overall progress
+        _updateProgressWithDetails(
+          SyncStatus.syncingInbound,
+          'Processed ${i + 1}/${entityTypes.length} entity types',
+          ((i + 1) / entityTypes.length) * 100,
+          entityTypes.length,
+          i + 1,
+        );
       }
+
+      // Finalize inbound sync with cursor updates
+      await _finalizeInboundSync(successful, failed, conflicts);
 
       return Result.success(SyncPhaseResults(
         totalProcessed: totalProcessed,
@@ -514,6 +553,7 @@ class SyncOrchestratorImpl implements SyncOrchestrator {
         failed: failed,
         conflicts: conflicts,
         byEntityType: byEntityType,
+        errors: errors.isNotEmpty ? errors : null,
       ));
 
     } catch (e) {
@@ -523,18 +563,21 @@ class SyncOrchestratorImpl implements SyncOrchestrator {
     }
   }
 
-  /// Process inbound sync for a specific entity type
-  Future<Map<String, int>> _processEntityInbound(String userId, String entityType) async {
-    int processed = 0;
-    int successful = 0;
-    int failed = 0;
-    int conflicts = 0;
-
+  /// Process inbound deltas for a specific entity type with conflict resolution
+  Future<Result<InboundEntityResult>> _processEntityInboundDeltas(
+    String userId, 
+    String entityType,
+  ) async {
     try {
-      // Get last sync cursor for this entity type
+      // Get last sync cursor for delta pull
       final lastSyncAt = await _getLastSyncCursor(entityType);
       
-      // Pull deltas from remote
+      _updateStatus(
+        SyncStatus.syncingInbound,
+        'Pulling $entityType deltas ${lastSyncAt != null ? 'since ${lastSyncAt.toIso8601String()}' : 'full sync'}',
+      );
+
+      // Pull deltas from remote with proper error handling
       final deltasResult = await _pullEntityDeltas(userId, entityType, lastSyncAt);
       final deltas = await deltasResult.fold(
         onSuccess: (data) async => data,
@@ -542,62 +585,117 @@ class SyncOrchestratorImpl implements SyncOrchestrator {
       );
 
       if (deltas.isEmpty) {
-        return {'processed': 0, 'successful': 0, 'failed': 0, 'conflicts': 0};
+        return Result.success(const InboundEntityResult(
+          processed: 0,
+          successful: 0,
+          failed: 0,
+          conflicts: 0,
+        ));
       }
 
-      processed = deltas.length;
-      _updateStatus(SyncStatus.merging, 'Merging $processed $entityType entities');
-
-      // Process each delta entity
-      for (final deltaDto in deltas) {
-        try {
-          // Convert DTO to domain entity using specific mapping
-          final remoteEntity = _convertDtoToEntity(deltaDto, entityType);
-          
-          // Get local entity if exists
-          final localEntityResult = await _getLocalEntity(entityType, remoteEntity.id);
-          
-          if (localEntityResult == null) {
-            // New entity - just save it
-            await _saveLocalEntity(entityType, remoteEntity);
-            successful++;
-          } else {
-            // For now, just save the remote entity (conflict resolution would be implemented later)
-            // In a real implementation, we would properly cast types and resolve conflicts
-            await _saveLocalEntity(entityType, remoteEntity);
-            successful++;
-            
-            // This would be a conflict case if entities differ
-            conflicts++; // Placeholder for conflict detection
-          }
-        } catch (e) {
-          failed++;
-          // Log error but continue processing other entities
-        }
-      }
-
-      // Update sync cursor
-      if (deltas.isNotEmpty) {
-        final latestTimestamp = _extractLatestTimestamp(deltas);
-        await _updateSyncCursor(entityType, latestTimestamp);
-      }
-
-      return {
-        'processed': processed,
-        'successful': successful,
-        'failed': failed,
-        'conflicts': conflicts,
-      };
+      // Process deltas in batches for better performance and memory management
+      return await _processDeltaBatch(entityType, deltas);
 
     } catch (e) {
-      return {
-        'processed': processed,
-        'successful': successful,
-        'failed': processed, // All failed
-        'conflicts': conflicts,
-      };
+      return Result.failure(SyncOperationError(
+        message: 'Failed to process $entityType inbound deltas: $e'
+      ));
     }
   }
+
+  /// Process a batch of delta entities with conflict resolution
+  Future<Result<InboundEntityResult>> _processDeltaBatch(
+    String entityType,
+    List<dynamic> deltas,
+  ) async {
+    int processed = 0;
+    int successful = 0;
+    int failed = 0;
+    int conflicts = 0;
+    DateTime? latestTimestamp;
+
+    try {
+      _updateStatus(SyncStatus.merging, 'Processing ${deltas.length} $entityType deltas');
+
+      // Process entities in smaller batches to avoid memory issues
+      const batchSize = 50;
+      final totalBatches = (deltas.length / batchSize).ceil();
+
+      for (int batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+        // Check for cancellation during processing
+        if (_currentStatus == SyncStatus.cancelled) {
+          break;
+        }
+
+        final startIndex = batchIndex * batchSize;
+        final endIndex = math.min(startIndex + batchSize, deltas.length);
+        final batchDeltas = deltas.sublist(startIndex, endIndex);
+
+        _updateStatus(
+          SyncStatus.merging,
+          'Processing $entityType batch ${batchIndex + 1}/$totalBatches (${batchDeltas.length} items)',
+        );
+
+        // Process each entity in the batch
+        for (final deltaDto in batchDeltas) {
+          final entityResult = await _processInboundEntity(entityType, deltaDto);
+          
+          entityResult.fold(
+            onSuccess: (result) {
+              processed++;
+              if (result.wasConflict) {
+                conflicts++;
+              }
+              if (result.wasSuccessful) {
+                successful++;
+              } else {
+                failed++;
+              }
+              
+              // Track latest timestamp for cursor update
+              if (result.timestamp != null) {
+                if (latestTimestamp == null || result.timestamp!.isAfter(latestTimestamp ?? DateTime.fromMicrosecondsSinceEpoch(0))) {
+                  latestTimestamp = result.timestamp;
+                }
+              }
+            },
+            onFailure: (error) {
+              processed++;
+              failed++;
+              // Log individual entity failure but continue processing
+            },
+          );
+        }
+
+        // Update progress within batch processing
+        _updateProgressWithDetails(
+          SyncStatus.merging,
+          'Processed ${math.min(endIndex, deltas.length)}/${deltas.length} $entityType entities',
+          (math.min(endIndex, deltas.length) / deltas.length) * 100,
+          deltas.length,
+          math.min(endIndex, deltas.length),
+        );
+      }
+
+      // Update sync cursor with latest timestamp
+      if (latestTimestamp != null && successful > 0) {
+        await _updateSyncCursor(entityType, latestTimestamp!);
+      }
+
+      return Result.success(InboundEntityResult(
+        processed: processed,
+        successful: successful,
+        failed: failed,
+        conflicts: conflicts,
+      ));
+
+    } catch (e) {
+      return Result.failure(SyncOperationError(
+        message: 'Failed to process $entityType delta batch: $e'
+      ));
+    }
+  }
+
 
   /// Sync operation with mutex lock to prevent concurrent execution
   Future<SyncResult> _performSyncWithLock(String lockKey, Future<SyncResult> Function() syncOperation) async {
@@ -780,7 +878,129 @@ class SyncOrchestratorImpl implements SyncOrchestrator {
     }
   }
 
+  /// Process individual inbound entity with conflict resolution
+  Future<Result<InboundEntityProcessingResult>> _processInboundEntity(
+    String entityType,
+    dynamic deltaDto,
+  ) async {
+    try {
+      // Convert DTO to domain entity
+      final remoteEntity = _convertDtoToEntity(deltaDto, entityType) as BaseEntity;
+      
+      // Get local entity if exists  
+      final localEntity = await _getLocalEntity(entityType, remoteEntity.id) as BaseEntity?;
+      
+      bool wasConflict = false;
+      bool wasSuccessful = false;
+      BaseEntity? entityToSave;
+
+      if (localEntity == null) {
+        // New entity - save remote version
+        entityToSave = remoteEntity;
+        wasSuccessful = true;
+      } else {
+        // Potential conflict - apply LWW resolution
+        if (_hasConflict(localEntity, remoteEntity)) {
+          wasConflict = true;
+          entityToSave = _conflictResolver.resolveConflict(localEntity, remoteEntity);
+          wasSuccessful = true;
+        } else {
+          // No conflict - just update with remote version
+          entityToSave = remoteEntity;
+          wasSuccessful = true;
+        }
+      }
+
+      // Save resolved entity to local storage
+      if (entityToSave != null) {
+        await _saveLocalEntity(entityType, entityToSave);
+      }
+
+      return Result.success(InboundEntityProcessingResult(
+        wasConflict: wasConflict,
+        wasSuccessful: wasSuccessful,
+        timestamp: remoteEntity.updatedAt,
+      ));
+
+    } catch (e) {
+      return Result.failure(SyncOperationError(
+        message: 'Failed to process inbound $entityType entity: $e'
+      ));
+    }
+  }
+
+  /// Check if there's a conflict between local and remote entities
+  bool _hasConflict(BaseEntity local, BaseEntity remote) {
+    return local.id == remote.id && 
+           (local.version != remote.version || 
+            local.updatedAt != remote.updatedAt ||
+            local.isDeleted != remote.isDeleted);
+  }
+
+  /// Finalize inbound sync with statistics and cleanup
+  Future<void> _finalizeInboundSync(int successful, int failed, int conflicts) async {
+    try {
+      _updateStatus(
+        SyncStatus.syncingInbound,
+        'Inbound sync completed: $successful successful, $failed failed, $conflicts conflicts resolved',
+      );
+      
+      // Additional cleanup or validation could be done here
+      
+    } catch (e) {
+      // Non-critical error - log but don't fail the sync
+    }
+  }
+
+  /// Log inbound progress for monitoring
+  void _logInboundProgress(String entityType, InboundEntityResult result) {
+    final message = 'Inbound $entityType: ${result.successful}/${result.processed} successful';
+    if (result.conflicts > 0) {
+      _updateStatus(SyncStatus.merging, '$message, ${result.conflicts} conflicts resolved');
+    } else {
+      _updateStatus(SyncStatus.syncingInbound, message);
+    }
+  }
+
   void dispose() {
     _progressController.close();
+  }
+}
+
+/// Result of processing inbound deltas for a specific entity type
+class InboundEntityResult {
+  final int processed;
+  final int successful;
+  final int failed;
+  final int conflicts;
+
+  const InboundEntityResult({
+    required this.processed,
+    required this.successful,
+    required this.failed,
+    required this.conflicts,
+  });
+
+  @override
+  String toString() {
+    return 'InboundEntityResult{processed: $processed, successful: $successful, failed: $failed, conflicts: $conflicts}';
+  }
+}
+
+/// Result of processing a single inbound entity
+class InboundEntityProcessingResult {
+  final bool wasConflict;
+  final bool wasSuccessful;
+  final DateTime? timestamp;
+
+  const InboundEntityProcessingResult({
+    required this.wasConflict,
+    required this.wasSuccessful,
+    this.timestamp,
+  });
+
+  @override
+  String toString() {
+    return 'InboundEntityProcessingResult{wasConflict: $wasConflict, wasSuccessful: $wasSuccessful, timestamp: $timestamp}';
   }
 }
