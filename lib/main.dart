@@ -18,6 +18,8 @@ import 'features/expense/data/models/receipt_photo_model.dart';
 import 'features/export/domain/entities/export_history.dart';
 import 'features/statistics/domain/entities/financial_goal.dart';
 import 'features/statistics/domain/entities/trend_analysis.dart';
+import 'core/data/entities/sync_metadata.dart';
+import 'core/data/entities/mutation_queue_item.dart';
 
 import 'shared/widgets/platform_widgets.dart';
 import 'l10n/app_localizations.dart';
@@ -79,6 +81,16 @@ void _registerHiveAdapters() {
   }
   if (!Hive.isAdapterRegistered(18)) {
     Hive.registerAdapter(TrendAnalysisAdapter());
+  }
+  // Register sync metadata adapters
+  if (!Hive.isAdapterRegistered(100)) {
+    Hive.registerAdapter(SyncMetadataAdapter());
+  }
+  if (!Hive.isAdapterRegistered(101)) {
+    Hive.registerAdapter(MutationQueueItemAdapter());
+  }
+  if (!Hive.isAdapterRegistered(102)) {
+    Hive.registerAdapter(MutationTypeAdapter());
   }
 }
 

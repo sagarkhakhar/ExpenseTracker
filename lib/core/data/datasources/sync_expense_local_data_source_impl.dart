@@ -2,13 +2,21 @@ import 'package:hive/hive.dart';
 import 'package:flutter/foundation.dart';
 import '../../domain/entities/sync_expense.dart';
 import 'sync_expense_local_data_source.dart';
+import 'local_data_source.dart';
+import '../entities/mutation_queue_item.dart';
+import 'package:uuid/uuid.dart';
 
 /// Hive-based implementation of SyncExpenseLocalDataSource
 /// Provides local storage operations for sync-enabled expense entities
 class SyncExpenseLocalDataSourceImpl implements SyncExpenseLocalDataSource {
   static const String boxName = 'sync_expenses';
+  static const String entityType = 'expenses';
   
   late Box<SyncExpense> _box;
+  final LocalDataSource _localDataSource;
+  final Uuid _uuid = const Uuid();
+
+  SyncExpenseLocalDataSourceImpl(this._localDataSource);
 
   @override
   Future<void> init() async {
@@ -53,6 +61,7 @@ class SyncExpenseLocalDataSourceImpl implements SyncExpenseLocalDataSource {
   Future<String> createSyncExpense(SyncExpense expense) async {
     try {
       await _box.add(expense);
+      await _enqueueMutation(expense, MutationType.create);
       debugPrint('Created sync expense with ID ${expense.id}');
       return expense.id;
     } catch (e) {
@@ -71,10 +80,12 @@ class SyncExpenseLocalDataSourceImpl implements SyncExpenseLocalDataSource {
 
       if (existingIndex != -1) {
         await _box.putAt(existingIndex, expense);
+        await _enqueueMutation(expense, MutationType.update);
         debugPrint('Updated sync expense with ID ${expense.id}');
       } else {
         // If not found, create new entry
         await _box.add(expense);
+        await _enqueueMutation(expense, MutationType.create);
         debugPrint('Created new sync expense with ID ${expense.id} (update operation)');
       }
     } catch (e) {
@@ -99,6 +110,7 @@ class SyncExpenseLocalDataSourceImpl implements SyncExpenseLocalDataSource {
           version: existing.version + 1,
         );
         await _box.putAt(existingIndex, deletedExpense);
+        await _enqueueMutation(deletedExpense, MutationType.delete);
         debugPrint('Soft deleted sync expense with ID $id');
       } else {
         debugPrint('Sync expense with ID $id not found for deletion');
@@ -209,6 +221,38 @@ class SyncExpenseLocalDataSourceImpl implements SyncExpenseLocalDataSource {
     } catch (e) {
       debugPrint('Error checking if sync expense exists: $e');
       rethrow;
+    }
+  }
+
+  /// Helper method to enqueue mutation operations
+  Future<void> _enqueueMutation(SyncExpense expense, MutationType operation) async {
+    try {
+      final mutation = MutationQueueItem(
+        id: _uuid.v4(),
+        entityType: entityType,
+        entityId: expense.id,
+        operation: operation,
+        data: {
+          'id': expense.id,
+          'categoryId': expense.categoryId,
+          'amount': expense.amount,
+          'description': expense.description,
+          'date': expense.date.toIso8601String(),
+          'createdAt': expense.createdAt.toIso8601String(),
+          'updatedAt': expense.updatedAt.toIso8601String(),
+          'version': expense.version,
+          'isDeleted': expense.isDeleted,
+          'deviceId': expense.deviceId,
+          'lastEditor': expense.lastEditor,
+        },
+        createdAt: DateTime.now().toUtc(),
+        priority: operation == MutationType.delete ? 1 : 0, // Higher priority for deletes
+      );
+
+      await _localDataSource.enqueueOperation(mutation);
+    } catch (e) {
+      debugPrint('Error enqueuing mutation for expense ${expense.id}: $e');
+      // Don't rethrow - mutation queue failure shouldn't stop the operation
     }
   }
 }
