@@ -96,7 +96,7 @@ abstract class BaseEntity extends Equatable {
 
   @override
   String toString() => '$runtimeType('
-      'id: ${id.length > 8 ? id.substring(0, 8) + '...' : id}, '
+      'id: ${id.length > 8 ? '${id.substring(0, 8)}...' : id}, '
       'version: $version, '
       'updated: ${updatedAt.toIso8601String()}, '
       'deleted: $isDeleted)';

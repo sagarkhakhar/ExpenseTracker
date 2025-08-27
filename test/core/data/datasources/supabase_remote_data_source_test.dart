@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../../lib/core/data/datasources/supabase_remote_data_source.dart';
-import '../../../../lib/core/data/dtos/expense_dto.dart';
-import '../../../../lib/core/domain/result.dart';
-import '../../../../lib/core/domain/errors/sync_errors.dart';
+import 'package:expense_tracker/core/data/datasources/supabase_remote_data_source.dart';
+import 'package:expense_tracker/core/data/dtos/expense_dto.dart';
+import 'package:expense_tracker/core/domain/result.dart';
+import 'package:expense_tracker/core/domain/errors/sync_errors.dart';
 
 // Mock Supabase client for testing
 class MockSupabaseClient extends Mock {}
@@ -124,7 +124,7 @@ void main() {
       });
 
       test('should create failure result', () {
-        final error = NetworkError(message: 'Test error');
+        const error = NetworkError(message: 'Test error');
         final result = Result<List<ExpenseDto>>.failure(error);
         
         expect(result.isFailure, true);
@@ -134,13 +134,13 @@ void main() {
 
     group('error types', () {
       test('should create NetworkError', () {
-        final error = NetworkError(message: 'Connection failed');
+        const error = NetworkError(message: 'Connection failed');
         expect(error.message, 'Connection failed');
         expect(error.code, 'NETWORK_ERROR');
       });
 
       test('should create SupabaseError', () {
-        final error = SupabaseError(message: 'Database error');
+        const error = SupabaseError(message: 'Database error');
         expect(error.message, 'Database error');
         expect(error.code, 'SUPABASE_ERROR');
       });

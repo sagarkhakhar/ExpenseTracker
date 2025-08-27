@@ -370,7 +370,7 @@ class SyncOrchestratorImpl implements SyncOrchestrator {
         // Update progress
         _updateProgressWithDetails(
           SyncStatus.syncingOutbound,
-          'Processed ${totalProcessed} of ${queueStats.totalPending} mutations',
+          'Processed $totalProcessed of ${queueStats.totalPending} mutations',
           (totalProcessed / queueStats.totalPending) * 100,
           queueStats.totalPending,
           totalProcessed,
@@ -588,7 +588,7 @@ class SyncOrchestratorImpl implements SyncOrchestrator {
       );
 
       if (deltas.isEmpty) {
-        return Result.success(const InboundEntityResult(
+        return const Result.success(InboundEntityResult(
           processed: 0,
           successful: 0,
           failed: 0,
@@ -927,10 +927,8 @@ class SyncOrchestratorImpl implements SyncOrchestrator {
       }
 
       // Save resolved entity to local storage
-      if (entityToSave != null) {
-        await _saveLocalEntity(entityType, entityToSave);
-      }
-
+      await _saveLocalEntity(entityType, entityToSave);
+    
       return Result.success(InboundEntityProcessingResult(
         wasConflict: wasConflict,
         wasSuccessful: wasSuccessful,

@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import '../../../../lib/core/data/datasources/local_data_source_impl.dart';
-import '../../../../lib/core/data/entities/sync_metadata.dart';
-import '../../../../lib/core/data/entities/mutation_queue_item.dart';
+import 'package:expense_tracker/core/data/datasources/local_data_source_impl.dart';
+import 'package:expense_tracker/core/data/entities/sync_metadata.dart';
+import 'package:expense_tracker/core/data/entities/mutation_queue_item.dart';
 
 void main() {
   group('LocalDataSourceImpl', () {

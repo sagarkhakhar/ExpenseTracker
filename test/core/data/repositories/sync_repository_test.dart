@@ -2,24 +2,24 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 
-import '../../../../lib/core/data/repositories/sync_repository_impl.dart';
-import '../../../../lib/core/data/repositories/sync_repository.dart';
-import '../../../../lib/core/data/datasources/local_data_source.dart';
-import '../../../../lib/core/data/datasources/remote_data_source.dart';
-import '../../../../lib/core/data/services/mutation_queue_service.dart';
-import '../../../../lib/core/data/mappers/sync_mapper.dart';
-import '../../../../lib/core/data/entities/sync_metadata.dart';
-import '../../../../lib/core/data/entities/mutation_queue_item.dart';
-import '../../../../lib/core/domain/entities/sync_expense.dart';
-import '../../../../lib/core/domain/entities/sync_category.dart';
-import '../../../../lib/core/domain/entities/sync_account.dart';
-import '../../../../lib/core/domain/entities/sync_budget.dart';
-import '../../../../lib/core/domain/base_entity.dart';
-import '../../../../lib/core/domain/result.dart';
-import '../../../../lib/core/data/dtos/expense_dto.dart';
-import '../../../../lib/core/data/dtos/category_dto.dart';
-import '../../../../lib/core/data/dtos/account_dto.dart';
-import '../../../../lib/core/data/dtos/budget_dto.dart';
+import 'package:expense_tracker/core/data/repositories/sync_repository_impl.dart';
+import 'package:expense_tracker/core/data/repositories/sync_repository.dart';
+import 'package:expense_tracker/core/data/datasources/local_data_source.dart';
+import 'package:expense_tracker/core/data/datasources/remote_data_source.dart';
+import 'package:expense_tracker/core/data/services/mutation_queue_service.dart';
+import 'package:expense_tracker/core/data/mappers/sync_mapper.dart';
+import 'package:expense_tracker/core/data/entities/sync_metadata.dart';
+import 'package:expense_tracker/core/data/entities/mutation_queue_item.dart';
+import 'package:expense_tracker/core/domain/entities/sync_expense.dart';
+import 'package:expense_tracker/core/domain/entities/sync_category.dart';
+import 'package:expense_tracker/core/domain/entities/sync_account.dart';
+import 'package:expense_tracker/core/domain/entities/sync_budget.dart';
+import 'package:expense_tracker/core/domain/base_entity.dart';
+import 'package:expense_tracker/core/domain/result.dart';
+import 'package:expense_tracker/core/data/dtos/expense_dto.dart';
+import 'package:expense_tracker/core/data/dtos/category_dto.dart';
+import 'package:expense_tracker/core/data/dtos/account_dto.dart';
+import 'package:expense_tracker/core/data/dtos/budget_dto.dart';
 
 import 'sync_repository_test.mocks.dart';
 
@@ -259,7 +259,7 @@ void main() {
         when(mockLocalDataSource.getSyncMetadata('expenses'))
             .thenAnswer((_) async => null);
         when(mockRemoteDataSource.pullExpenseDeltas(cursor: lastSync))
-            .thenAnswer((_) async => Result.success(<ExpenseDto>[]));
+            .thenAnswer((_) async => const Result.success(<ExpenseDto>[]));
 
         // Mock cursor update
         when(mockLocalDataSource.updateSyncCursor('expenses', any))
@@ -366,7 +366,7 @@ void main() {
         when(mockLocalDataSource.getSyncMetadata('expenses'))
             .thenAnswer((_) async => null);
         when(mockRemoteDataSource.pullExpenseDeltas(cursor: null))
-            .thenAnswer((_) async => Result.success(<ExpenseDto>[]));
+            .thenAnswer((_) async => const Result.success(<ExpenseDto>[]));
 
         // Act
         final result = await syncRepository.syncExpenses();
@@ -460,16 +460,16 @@ extension SyncRepositoryTestHelpers on MockLocalDataSource {
 extension RemoteDataSourceTestHelpers on MockRemoteDataSource {
   void mockEmptyRemoteDeltas() {
     when(pullExpenseDeltas(cursor: any)).thenAnswer(
-      (_) async => Result.success(<ExpenseDto>[]),
+      (_) async => const Result.success(<ExpenseDto>[]),
     );
     when(pullCategoryDeltas(cursor: any)).thenAnswer(
-      (_) async => Result.success(<CategoryDto>[]),
+      (_) async => const Result.success(<CategoryDto>[]),
     );
     when(pullAccountDeltas(cursor: any)).thenAnswer(
-      (_) async => Result.success(<AccountDto>[]),
+      (_) async => const Result.success(<AccountDto>[]),
     );
     when(pullBudgetDeltas(cursor: any)).thenAnswer(
-      (_) async => Result.success(<BudgetDto>[]),
+      (_) async => const Result.success(<BudgetDto>[]),
     );
   }
 }

@@ -55,24 +55,31 @@ class SyncExpense extends BaseEntity {
   final String? categoryId;
 
   /// BaseEntity sync fields
+  @override
   @HiveField(14)
   final String id;
   
+  @override
   @HiveField(15)
   final DateTime createdAt;
   
+  @override
   @HiveField(16)
   final DateTime updatedAt;
   
+  @override
   @HiveField(17)
   final int version;
   
+  @override
   @HiveField(18)
   final bool isDeleted;
   
+  @override
   @HiveField(19)
   final String? deviceId;
   
+  @override
   @HiveField(20)
   final String? lastEditor;
 

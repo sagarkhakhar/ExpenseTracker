@@ -52,7 +52,7 @@ class StartupGuardNotifier extends AutoDisposeAsyncNotifier<StartupState> {
     
     // Quick validation first
     if (!ConfigValidator.isConfigQuickValid(config)) {
-      throw StartupValidationException(
+      throw const StartupValidationException(
         'Configuration validation failed: Missing or invalid Supabase credentials',
       );
     }

@@ -1,18 +1,18 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import '../../lib/core/data/services/sync_orchestrator_impl.dart';
-import '../../lib/core/data/services/sync_orchestrator.dart';
-import '../../lib/core/domain/sync_result.dart';
-import '../../lib/core/domain/sync_status.dart';
-import '../../lib/core/domain/result.dart';
-import '../../lib/core/domain/errors/sync_errors.dart';
-import '../../lib/core/domain/base_entity.dart';
-import '../../lib/core/data/datasources/local_data_source.dart';
-import '../../lib/core/data/datasources/remote_data_source.dart';
-import '../../lib/core/data/repositories/lww_conflict_resolver.dart';
-import '../../lib/core/data/mappers/sync_mapper.dart';
-import '../../lib/core/data/services/mutation_queue_service.dart';
-import '../../lib/core/data/entities/sync_metadata.dart';
+import 'package:expense_tracker/core/data/services/sync_orchestrator_impl.dart';
+import 'package:expense_tracker/core/data/services/sync_orchestrator.dart';
+import 'package:expense_tracker/core/domain/sync_result.dart';
+import 'package:expense_tracker/core/domain/sync_status.dart';
+import 'package:expense_tracker/core/domain/result.dart';
+import 'package:expense_tracker/core/domain/errors/sync_errors.dart';
+import 'package:expense_tracker/core/domain/base_entity.dart';
+import 'package:expense_tracker/core/data/datasources/local_data_source.dart';
+import 'package:expense_tracker/core/data/datasources/remote_data_source.dart';
+import 'package:expense_tracker/core/data/repositories/lww_conflict_resolver.dart';
+import 'package:expense_tracker/core/data/mappers/sync_mapper.dart';
+import 'package:expense_tracker/core/data/services/mutation_queue_service.dart';
+import 'package:expense_tracker/core/data/entities/sync_metadata.dart';
 
 // Mock classes for integration testing
 class MockLocalDataSource extends Mock implements LocalDataSource {}
@@ -26,7 +26,7 @@ class TestEntity extends BaseEntity {
   final String name;
   final String value;
 
-  TestEntity({
+  const TestEntity({
     required super.id,
     required super.version,
     required super.createdAt,
@@ -94,12 +94,12 @@ void main() {
 
     group('Full Sync Integration', () {
       test('should perform complete bidirectional sync with real data flow', () async {
-        final userId = 'test-user-123';
+        const userId = 'test-user-123';
         final now = DateTime.now().toUtc();
         
         // Setup outbound mutations
         when(() => mockMutationQueueService.getQueueStats()).thenAnswer(
-          (_) async => Result.success(MutationQueueStats(
+          (_) async => const Result.success(MutationQueueStats(
             totalPending: 3,
             readyToProcess: 3,
             byEntityType: {'expense': 2, 'category': 1},
@@ -107,7 +107,7 @@ void main() {
         );
 
         when(() => mockMutationQueueService.processMutationsForEntity(entityType: 'expense'))
-          .thenAnswer((_) async => Result.success(MutationBatchResult(
+          .thenAnswer((_) async => const Result.success(MutationBatchResult(
             totalProcessed: 2,
             successful: 2,
             failed: 0,
@@ -115,7 +115,7 @@ void main() {
           )));
 
         when(() => mockMutationQueueService.processMutationsForEntity(entityType: 'category'))
-          .thenAnswer((_) async => Result.success(MutationBatchResult(
+          .thenAnswer((_) async => const Result.success(MutationBatchResult(
             totalProcessed: 1,
             successful: 1,
             failed: 0,
@@ -123,7 +123,7 @@ void main() {
           )));
 
         when(() => mockMutationQueueService.clearFailedMutations())
-          .thenAnswer((_) async => Result.success(0));
+          .thenAnswer((_) async => const Result.success(0));
 
         // Setup inbound deltas
         when(() => mockLocalDataSource.getSyncMetadata(any()))
@@ -131,16 +131,16 @@ void main() {
 
         // For simplicity in integration tests, just test the flow with empty deltas
         when(() => mockRemoteDataSource.pullExpenseDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockRemoteDataSource.pullCategoryDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockRemoteDataSource.pullAccountDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockRemoteDataSource.pullBudgetDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockLocalDataSource.updateLastPullCursor(any(), any()))
           .thenAnswer((_) async => {});
@@ -166,11 +166,11 @@ void main() {
       });
 
       test('should handle mixed success/failure scenarios gracefully', () async {
-        final userId = 'test-user-123';
+        const userId = 'test-user-123';
         
         // Setup partial outbound failure
         when(() => mockMutationQueueService.getQueueStats()).thenAnswer(
-          (_) async => Result.success(MutationQueueStats(
+          (_) async => const Result.success(MutationQueueStats(
             totalPending: 2,
             readyToProcess: 2,
             byEntityType: {'expense': 1, 'category': 1},
@@ -178,7 +178,7 @@ void main() {
         );
 
         when(() => mockMutationQueueService.processMutationsForEntity(entityType: 'expense'))
-          .thenAnswer((_) async => Result.success(MutationBatchResult(
+          .thenAnswer((_) async => const Result.success(MutationBatchResult(
             totalProcessed: 1,
             successful: 1,
             failed: 0,
@@ -187,26 +187,26 @@ void main() {
 
         // Category processing fails
         when(() => mockMutationQueueService.processMutationsForEntity(entityType: 'category'))
-          .thenAnswer((_) async => Result.failure(NetworkError(message: 'Connection timeout')));
+          .thenAnswer((_) async => const Result.failure(NetworkError(message: 'Connection timeout')));
 
         when(() => mockMutationQueueService.clearFailedMutations())
-          .thenAnswer((_) async => Result.success(0));
+          .thenAnswer((_) async => const Result.success(0));
 
         // Setup successful inbound sync
         when(() => mockLocalDataSource.getSyncMetadata(any()))
           .thenAnswer((_) async => null);
 
         when(() => mockRemoteDataSource.pullExpenseDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockRemoteDataSource.pullCategoryDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockRemoteDataSource.pullAccountDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockRemoteDataSource.pullBudgetDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockLocalDataSource.updateLastPullCursor(any(), any()))
           .thenAnswer((_) async => {});
@@ -228,10 +228,10 @@ void main() {
 
     group('Network Failure Scenarios', () {
       test('should handle network failure in outbound phase', () async {
-        final userId = 'test-user-123';
+        const userId = 'test-user-123';
         
         when(() => mockMutationQueueService.getQueueStats()).thenAnswer(
-          (_) async => Result.failure(NetworkError(message: 'Network unavailable')),
+          (_) async => const Result.failure(NetworkError(message: 'Network unavailable')),
         );
 
         final result = await syncOrchestrator.performFullSync(userId: userId);
@@ -242,11 +242,11 @@ void main() {
       });
 
       test('should handle network failure in inbound phase', () async {
-        final userId = 'test-user-123';
+        const userId = 'test-user-123';
         
         // Successful outbound
         when(() => mockMutationQueueService.getQueueStats()).thenAnswer(
-          (_) async => Result.success(MutationQueueStats(
+          (_) async => const Result.success(MutationQueueStats(
             totalPending: 0,
             readyToProcess: 0,
             byEntityType: {},
@@ -258,7 +258,7 @@ void main() {
           .thenAnswer((_) async => null);
 
         when(() => mockRemoteDataSource.pullExpenseDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.failure(NetworkError(message: 'Remote server unavailable')));
+          .thenAnswer((_) async => const Result.failure(NetworkError(message: 'Remote server unavailable')));
 
         final result = await syncOrchestrator.performFullSync(userId: userId);
 
@@ -270,10 +270,10 @@ void main() {
       test('should retry with exponential backoff for transient failures', () async {
         // This test would require implementing retry logic with backoff
         // For now, testing that failures are properly handled
-        final userId = 'test-user-123';
+        const userId = 'test-user-123';
         
         when(() => mockMutationQueueService.getQueueStats()).thenAnswer(
-          (_) async => Result.success(MutationQueueStats(
+          (_) async => const Result.success(MutationQueueStats(
             totalPending: 1,
             readyToProcess: 1,
             byEntityType: {'expense': 1},
@@ -282,10 +282,10 @@ void main() {
 
         // Simulate transient network error
         when(() => mockMutationQueueService.processMutationsForEntity(entityType: 'expense'))
-          .thenAnswer((_) async => Result.failure(NetworkError(message: 'Temporary network error')));
+          .thenAnswer((_) async => const Result.failure(NetworkError(message: 'Temporary network error')));
 
         when(() => mockMutationQueueService.clearFailedMutations())
-          .thenAnswer((_) async => Result.success(0));
+          .thenAnswer((_) async => const Result.success(0));
 
         final result = await syncOrchestrator.performOutboundSync(userId: userId);
 
@@ -296,8 +296,8 @@ void main() {
 
     group('Sync Cursor Management', () {
       test('should advance cursor only after successful inbound processing', () async {
-        final userId = 'test-user-123';
-        final lastSyncAt = DateTime.now().subtract(Duration(hours: 1)).toUtc();
+        const userId = 'test-user-123';
+        final lastSyncAt = DateTime.now().subtract(const Duration(hours: 1)).toUtc();
         final newTimestamp = DateTime.now().toUtc();
         
         when(() => mockLocalDataSource.getSyncMetadata('expense'))
@@ -310,16 +310,16 @@ void main() {
         when(() => mockRemoteDataSource.pullExpenseDeltas(
           userId: userId, 
           lastSyncAt: lastSyncAt
-        )).thenAnswer((_) async => Result.success([]));
+        )).thenAnswer((_) async => const Result.success([]));
 
         when(() => mockRemoteDataSource.pullCategoryDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockRemoteDataSource.pullAccountDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockRemoteDataSource.pullBudgetDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockLocalDataSource.updateLastPullCursor(any(), any()))
           .thenAnswer((_) async => {});
@@ -336,13 +336,13 @@ void main() {
       });
 
       test('should not advance cursor if inbound processing fails', () async {
-        final userId = 'test-user-123';
+        const userId = 'test-user-123';
         
         when(() => mockLocalDataSource.getSyncMetadata(any()))
           .thenAnswer((_) async => null);
 
         when(() => mockRemoteDataSource.pullExpenseDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.failure(NetworkError(message: 'Failed to pull deltas')));
+          .thenAnswer((_) async => const Result.failure(NetworkError(message: 'Failed to pull deltas')));
 
         final result = await syncOrchestrator.performInboundSync(userId: userId);
 
@@ -357,11 +357,11 @@ void main() {
 
     group('Concurrent Sync Prevention', () {
       test('should prevent concurrent full sync operations', () async {
-        final userId = 'test-user-123';
+        const userId = 'test-user-123';
         
         // Setup long-running sync operation
         when(() => mockMutationQueueService.getQueueStats()).thenAnswer(
-          (_) async => Result.success(MutationQueueStats(
+          (_) async => const Result.success(MutationQueueStats(
             totalPending: 0,
             readyToProcess: 0,
             byEntityType: {},
@@ -374,18 +374,18 @@ void main() {
         when(() => mockRemoteDataSource.pullExpenseDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
           .thenAnswer((_) async {
             // Simulate slow operation
-            await Future.delayed(Duration(milliseconds: 100));
-            return Result.success([]);
+            await Future.delayed(const Duration(milliseconds: 100));
+            return const Result.success([]);
           });
 
         when(() => mockRemoteDataSource.pullCategoryDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockRemoteDataSource.pullAccountDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockRemoteDataSource.pullBudgetDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockLocalDataSource.updateLastSuccessfulSync(any(), any()))
           .thenAnswer((_) async => {});
@@ -406,11 +406,11 @@ void main() {
       });
 
       test('should allow different sync types to run concurrently', () async {
-        final userId = 'test-user-123';
+        const userId = 'test-user-123';
         
         // Setup outbound sync
         when(() => mockMutationQueueService.getQueueStats()).thenAnswer(
-          (_) async => Result.success(MutationQueueStats(
+          (_) async => const Result.success(MutationQueueStats(
             totalPending: 0,
             readyToProcess: 0,
             byEntityType: {},
@@ -422,16 +422,16 @@ void main() {
           .thenAnswer((_) async => null);
 
         when(() => mockRemoteDataSource.pullExpenseDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockRemoteDataSource.pullCategoryDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockRemoteDataSource.pullAccountDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockRemoteDataSource.pullBudgetDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         // Both should succeed since they use different lock keys
         final outboundResult = await syncOrchestrator.performOutboundSync(userId: userId);
@@ -444,10 +444,10 @@ void main() {
 
     group('Sync Cancellation', () {
       test('should cancel sync operation cleanly', () async {
-        final userId = 'test-user-123';
+        const userId = 'test-user-123';
         
         when(() => mockMutationQueueService.getQueueStats()).thenAnswer(
-          (_) async => Result.success(MutationQueueStats(
+          (_) async => const Result.success(MutationQueueStats(
             totalPending: 0,
             readyToProcess: 0,
             byEntityType: {},
@@ -459,24 +459,24 @@ void main() {
 
         when(() => mockRemoteDataSource.pullExpenseDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
           .thenAnswer((_) async {
-            await Future.delayed(Duration(milliseconds: 200));
-            return Result.success([]);
+            await Future.delayed(const Duration(milliseconds: 200));
+            return const Result.success([]);
           });
 
         when(() => mockRemoteDataSource.pullCategoryDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockRemoteDataSource.pullAccountDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockRemoteDataSource.pullBudgetDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         // Start sync and cancel it
         final syncFuture = syncOrchestrator.performFullSync(userId: userId);
         
         // Wait a bit then cancel
-        await Future.delayed(Duration(milliseconds: 50));
+        await Future.delayed(const Duration(milliseconds: 50));
         await syncOrchestrator.cancelSync();
         
         final result = await syncFuture;
@@ -488,7 +488,7 @@ void main() {
       });
 
       test('should handle cancellation during different sync phases', () async {
-        final userId = 'test-user-123';
+        const userId = 'test-user-123';
         List<SyncProgress> progressUpdates = [];
         
         // Listen to progress updates
@@ -498,8 +498,8 @@ void main() {
         
         when(() => mockMutationQueueService.getQueueStats()).thenAnswer(
           (_) async {
-            await Future.delayed(Duration(milliseconds: 100));
-            return Result.success(MutationQueueStats(
+            await Future.delayed(const Duration(milliseconds: 100));
+            return const Result.success(MutationQueueStats(
               totalPending: 1,
               readyToProcess: 1,
               byEntityType: {'expense': 1},
@@ -509,8 +509,8 @@ void main() {
 
         when(() => mockMutationQueueService.processMutationsForEntity(entityType: 'expense'))
           .thenAnswer((_) async {
-            await Future.delayed(Duration(milliseconds: 100));
-            return Result.success(MutationBatchResult(
+            await Future.delayed(const Duration(milliseconds: 100));
+            return const Result.success(MutationBatchResult(
               totalProcessed: 1,
               successful: 1,
               failed: 0,
@@ -519,13 +519,13 @@ void main() {
           });
 
         when(() => mockMutationQueueService.clearFailedMutations())
-          .thenAnswer((_) async => Result.success(0));
+          .thenAnswer((_) async => const Result.success(0));
 
         // Start sync and cancel during outbound phase
         final syncFuture = syncOrchestrator.performFullSync(userId: userId);
         
         // Wait for outbound phase to start then cancel
-        await Future.delayed(Duration(milliseconds: 50));
+        await Future.delayed(const Duration(milliseconds: 50));
         await syncOrchestrator.cancelSync();
         
         final result = await syncFuture;
@@ -541,7 +541,7 @@ void main() {
 
     group('Progress Tracking Integration', () {
       test('should provide detailed progress updates throughout sync', () async {
-        final userId = 'test-user-123';
+        const userId = 'test-user-123';
         final progressUpdates = <SyncProgress>[];
         
         // Listen to all progress updates
@@ -551,7 +551,7 @@ void main() {
         
         // Setup sync data
         when(() => mockMutationQueueService.getQueueStats()).thenAnswer(
-          (_) async => Result.success(MutationQueueStats(
+          (_) async => const Result.success(MutationQueueStats(
             totalPending: 2,
             readyToProcess: 2,
             byEntityType: {'expense': 1, 'category': 1},
@@ -559,7 +559,7 @@ void main() {
         );
 
         when(() => mockMutationQueueService.processMutationsForEntity(entityType: any(named: 'entityType')))
-          .thenAnswer((_) async => Result.success(MutationBatchResult(
+          .thenAnswer((_) async => const Result.success(MutationBatchResult(
             totalProcessed: 1,
             successful: 1,
             failed: 0,
@@ -567,22 +567,22 @@ void main() {
           )));
 
         when(() => mockMutationQueueService.clearFailedMutations())
-          .thenAnswer((_) async => Result.success(0));
+          .thenAnswer((_) async => const Result.success(0));
 
         when(() => mockLocalDataSource.getSyncMetadata(any()))
           .thenAnswer((_) async => null);
 
         when(() => mockRemoteDataSource.pullExpenseDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockRemoteDataSource.pullCategoryDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockRemoteDataSource.pullAccountDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockRemoteDataSource.pullBudgetDeltas(userId: userId, lastSyncAt: any(named: 'lastSyncAt')))
-          .thenAnswer((_) async => Result.success([]));
+          .thenAnswer((_) async => const Result.success([]));
 
         when(() => mockLocalDataSource.updateLastSuccessfulSync(any(), any()))
           .thenAnswer((_) async => {});

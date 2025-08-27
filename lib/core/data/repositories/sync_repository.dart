@@ -2,10 +2,6 @@ import '../../domain/entities/sync_expense.dart';
 import '../../domain/entities/sync_category.dart';
 import '../../domain/entities/sync_account.dart';
 import '../../domain/entities/sync_budget.dart';
-import '../dtos/expense_dto.dart';
-import '../dtos/category_dto.dart';
-import '../dtos/account_dto.dart';
-import '../dtos/budget_dto.dart';
 
 /// Repository interface for sync operations
 /// Handles synchronization between local and remote data

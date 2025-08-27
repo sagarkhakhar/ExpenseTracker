@@ -20,8 +20,8 @@ void main() {
       
       entity2 = SyncBaseEntity(
         id: '2',
-        createdAt: now.add(Duration(minutes: 1)),
-        updatedAt: now.add(Duration(minutes: 1)),
+        createdAt: now.add(const Duration(minutes: 1)),
+        updatedAt: now.add(const Duration(minutes: 1)),
         version: 2,
         deviceId: 'device2',
         lastEditor: 'user2',
@@ -37,7 +37,7 @@ void main() {
       final sameVersionEntity = SyncBaseEntity(
         id: '3',
         createdAt: entity1.createdAt,
-        updatedAt: entity1.updatedAt.add(Duration(seconds: 1)),
+        updatedAt: entity1.updatedAt.add(const Duration(seconds: 1)),
         version: 1,
         deviceId: 'device3',
         lastEditor: 'user3',
@@ -132,10 +132,9 @@ void main() {
 class TestEntity extends BaseEntity {
   const TestEntity({
     required this.syncPriority,
-    required DateTime createdAt,
+    required super.createdAt,
   }) : super(
           id: 'test-id',
-          createdAt: createdAt,
           updatedAt: createdAt,
           version: 1,
         );

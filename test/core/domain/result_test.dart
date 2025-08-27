@@ -33,7 +33,7 @@ void main() {
       const error = NetworkError.noConnection();
 
       test('should create failure result with error', () {
-        final result = Result<String>.failure(error);
+        const result = Result<String>.failure(error);
         
         expect(result.isSuccess, isFalse);
         expect(result.isFailure, isTrue);
@@ -42,17 +42,17 @@ void main() {
       });
 
       test('should support equality comparison', () {
-        final result1 = Result<String>.failure(error);
-        final result2 = Result<String>.failure(error);
+        const result1 = Result<String>.failure(error);
+        const result2 = Result<String>.failure(error);
         const differentError = NetworkError.timeout();
-        final result3 = Result<String>.failure(differentError);
+        const result3 = Result<String>.failure(differentError);
         
         expect(result1, equals(result2));
         expect(result1, isNot(equals(result3)));
       });
 
       test('should have proper string representation', () {
-        final result = Result<String>.failure(error);
+        const result = Result<String>.failure(error);
         expect(result.toString(), contains('Failure('));
         expect(result.toString(), contains('NO_CONNECTION'));
       });
@@ -79,7 +79,7 @@ void main() {
       test('should map error correctly', () {
         const originalError = NetworkError.noConnection();
         const newError = NetworkError.timeout();
-        final result = Result<String>.failure(originalError);
+        const result = Result<String>.failure(originalError);
         final mapped = result.mapError((_) => newError);
         
         expect(mapped.isFailure, isTrue);
@@ -139,7 +139,7 @@ void main() {
         var called = false;
         
         const error = NetworkError.noConnection();
-        final result = Result<String>.failure(error);
+        const result = Result<String>.failure(error);
         final returnedResult = result.onSuccess((data) {
           called = true;
         });
@@ -153,7 +153,7 @@ void main() {
         var receivedError = '';
         
         const error = NetworkError.noConnection();
-        final result = Result<String>.failure(error);
+        const result = Result<String>.failure(error);
         final returnedResult = result.onFailure((error) {
           called = true;
           receivedError = error.code;

@@ -78,7 +78,7 @@ void main() {
 
       test('should return false when remote connection fails', () async {
         when(mockRemoteDataSource.testConnection())
-            .thenAnswer((_) async => Result.failure(NetworkError(message: 'No connection')));
+            .thenAnswer((_) async => const Result.failure(NetworkError(message: 'No connection')));
 
         final result = await syncOrchestrator.testConnectivity();
         
@@ -143,7 +143,7 @@ void main() {
 
       test('should handle outbound sync failure', () async {
         when(mockMutationQueueService.getQueueStats())
-            .thenAnswer((_) async => Result.failure(StorageError(message: 'Storage error')));
+            .thenAnswer((_) async => const Result.failure(StorageError(message: 'Storage error')));
 
         final result = await syncOrchestrator.performOutboundSync();
 
@@ -178,7 +178,7 @@ void main() {
 
       test('should handle inbound sync failure', () async {
         when(mockRemoteDataSource.pullExpenseDeltas(userId: anyNamed('userId'), lastSyncAt: any))
-            .thenAnswer((_) async => Result.failure(NetworkError(message: 'Network error')));
+            .thenAnswer((_) async => const Result.failure(NetworkError(message: 'Network error')));
 
         final result = await syncOrchestrator.performInboundSync();
 
@@ -224,7 +224,7 @@ void main() {
 
       test('should handle failure in outbound phase of full sync', () async {
         when(mockMutationQueueService.getQueueStats())
-            .thenAnswer((_) async => Result.failure(StorageError(message: 'Storage error')));
+            .thenAnswer((_) async => const Result.failure(StorageError(message: 'Storage error')));
 
         final result = await syncOrchestrator.performFullSync();
 
@@ -240,7 +240,7 @@ void main() {
         when(mockMutationQueueService.getQueueStats())
             .thenAnswer((_) async {
               // Simulate delay
-              await Future.delayed(Duration(milliseconds: 100));
+              await Future.delayed(const Duration(milliseconds: 100));
               return const Result.success(MutationQueueStats(
                 totalPending: 0,
                 readyToProcess: 0,
@@ -262,7 +262,7 @@ void main() {
         // Setup first sync to take some time
         when(mockMutationQueueService.getQueueStats())
             .thenAnswer((_) async {
-              await Future.delayed(Duration(milliseconds: 50));
+              await Future.delayed(const Duration(milliseconds: 50));
               return const Result.success(MutationQueueStats(
                 totalPending: 0,
                 readyToProcess: 0,
@@ -386,7 +386,7 @@ void main() {
       test('should preserve error details in sync result', () async {
         const errorMessage = 'Specific sync error';
         when(mockMutationQueueService.getQueueStats())
-            .thenAnswer((_) async => Result.failure(SyncOperationError(message: errorMessage)));
+            .thenAnswer((_) async => const Result.failure(SyncOperationError(message: errorMessage)));
 
         final result = await syncOrchestrator.performOutboundSync();
 

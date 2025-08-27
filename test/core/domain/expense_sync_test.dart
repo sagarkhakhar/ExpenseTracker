@@ -122,7 +122,7 @@ void main() {
 
       final newer = older.copyWithSyncMetadata(
         version: 2,
-        updatedAt: DateTime.now().add(Duration(minutes: 1)),
+        updatedAt: DateTime.now().add(const Duration(minutes: 1)),
         lastEditor: 'user2',
       );
 

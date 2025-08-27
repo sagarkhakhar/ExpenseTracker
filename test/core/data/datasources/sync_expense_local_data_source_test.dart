@@ -216,14 +216,14 @@ void main() {
       late SyncExpense newerExpense;
 
       setUp(() async {
-        referenceTime = DateTime.now().subtract(Duration(hours: 1));
+        referenceTime = DateTime.now().subtract(const Duration(hours: 1));
         
         olderExpense = sampleSyncExpense1.copyWith(
-          updatedAt: referenceTime.subtract(Duration(minutes: 30)),
+          updatedAt: referenceTime.subtract(const Duration(minutes: 30)),
         );
         
         newerExpense = sampleSyncExpense2.copyWith(
-          updatedAt: referenceTime.add(Duration(minutes: 30)),
+          updatedAt: referenceTime.add(const Duration(minutes: 30)),
         );
 
         await dataSource.createSyncExpense(olderExpense);

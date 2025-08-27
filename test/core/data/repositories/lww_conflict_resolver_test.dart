@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../../lib/core/data/repositories/lww_conflict_resolver.dart';
-import '../../../../lib/core/data/repositories/sync_repository.dart';
-import '../../../../lib/core/domain/entities/sync_expense.dart';
-import '../../../../lib/core/domain/base_entity.dart';
-import '../../../../lib/features/expense/domain/entities/expense.dart';
+import 'package:expense_tracker/core/data/repositories/lww_conflict_resolver.dart';
+import 'package:expense_tracker/core/data/repositories/sync_repository.dart';
+import 'package:expense_tracker/core/domain/entities/sync_expense.dart';
+import 'package:expense_tracker/core/domain/base_entity.dart';
+import 'package:expense_tracker/features/expense/domain/entities/expense.dart';
 
 void main() {
   late LWWConflictResolver conflictResolver;
@@ -298,8 +298,8 @@ void main() {
       test('should remove old tombstones but keep recent ones and all non-tombstones', () {
         // Arrange
         final now = DateTime.now().toUtc();
-        final oldDate = now.subtract(Duration(days: 60));
-        final recentDate = now.subtract(Duration(days: 15));
+        final oldDate = now.subtract(const Duration(days: 60));
+        final recentDate = now.subtract(const Duration(days: 15));
         
         final entities = [
           _createTestExpense(id: '1', updatedAt: oldDate, isDeleted: true),    // Old tombstone - remove
@@ -363,7 +363,7 @@ void main() {
 
       test('should throw error for future timestamp', () {
         // Arrange
-        final futureTime = DateTime.now().toUtc().add(Duration(hours: 1));
+        final futureTime = DateTime.now().toUtc().add(const Duration(hours: 1));
         final entity = _createTestExpense(updatedAt: futureTime);
 
         // Act & Assert

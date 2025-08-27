@@ -178,7 +178,7 @@ class MockRemoteDataSource implements RemoteDataSource {
     await Future.delayed(const Duration(milliseconds: 10));
     
     if (shouldFail) {
-      return Result.failure(NetworkError(message: 'Network error'));
+      return const Result.failure(NetworkError(message: 'Network error'));
     }
     return const Result.success([]);
   }
@@ -192,7 +192,7 @@ class MockRemoteDataSource implements RemoteDataSource {
     await Future.delayed(const Duration(milliseconds: 10));
     
     if (shouldFail) {
-      return Result.failure(NetworkError(message: 'Network error'));
+      return const Result.failure(NetworkError(message: 'Network error'));
     }
     return const Result.success([]);
   }
@@ -206,7 +206,7 @@ class MockRemoteDataSource implements RemoteDataSource {
     await Future.delayed(const Duration(milliseconds: 10));
     
     if (shouldFail) {
-      return Result.failure(NetworkError(message: 'Network error'));
+      return const Result.failure(NetworkError(message: 'Network error'));
     }
     return const Result.success([]);
   }
@@ -220,7 +220,7 @@ class MockRemoteDataSource implements RemoteDataSource {
     await Future.delayed(const Duration(milliseconds: 10));
     
     if (shouldFail) {
-      return Result.failure(NetworkError(message: 'Network error'));
+      return const Result.failure(NetworkError(message: 'Network error'));
     }
     return const Result.success([]);
   }
@@ -228,7 +228,7 @@ class MockRemoteDataSource implements RemoteDataSource {
   @override
   Future<Result<bool>> testConnection() async {
     if (shouldFail) {
-      return Result.failure(NetworkError(message: 'No connection'));
+      return const Result.failure(NetworkError(message: 'No connection'));
     }
     return const Result.success(true);
   }
@@ -282,7 +282,7 @@ class MockMutationQueueService implements MutationQueueService {
     await Future.delayed(const Duration(milliseconds: 10));
     
     if (shouldFail) {
-      return Result.failure(StorageError(message: 'Storage error'));
+      return const Result.failure(StorageError(message: 'Storage error'));
     }
     
     if (isEmpty) {
@@ -303,7 +303,7 @@ class MockMutationQueueService implements MutationQueueService {
   @override
   Future<Result<MutationBatchResult>> processPendingMutations({int? batchSize}) async {
     if (shouldFail) {
-      return Result.failure(SyncOperationError(message: 'Processing failed'));
+      return const Result.failure(SyncOperationError(message: 'Processing failed'));
     }
     
     if (isEmpty) {
@@ -340,7 +340,7 @@ class MockMutationQueueService implements MutationQueueService {
     int? batchSize,
   }) async {
     if (shouldFail) {
-      return Result.failure(SyncOperationError(message: 'Processing failed'));
+      return const Result.failure(SyncOperationError(message: 'Processing failed'));
     }
     
     if (isEmpty) {
@@ -365,7 +365,7 @@ class MockMutationQueueService implements MutationQueueService {
   @override
   Future<Result<int>> clearFailedMutations() async {
     if (shouldFail) {
-      return Result.failure(StorageError(message: 'Failed to clear mutations'));
+      return const Result.failure(StorageError(message: 'Failed to clear mutations'));
     }
     return const Result.success(0);
   }

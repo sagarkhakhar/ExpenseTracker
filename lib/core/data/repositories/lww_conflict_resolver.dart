@@ -129,7 +129,7 @@ class LWWConflictResolver {
       throw ArgumentError('Entity version must be positive');
     }
     
-    if (entity.updatedAt.isAfter(DateTime.now().toUtc().add(Duration(minutes: 5)))) {
+    if (entity.updatedAt.isAfter(DateTime.now().toUtc().add(const Duration(minutes: 5)))) {
       throw ArgumentError('Entity timestamp cannot be in the future');
     }
   }

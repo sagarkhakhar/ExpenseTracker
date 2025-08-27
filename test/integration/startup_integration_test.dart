@@ -21,10 +21,10 @@ void main() {
               ),
             ),
           ],
-          child: MaterialApp(
+          child: const MaterialApp(
             home: StartupGate(
               child: Scaffold(
-                body: const Center(child: Text('Main App')),
+                body: Center(child: Text('Main App')),
               ),
             ),
           ),
@@ -56,10 +56,10 @@ void main() {
               ),
             ),
           ],
-          child: MaterialApp(
+          child: const MaterialApp(
             home: StartupGate(
               child: Scaffold(
-                body: const Center(child: Text('Main App')),
+                body: Center(child: Text('Main App')),
               ),
             ),
           ),
@@ -67,7 +67,7 @@ void main() {
       );
 
       // Give time for validation to run
-      await tester.pumpAndSettle(Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 2));
 
       // Should show startup diagnostics or error state
       // The exact UI depends on how the validation fails

@@ -51,24 +51,31 @@ class SyncBudget extends BaseEntity {
   final bool isActive;
 
   /// BaseEntity sync fields
+  @override
   @HiveField(8)
   final String id;
   
+  @override
   @HiveField(9)
   final DateTime createdAt;
   
+  @override
   @HiveField(10)
   final DateTime updatedAt;
   
+  @override
   @HiveField(11)
   final int version;
   
+  @override
   @HiveField(12)
   final bool isDeleted;
   
+  @override
   @HiveField(13)
   final String? deviceId;
   
+  @override
   @HiveField(14)
   final String? lastEditor;
 

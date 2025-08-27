@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../../lib/core/data/services/mutation_queue_service.dart';
-import '../../../../lib/core/data/entities/mutation_queue_item.dart';
-import '../../../../lib/core/data/datasources/local_data_source.dart';
-import '../../../../lib/core/data/datasources/remote_data_source.dart';
-import '../../../../lib/core/domain/result.dart';
-import '../../../../lib/core/domain/errors/sync_errors.dart';
+import 'package:expense_tracker/core/data/services/mutation_queue_service.dart';
+import 'package:expense_tracker/core/data/entities/mutation_queue_item.dart';
+import 'package:expense_tracker/core/data/datasources/local_data_source.dart';
+import 'package:expense_tracker/core/data/datasources/remote_data_source.dart';
+import 'package:expense_tracker/core/domain/result.dart';
+import 'package:expense_tracker/core/domain/errors/sync_errors.dart';
 
 class MockLocalDataSource extends Mock implements LocalDataSource {}
 class MockRemoteDataSource extends Mock implements RemoteDataSource {}

@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../../lib/core/data/dtos/expense_dto.dart';
-import '../../../../lib/core/domain/result.dart';
-import '../../../../lib/core/domain/errors/sync_errors.dart';
+import 'package:expense_tracker/core/data/dtos/expense_dto.dart';
+import 'package:expense_tracker/core/domain/result.dart';
+import 'package:expense_tracker/core/domain/errors/sync_errors.dart';
 
 void main() {
   group('RemoteDataSource Core Types', () {
@@ -90,7 +90,7 @@ void main() {
       });
 
       test('should create failure result', () {
-        final error = NetworkError(message: 'Test error');
+        const error = NetworkError(message: 'Test error');
         final result = Result<List<ExpenseDto>>.failure(error);
         
         expect(result.isFailure, true);
@@ -98,7 +98,7 @@ void main() {
       });
 
       test('should handle result transformations', () {
-        final successResult = Result.success('test');
+        const successResult = Result.success('test');
         final mappedResult = successResult.map((value) => value.length);
         
         expect(mappedResult.isSuccess, true);
@@ -111,29 +111,29 @@ void main() {
 
     group('Sync error types', () {
       test('should create NetworkError', () {
-        final error = NetworkError(message: 'Connection failed');
+        const error = NetworkError(message: 'Connection failed');
         expect(error.message, 'Connection failed');
         expect(error.code, 'NETWORK_ERROR');
       });
 
       test('should create SupabaseError', () {
-        final error = SupabaseError(message: 'Database error');
+        const error = SupabaseError(message: 'Database error');
         expect(error.message, 'Database error');
         expect(error.code, 'SUPABASE_ERROR');
       });
 
       test('should create AuthError', () {
-        final error = AuthError(message: 'Authentication failed');
+        const error = AuthError(message: 'Authentication failed');
         expect(error.message, 'Authentication failed');
         expect(error.code, 'AUTH_ERROR');
       });
 
       test('should create specialized NetworkError variants', () {
-        final noConnectionError = NetworkError.noConnection();
+        const noConnectionError = NetworkError.noConnection();
         expect(noConnectionError.code, 'NO_CONNECTION');
         expect(noConnectionError.message, 'No internet connection available');
 
-        final timeoutError = NetworkError.timeout();
+        const timeoutError = NetworkError.timeout();
         expect(timeoutError.code, 'CONNECTION_TIMEOUT');
         expect(timeoutError.message, 'Connection timed out');
       });

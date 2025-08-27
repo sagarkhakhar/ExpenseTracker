@@ -34,7 +34,7 @@ class EnhancedMockMutationQueueService implements MutationQueueService {
   @override
   Future<Result<MutationQueueStats>> getQueueStats() async {
     if (shouldFailGlobal) {
-      return Result.failure(StorageError(message: 'Storage error'));
+      return const Result.failure(StorageError(message: 'Storage error'));
     }
     
     if (isEmpty) {
@@ -60,7 +60,7 @@ class EnhancedMockMutationQueueService implements MutationQueueService {
   @override
   Future<Result<MutationBatchResult>> processPendingMutations({int? batchSize}) async {
     if (shouldFailGlobal) {
-      return Result.failure(SyncOperationError(message: 'Processing failed'));
+      return const Result.failure(SyncOperationError(message: 'Processing failed'));
     }
     
     if (isEmpty) {
@@ -88,9 +88,9 @@ class EnhancedMockMutationQueueService implements MutationQueueService {
   }) async {
     if (entityFailures[entityType] == true) {
       if (entityType == 'expense' && shouldFailExpenses) {
-        return Result.failure(NetworkError(message: 'Network timeout'));
+        return const Result.failure(NetworkError(message: 'Network timeout'));
       } else if (entityType == 'category' && shouldFailCategories) {
-        return Result.failure(AuthError(message: 'Authentication failed'));
+        return const Result.failure(AuthError(message: 'Authentication failed'));
       }
       return Result.failure(SyncOperationError(message: '$entityType processing failed'));
     }

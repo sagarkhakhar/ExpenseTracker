@@ -169,7 +169,7 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
     List<ExpenseDto> expenses,
     String userId,
   ) async {
-    if (expenses.isEmpty) return Result.success([]);
+    if (expenses.isEmpty) return const Result.success([]);
     
     try {
       // Ensure user scoping and batch size limits
@@ -212,7 +212,7 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
     List<CategoryDto> categories,
     String userId,
   ) async {
-    if (categories.isEmpty) return Result.success([]);
+    if (categories.isEmpty) return const Result.success([]);
     
     try {
       final batchedCategories = _batchItems(categories, _maxBatchSize);
@@ -253,7 +253,7 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
     List<AccountDto> accounts,
     String userId,
   ) async {
-    if (accounts.isEmpty) return Result.success([]);
+    if (accounts.isEmpty) return const Result.success([]);
     
     try {
       final batchedAccounts = _batchItems(accounts, _maxBatchSize);
@@ -294,7 +294,7 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
     List<BudgetDto> budgets,
     String userId,
   ) async {
-    if (budgets.isEmpty) return Result.success([]);
+    if (budgets.isEmpty) return const Result.success([]);
     
     try {
       final batchedBudgets = _batchItems(budgets, _maxBatchSize);
@@ -335,7 +335,7 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
     try {
       // Simple query to test connectivity and auth
       await _client.from('categories').select('count').limit(1).single();
-      return Result.success(true);
+      return const Result.success(true);
     } on PostgrestException catch (e) {
       return Result.failure(
         SupabaseError(message: 'Connection test failed: ${e.message}'),
@@ -368,7 +368,7 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
   @override
   Future<Result<void>> batchUpsertExpenses(List<Map<String, dynamic>> expensesData) async {
     try {
-      if (expensesData.isEmpty) return Result.success(null);
+      if (expensesData.isEmpty) return const Result.success(null);
       
       final batchedData = _batchItems(expensesData, _maxBatchSize);
       
@@ -378,7 +378,7 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
             .upsert(batch, onConflict: 'id');
       }
       
-      return Result.success(null);
+      return const Result.success(null);
     } on PostgrestException catch (e) {
       return Result.failure(
         SupabaseError(message: 'Failed to batch upsert expenses: ${e.message}'),
@@ -393,7 +393,7 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
   @override
   Future<Result<void>> batchUpsertCategories(List<Map<String, dynamic>> categoriesData) async {
     try {
-      if (categoriesData.isEmpty) return Result.success(null);
+      if (categoriesData.isEmpty) return const Result.success(null);
       
       final batchedData = _batchItems(categoriesData, _maxBatchSize);
       
@@ -403,7 +403,7 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
             .upsert(batch, onConflict: 'id');
       }
       
-      return Result.success(null);
+      return const Result.success(null);
     } on PostgrestException catch (e) {
       return Result.failure(
         SupabaseError(message: 'Failed to batch upsert categories: ${e.message}'),
@@ -418,7 +418,7 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
   @override
   Future<Result<void>> batchUpsertAccounts(List<Map<String, dynamic>> accountsData) async {
     try {
-      if (accountsData.isEmpty) return Result.success(null);
+      if (accountsData.isEmpty) return const Result.success(null);
       
       final batchedData = _batchItems(accountsData, _maxBatchSize);
       
@@ -428,7 +428,7 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
             .upsert(batch, onConflict: 'id');
       }
       
-      return Result.success(null);
+      return const Result.success(null);
     } on PostgrestException catch (e) {
       return Result.failure(
         SupabaseError(message: 'Failed to batch upsert accounts: ${e.message}'),
@@ -443,7 +443,7 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
   @override
   Future<Result<void>> batchUpsertBudgets(List<Map<String, dynamic>> budgetsData) async {
     try {
-      if (budgetsData.isEmpty) return Result.success(null);
+      if (budgetsData.isEmpty) return const Result.success(null);
       
       final batchedData = _batchItems(budgetsData, _maxBatchSize);
       
@@ -453,7 +453,7 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
             .upsert(batch, onConflict: 'id');
       }
       
-      return Result.success(null);
+      return const Result.success(null);
     } on PostgrestException catch (e) {
       return Result.failure(
         SupabaseError(message: 'Failed to batch upsert budgets: ${e.message}'),

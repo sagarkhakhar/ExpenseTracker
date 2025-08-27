@@ -20,7 +20,7 @@ void main() {
       test('should fail validation with empty URL', () {
         final config = EnvironmentConfig.development(
           supabaseUrl: '',
-          supabaseAnonKey: 'valid-key-' + 'a' * 100,
+          supabaseAnonKey: 'valid-key-${'a' * 100}',
         );
 
         final result = ConfigValidator.validateConfig(config);
@@ -32,7 +32,7 @@ void main() {
       test('should fail validation with invalid URL format', () {
         final config = EnvironmentConfig.development(
           supabaseUrl: 'invalid-url',
-          supabaseAnonKey: 'valid-key-' + 'a' * 100,
+          supabaseAnonKey: 'valid-key-${'a' * 100}',
         );
 
         final result = ConfigValidator.validateConfig(config);
@@ -68,7 +68,7 @@ void main() {
       test('should warn about inefficient batch size', () {
         final config = EnvironmentConfig.development(
           supabaseUrl: 'https://test-project.supabase.co',
-          supabaseAnonKey: 'valid-key-' + 'a' * 100,
+          supabaseAnonKey: 'valid-key-${'a' * 100}',
         ).copyWith(syncBatchSize: 2000);
 
         final result = ConfigValidator.validateConfig(config);

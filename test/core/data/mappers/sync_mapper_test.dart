@@ -21,7 +21,7 @@ void main() {
         date: DateTime(2024, 1, 15),
         createdAt: DateTime(2024, 1, 15, 10, 0),
         updatedAt: DateTime(2024, 1, 15, 10, 30),
-        metadata: {'source': 'test'},
+        metadata: const {'source': 'test'},
         isRecurring: false,
       );
 

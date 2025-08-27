@@ -48,24 +48,31 @@ class SyncAccount extends BaseEntity {
   final bool isActive; // Whether account is active
 
   /// BaseEntity sync fields
+  @override
   @HiveField(6)
   final String id;
   
+  @override
   @HiveField(7)
   final DateTime createdAt;
   
+  @override
   @HiveField(8)
   final DateTime updatedAt;
   
+  @override
   @HiveField(9)
   final int version;
   
+  @override
   @HiveField(10)
   final bool isDeleted;
   
+  @override
   @HiveField(11)
   final String? deviceId;
   
+  @override
   @HiveField(12)
   final String? lastEditor;
 

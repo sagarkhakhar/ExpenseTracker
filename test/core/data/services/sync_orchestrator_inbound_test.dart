@@ -61,7 +61,7 @@ class EnhancedMockRemoteDataSource implements RemoteDataSource {
     }
     
     if (entityFailures['expense'] == true || shouldFailExpenses) {
-      return Result.failure(NetworkError(message: 'Network error pulling expenses'));
+      return const Result.failure(NetworkError(message: 'Network error pulling expenses'));
     }
 
     final deltas = mockDeltas['expense']?.cast<ExpenseDto>() ?? <ExpenseDto>[];
@@ -75,7 +75,7 @@ class EnhancedMockRemoteDataSource implements RemoteDataSource {
     int limit = 100,
   }) async {
     if (entityFailures['category'] == true || shouldFailCategories) {
-      return Result.failure(AuthError(message: 'Auth error pulling categories'));
+      return const Result.failure(AuthError(message: 'Auth error pulling categories'));
     }
 
     final deltas = mockDeltas['category']?.cast<CategoryDto>() ?? <CategoryDto>[];
@@ -89,7 +89,7 @@ class EnhancedMockRemoteDataSource implements RemoteDataSource {
     int limit = 100,
   }) async {
     if (entityFailures['account'] == true) {
-      return Result.failure(SyncOperationError(message: 'Sync error pulling accounts'));
+      return const Result.failure(SyncOperationError(message: 'Sync error pulling accounts'));
     }
 
     final deltas = mockDeltas['account']?.cast<AccountDto>() ?? <AccountDto>[];
@@ -103,7 +103,7 @@ class EnhancedMockRemoteDataSource implements RemoteDataSource {
     int limit = 100,
   }) async {
     if (entityFailures['budget'] == true) {
-      return Result.failure(ValidationError(message: 'Validation error pulling budgets'));
+      return const Result.failure(ValidationError(message: 'Validation error pulling budgets'));
     }
 
     final deltas = mockDeltas['budget']?.cast<BudgetDto>() ?? <BudgetDto>[];
@@ -530,11 +530,11 @@ void main() {
         mockRemoteDataSource.setMockDeltas('category', []);
         mockRemoteDataSource.setMockDeltas('account', []);
         mockRemoteDataSource.setMockDeltas('budget', []);
-        mockRemoteDataSource.setDelayDuration(Duration(milliseconds: 100));
+        mockRemoteDataSource.setDelayDuration(const Duration(milliseconds: 100));
 
         // Start sync and cancel after a brief delay to allow sync to begin
         final syncFuture = syncOrchestrator.performInboundSync();
-        await Future.delayed(Duration(milliseconds: 10));
+        await Future.delayed(const Duration(milliseconds: 10));
         await syncOrchestrator.cancelSync();
         
         expect(syncOrchestrator.currentStatus, SyncStatus.cancelled);
