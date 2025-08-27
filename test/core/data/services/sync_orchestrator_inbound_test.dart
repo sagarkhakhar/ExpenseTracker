@@ -26,6 +26,7 @@ class EnhancedMockRemoteDataSource implements RemoteDataSource {
   bool shouldFailCategories = false;
   Map<String, bool> entityFailures = {};
   Map<String, List<dynamic>> mockDeltas = {};
+  Duration? delayDuration;
 
   void setEntityFailure(String entityType, bool shouldFail) {
     entityFailures[entityType] = shouldFail;
@@ -33,6 +34,10 @@ class EnhancedMockRemoteDataSource implements RemoteDataSource {
 
   void setMockDeltas(String entityType, List<dynamic> deltas) {
     mockDeltas[entityType] = deltas;
+  }
+
+  void setDelayDuration(Duration? delay) {
+    delayDuration = delay;
   }
 
   @override
@@ -51,6 +56,10 @@ class EnhancedMockRemoteDataSource implements RemoteDataSource {
     DateTime? lastSyncAt,
     int limit = 100,
   }) async {
+    if (delayDuration != null) {
+      await Future.delayed(delayDuration!);
+    }
+    
     if (entityFailures['expense'] == true || shouldFailExpenses) {
       return Result.failure(NetworkError(message: 'Network error pulling expenses'));
     }
@@ -300,6 +309,9 @@ void main() {
       conflictResolver = LWWConflictResolver();
       syncMapper = SyncMapper();
 
+      // Reset delay for each test
+      mockRemoteDataSource.setDelayDuration(null);
+
       syncOrchestrator = SyncOrchestratorImpl(
         localDataSource: mockLocalDataSource,
         remoteDataSource: mockRemoteDataSource,
@@ -513,16 +525,22 @@ void main() {
       });
 
       test('should handle cancellation during inbound processing', () async {
+        // Set mock deltas and add delay to make sync take some time
         mockRemoteDataSource.setMockDeltas('expense', []);
         mockRemoteDataSource.setMockDeltas('category', []);
         mockRemoteDataSource.setMockDeltas('account', []);
         mockRemoteDataSource.setMockDeltas('budget', []);
+        mockRemoteDataSource.setDelayDuration(Duration(milliseconds: 100));
 
-        // Start sync and cancel immediately
+        // Start sync and cancel after a brief delay to allow sync to begin
         final syncFuture = syncOrchestrator.performInboundSync();
+        await Future.delayed(Duration(milliseconds: 10));
         await syncOrchestrator.cancelSync();
         
         expect(syncOrchestrator.currentStatus, SyncStatus.cancelled);
+        
+        // Wait for the cancelled sync to complete to ensure cleanup
+        await syncFuture;
       });
 
       test('should handle empty delta responses efficiently', () async {
