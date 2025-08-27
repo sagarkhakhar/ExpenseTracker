@@ -1,7 +1,7 @@
 import 'package:hive/hive.dart';
 import '../base_entity.dart';
 
-// part 'sync_category.g.dart'; // TODO: Generate with build_runner
+part 'sync_category.g.dart';
 
 /// Sync-enabled Category entity with BaseEntity fields
 @HiveType(typeId: 21)
