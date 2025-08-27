@@ -51,6 +51,10 @@ dependencies:
 
   # File Operations
   open_file: ^3.3.2
+  
+  # Supabase Integration
+  supabase_flutter: ^2.5.6
+  connectivity_plus: ^6.0.3
 
 dev_dependencies:
   flutter_test:

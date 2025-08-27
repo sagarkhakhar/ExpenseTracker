@@ -9,7 +9,6 @@ import 'package:expense_tracker/features/expense/domain/usecases/capture_photo.d
 import 'package:expense_tracker/features/expense/domain/usecases/save_photo.dart';
 import 'package:expense_tracker/features/expense/domain/usecases/get_photos_for_expense.dart';
 import 'package:expense_tracker/features/expense/domain/services/photo_service.dart';
-import 'package:expense_tracker/features/expense/data/repositories/receipt_photo_repository_impl.dart';
 import 'package:expense_tracker/features/expense/data/datasources/receipt_photo_local_data_source.dart';
 import 'package:expense_tracker/features/expense/presentation/providers/photo_providers.dart';
 import 'package:expense_tracker/core/errors/failures.dart';

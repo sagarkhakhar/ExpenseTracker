@@ -9,14 +9,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'shared/theme/app_theme.dart';
 import 'features/expense/presentation/views/home_screen.dart';
+import 'presentation/startup/startup_gate.dart';
 import 'features/expense/data/models/expense_model.dart';
 import 'features/expense/presentation/views/add_expense_screen.dart';
 import 'features/expense/domain/entities/expense.dart';
-import 'features/expense/data/datasources/expense_local_data_source_impl.dart';
 import 'features/budget/data/models/budget_model.dart';
-import 'features/budget/data/datasources/budget_local_data_source.dart';
 import 'features/expense/data/models/receipt_photo_model.dart';
-import 'features/expense/data/datasources/receipt_photo_local_data_source.dart';
 import 'features/export/domain/entities/export_history.dart';
 import 'features/statistics/domain/entities/financial_goal.dart';
 import 'features/statistics/domain/entities/trend_analysis.dart';
@@ -97,7 +95,7 @@ class ExpenseTrackerApp extends ConsumerWidget {
       return CupertinoApp(
         title: AppLocalizations.of(context)?.appTitle ?? 'Expense Tracker',
         theme: AppTheme.getCupertinoTheme(Brightness.light),
-        home: const AppLoadingScreen(),
+        home: const StartupGate(child: HomeScreen()),
         debugShowCheckedModeBanner: false,
         routes: {'/add-expense': (context) => const AddExpenseScreen()},
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -110,193 +108,12 @@ class ExpenseTrackerApp extends ConsumerWidget {
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: ThemeMode.system, // Automatically adapts to system theme
-        home: const AppLoadingScreen(),
+        home: const StartupGate(child: HomeScreen()),
         debugShowCheckedModeBanner: false,
         routes: {'/add-expense': (context) => const AddExpenseScreen()},
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
       );
     }
-  }
-}
-
-/// Loading screen that handles app initialization
-class AppLoadingScreen extends ConsumerStatefulWidget {
-  const AppLoadingScreen({super.key});
-
-  @override
-  ConsumerState<AppLoadingScreen> createState() => _AppLoadingScreenState();
-}
-
-class _AppLoadingScreenState extends ConsumerState<AppLoadingScreen> {
-  bool _isInitialized = false;
-  String _status = 'Initializing...';
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeApp();
-  }
-
-  Future<void> _initializeApp() async {
-    try {
-      setState(() => _status = 'Loading...');
-
-      // Initialize categories on main thread (Hive requirement)
-      await _initializeCategories();
-
-      setState(() => _status = 'Ready!');
-      // Minimal delay for stability
-      await Future.delayed(const Duration(milliseconds: 25));
-
-      if (mounted) {
-        setState(() => _isInitialized = true);
-      }
-    } catch (e) {
-      debugPrint('Error during app initialization: $e');
-      // Continue to app even if initialization fails
-      if (mounted) {
-        setState(() => _isInitialized = true);
-      }
-    }
-  }
-
-  Future<void> _initializeCategories() async {
-    try {
-      final categoryDataSource = CategoryLocalDataSourceImpl();
-      await categoryDataSource.init();
-
-      // Initialize comprehensive dummy data for all features
-      await _initializeComprehensiveDummyData();
-    } catch (e) {
-      debugPrint('Error initializing categories: $e');
-    }
-  }
-
-  Future<void> _initializeComprehensiveDummyData() async {
-    try {
-      debugPrint('Initializing comprehensive dummy data...');
-
-      // Clear existing data to ensure fresh seeding
-      await _clearExistingData();
-
-      // Initialize expense dummy data
-      final expenseDataSource = ExpenseLocalDataSourceImpl();
-      await expenseDataSource.init();
-
-      // Initialize budget dummy data
-      final budgetDataSource = BudgetLocalDataSourceImpl();
-      await budgetDataSource.seedComprehensiveBudgetData();
-
-      // Initialize photo dummy data
-      final photoDataSource = ReceiptPhotoLocalDataSourceImpl();
-      await photoDataSource.init();
-      await photoDataSource.seedComprehensivePhotoData();
-
-      debugPrint('Comprehensive dummy data initialization complete');
-
-      // Verify data was loaded
-      await _verifyDataLoaded();
-    } catch (e) {
-      debugPrint('Error initializing dummy data: $e');
-    }
-  }
-
-  Future<void> _clearExistingData() async {
-    try {
-      debugPrint('Clearing existing data...');
-
-      // Clear expense data
-      if (Hive.isBoxOpen('expenses')) {
-        await Hive.box('expenses').clear();
-      }
-
-      // Clear budget data
-      if (Hive.isBoxOpen('budgets')) {
-        await Hive.box('budgets').clear();
-      }
-
-      // Clear photo data
-      if (Hive.isBoxOpen('receipt_photos')) {
-        await Hive.box('receipt_photos').clear();
-      }
-
-      // Clear category data - handle type mismatch
-      try {
-        if (Hive.isBoxOpen('categories')) {
-          await Hive.box('categories').clear();
-        }
-      } catch (e) {
-        debugPrint('Categories box clear error (expected): $e');
-        // Close and reopen categories box
-        if (Hive.isBoxOpen('categories')) {
-          await Hive.box('categories').close();
-        }
-      }
-
-      debugPrint('Existing data cleared');
-    } catch (e) {
-      debugPrint('Error clearing existing data: $e');
-    }
-  }
-
-  Future<void> _verifyDataLoaded() async {
-    try {
-      debugPrint('Verifying data was loaded...');
-
-      // Check expense data
-      if (Hive.isBoxOpen('expenses')) {
-        final expenseCount = Hive.box('expenses').length;
-        debugPrint('Expenses loaded: $expenseCount');
-      }
-
-      // Check budget data
-      if (Hive.isBoxOpen('budgets')) {
-        final budgetCount = Hive.box('budgets').length;
-        debugPrint('Budgets loaded: $budgetCount');
-      }
-
-      // Check photo data
-      if (Hive.isBoxOpen('receipt_photos')) {
-        final photoCount = Hive.box('receipt_photos').length;
-        debugPrint('Photos loaded: $photoCount');
-      }
-
-      // Check category data
-      if (Hive.isBoxOpen('categories')) {
-        final categoryCount = Hive.box('categories').length;
-        debugPrint('Categories loaded: $categoryCount');
-      }
-
-      debugPrint('Data verification complete');
-    } catch (e) {
-      debugPrint('Error verifying data: $e');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_isInitialized) {
-      return const HomeScreen();
-    }
-
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (PlatformWidgets.isIOS)
-              const CupertinoActivityIndicator(radius: 20)
-            else
-              const CircularProgressIndicator(),
-            const SizedBox(height: 20),
-            Text(
-              _status,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
