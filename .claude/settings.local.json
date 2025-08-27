@@ -21,7 +21,8 @@
       "Bash(flutter gen-l10n:*)",
       "Bash(find:*)",
       "Bash(timeout:*)",
-      "Bash(claude mcp:*)"
+      "Bash(claude mcp:*)",
+      "Bash(flutter packages pub run:*)"
     ],
     "deny": [],
     "ask": []

@@ -64,4 +64,18 @@ abstract class RemoteDataSource {
 
   /// Get server timestamp for sync coordination
   Future<Result<DateTime>> getServerTimestamp();
+
+  // BATCH MUTATION OPERATIONS
+
+  /// Batch upsert expenses from mutation queue (JSON format)
+  Future<Result<void>> batchUpsertExpenses(List<Map<String, dynamic>> expensesData);
+
+  /// Batch upsert categories from mutation queue (JSON format)
+  Future<Result<void>> batchUpsertCategories(List<Map<String, dynamic>> categoriesData);
+
+  /// Batch upsert accounts from mutation queue (JSON format)
+  Future<Result<void>> batchUpsertAccounts(List<Map<String, dynamic>> accountsData);
+
+  /// Batch upsert budgets from mutation queue (JSON format)
+  Future<Result<void>> batchUpsertBudgets(List<Map<String, dynamic>> budgetsData);
 }

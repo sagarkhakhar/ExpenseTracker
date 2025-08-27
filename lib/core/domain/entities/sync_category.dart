@@ -22,7 +22,34 @@ class SyncCategory extends BaseEntity {
   @HiveField(4)
   final bool isDefault; // System-provided categories
 
-  // BaseEntity fields are inherited, no need to redeclare
+  // BaseEntity fields - need HiveField annotations for Hive serialization
+  @override
+  @HiveField(10)
+  final String id;
+  
+  @override
+  @HiveField(11)
+  final DateTime createdAt;
+  
+  @override
+  @HiveField(12)
+  final DateTime updatedAt;
+  
+  @override
+  @HiveField(13)
+  final int version;
+  
+  @override
+  @HiveField(14)
+  final bool isDeleted;
+  
+  @override
+  @HiveField(15)
+  final String? deviceId;
+  
+  @override
+  @HiveField(16)
+  final String? lastEditor;
 
   const SyncCategory({
     // Business fields
@@ -32,14 +59,22 @@ class SyncCategory extends BaseEntity {
     this.description,
     this.isDefault = false,
     // BaseEntity fields
-    required super.id,
-    required super.createdAt,
-    required super.updatedAt,
-    required super.version,
-    super.isDeleted = false,
-    super.deviceId,
-    super.lastEditor,
-  });
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.version,
+    this.isDeleted = false,
+    this.deviceId,
+    this.lastEditor,
+  }) : super(
+         id: id,
+         createdAt: createdAt,
+         updatedAt: updatedAt,
+         version: version,
+         isDeleted: isDeleted,
+         deviceId: deviceId,
+         lastEditor: lastEditor,
+       );
 
   @override
   List<Object?> get props => [
@@ -88,13 +123,13 @@ class SyncCategory extends BaseEntity {
       description: description ?? this.description,
       isDefault: isDefault ?? this.isDefault,
       // BaseEntity fields
-      id: super.id,
-      createdAt: super.createdAt,
-      updatedAt: updatedAt ?? super.updatedAt,
-      version: version ?? super.version,
-      isDeleted: isDeleted ?? super.isDeleted,
-      deviceId: deviceId ?? super.deviceId,
-      lastEditor: lastEditor ?? super.lastEditor,
+      id: id,
+      createdAt: createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      version: version ?? this.version,
+      isDeleted: isDeleted ?? this.isDeleted,
+      deviceId: deviceId ?? this.deviceId,
+      lastEditor: lastEditor ?? this.lastEditor,
     );
   }
 

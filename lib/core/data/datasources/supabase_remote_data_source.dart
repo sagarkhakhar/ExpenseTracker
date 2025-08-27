@@ -365,6 +365,106 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
     }
   }
 
+  @override
+  Future<Result<void>> batchUpsertExpenses(List<Map<String, dynamic>> expensesData) async {
+    try {
+      if (expensesData.isEmpty) return Result.success(null);
+      
+      final batchedData = _batchItems(expensesData, _maxBatchSize);
+      
+      for (final batch in batchedData) {
+        await _client
+            .from(_expensesTable)
+            .upsert(batch, onConflict: 'id');
+      }
+      
+      return Result.success(null);
+    } on PostgrestException catch (e) {
+      return Result.failure(
+        SupabaseError(message: 'Failed to batch upsert expenses: ${e.message}'),
+      );
+    } catch (e) {
+      return Result.failure(
+        NetworkError(message: 'Unexpected error batch upserting expenses: $e'),
+      );
+    }
+  }
+
+  @override
+  Future<Result<void>> batchUpsertCategories(List<Map<String, dynamic>> categoriesData) async {
+    try {
+      if (categoriesData.isEmpty) return Result.success(null);
+      
+      final batchedData = _batchItems(categoriesData, _maxBatchSize);
+      
+      for (final batch in batchedData) {
+        await _client
+            .from(_categoriesTable)
+            .upsert(batch, onConflict: 'id');
+      }
+      
+      return Result.success(null);
+    } on PostgrestException catch (e) {
+      return Result.failure(
+        SupabaseError(message: 'Failed to batch upsert categories: ${e.message}'),
+      );
+    } catch (e) {
+      return Result.failure(
+        NetworkError(message: 'Unexpected error batch upserting categories: $e'),
+      );
+    }
+  }
+
+  @override
+  Future<Result<void>> batchUpsertAccounts(List<Map<String, dynamic>> accountsData) async {
+    try {
+      if (accountsData.isEmpty) return Result.success(null);
+      
+      final batchedData = _batchItems(accountsData, _maxBatchSize);
+      
+      for (final batch in batchedData) {
+        await _client
+            .from(_accountsTable)
+            .upsert(batch, onConflict: 'id');
+      }
+      
+      return Result.success(null);
+    } on PostgrestException catch (e) {
+      return Result.failure(
+        SupabaseError(message: 'Failed to batch upsert accounts: ${e.message}'),
+      );
+    } catch (e) {
+      return Result.failure(
+        NetworkError(message: 'Unexpected error batch upserting accounts: $e'),
+      );
+    }
+  }
+
+  @override
+  Future<Result<void>> batchUpsertBudgets(List<Map<String, dynamic>> budgetsData) async {
+    try {
+      if (budgetsData.isEmpty) return Result.success(null);
+      
+      final batchedData = _batchItems(budgetsData, _maxBatchSize);
+      
+      for (final batch in batchedData) {
+        await _client
+            .from(_budgetsTable)
+            .upsert(batch, onConflict: 'id');
+      }
+      
+      return Result.success(null);
+    } on PostgrestException catch (e) {
+      return Result.failure(
+        SupabaseError(message: 'Failed to batch upsert budgets: ${e.message}'),
+      );
+    } catch (e) {
+      return Result.failure(
+        NetworkError(message: 'Unexpected error batch upserting budgets: $e'),
+      );
+    }
+  }
+
   /// Split items into batches of specified size
   List<List<T>> _batchItems<T>(List<T> items, int batchSize) {
     final batches = <List<T>>[];

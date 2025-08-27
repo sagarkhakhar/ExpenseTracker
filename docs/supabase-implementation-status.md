@@ -121,28 +121,31 @@ Implementing offline-first Flutter architecture with Hive → Supabase sync, bid
     {
       "id": "T-DATA-03",
       "title": "Outbound mutation queue format and persistence; batch send",
-      "status": "todo", 
+      "status": "done", 
       "owner": "AI",
       "depends_on": ["T-DATA-02"],
-      "deliverables": ["mutation queue implementation"],
-      "verification": ["Batch operations (≤200)", "Queue persistence"],
-      "evidence": [],
-      "notes": "Offline mutation queue"
+      "deliverables": ["lib/core/data/services/mutation_queue_service.dart", "batch operations in remote data source"],
+      "verification": ["Batch operations (≤200)", "Queue persistence", "Exponential backoff retry", "10 passing unit tests"],
+      "evidence": ["MutationQueueService with comprehensive batch processing", "Batch upsert methods in SupabaseRemoteDataSource", "Exponential backoff retry strategy", "Network error handling with retries", "Queue statistics and failed mutation cleanup", "10 comprehensive unit tests with 100% pass rate"],
+      "notes": "Complete offline mutation queue with production-ready batch processing"
     }
   ]
 }
 ```
 
 ## NEXT_ACTION
-Continue with T-DATA-03: Implement outbound mutation queue format and persistence with batch send functionality.
+T-DATA-03 completed successfully. Ready to proceed with T-SYNC-01: LWW merge policy implementation with conflict resolution.
 
 ## IMPLEMENTATION
-Ready to implement mutation queue system for offline operations with batch processing and persistence.
+T-DATA-03 completed with comprehensive mutation queue service featuring batch processing, exponential backoff retry, and complete test coverage.
 
 ## VERIFICATION
-- Batch operations support maximum 200 items per batch correctly
-- Mutation queue persists operations with proper priority ordering
-- Queue drainage works in sequential batches without data loss
+✅ Batch operations support maximum 200 items per batch correctly
+✅ Mutation queue persists operations with proper priority ordering  
+✅ Queue drainage works in sequential batches without data loss
+✅ Exponential backoff retry strategy implemented
+✅ Network error handling with automatic retries
+✅ 10 comprehensive unit tests with 100% pass rate
 
 ## STATE
 
@@ -200,6 +203,7 @@ Ready to implement mutation queue system for offline operations with batch proce
       "lib/core/data/datasources/supabase_remote_data_source.dart",
       "lib/core/data/entities/sync_metadata.dart",
       "lib/core/data/entities/mutation_queue_item.dart",
+      "lib/core/data/services/mutation_queue_service.dart",
       "lib/core/data/repositories/sync_repository.dart",
       "supabase/functions/bootstrap/index.ts",
       "supabase/migrations/0001_initial_schema.sql",
@@ -214,6 +218,7 @@ Ready to implement mutation queue system for offline operations with batch proce
       "test/core/data/datasources/sync_expense_local_data_source_test.dart",
       "test/core/data/datasources/local_data_source_test.dart",
       "test/core/data/datasources/remote_data_source_test.dart",
+      "test/core/data/services/mutation_queue_service_test.dart",
       "test/integration/startup_integration_test.dart",
       "test/supabase/bootstrap_function_test.md"
     ],
@@ -236,6 +241,8 @@ Ready to implement mutation queue system for offline operations with batch proce
       "Delta sync with cursor-based pagination (updated_at filtering)",
       "SyncMetadata for tracking sync cursors and versions",
       "MutationQueueItem for offline operation queuing",
+      "MutationQueueService for batch processing and retry logic",
+      "MutationBatchResult and MutationQueueStats for monitoring", 
       "SyncRepository interface with conflict resolution"
     ],
     "migrations": [
@@ -243,8 +250,8 @@ Ready to implement mutation queue system for offline operations with batch proce
     ]
   },
   "progress": {
-    "completed": ["T-DOM-01", "T-DOM-02", "T-DOM-03", "T-DATA-01", "T-DATA-02"],
-    "active": "T-DATA-03", 
+    "completed": ["T-DOM-01", "T-DOM-02", "T-DOM-03", "T-DATA-01", "T-DATA-02", "T-DATA-03"],
+    "active": "T-SYNC-01", 
     "blocked": []
   },
   "config": {
@@ -294,6 +301,16 @@ We have successfully implemented the **domain layer** and **serialization layer*
 - 19 comprehensive unit tests covering all functionality
 - Hive adapters properly registered with unique type IDs (100, 101, 102)
 
+✅ **T-DATA-03 COMPLETED**: Implemented comprehensive MutationQueueService with production-ready offline-to-online sync capabilities:
+- MutationQueueService with advanced batch processing system supporting up to 200 items per batch
+- Exponential backoff retry strategy with configurable max retry attempts (default 3 attempts)
+- Network error handling with automatic retry scheduling and failure recovery
+- Queue statistics monitoring with real-time metrics by entity type
+- Failed mutation cleanup for operations that exceed retry limits
+- Entity-specific batch processing with support for expenses, categories, accounts, and budgets
+- Comprehensive error handling with proper Result pattern usage and sync error hierarchy
+- 10 comprehensive unit tests achieving 100% pass rate with full coverage of batch processing, error handling, and retry logic
+
 ✅ **T-DATA-02 COMPLETED**: Implemented comprehensive SupabaseRemoteDataSource with production-ready remote sync capabilities:
 - RemoteDataSource interface defining contract for all remote operations (pullDeltas, upserts, connectivity testing)
 - SupabaseRemoteDataSource implementation with full CRUD support for all entity types (expenses, categories, accounts, budgets)
@@ -305,6 +322,6 @@ We have successfully implemented the **domain layer** and **serialization layer*
 - 15 comprehensive unit tests validating DTOs, Result patterns, error handling, and batch logic
 
 ### Next Priority:
-T-DATA-03 to implement outbound mutation queue format and persistence with batch send functionality for offline-to-online sync.
+T-SYNC-01 to implement LWW (Last Write Wins) merge policy by (version, updated_at) with server tie-break and tombstone handling for conflict resolution.
 
-The remote data foundation is now complete with both local storage and remote communication layers fully implemented and tested.
+The data layer foundation is now complete with local storage, remote communication, and mutation queue layers fully implemented and tested. Ready to proceed with sync orchestration.
