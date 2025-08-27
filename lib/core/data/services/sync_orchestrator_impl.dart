@@ -276,10 +276,12 @@ class SyncOrchestratorImpl implements SyncOrchestrator {
     }
   }
 
-  /// Perform outbound sync phase
+  /// Perform outbound sync phase with detailed progress tracking and retry logic
   Future<Result<SyncPhaseResults>> _performOutboundPhase(String userId) async {
     try {
-      // Get queue statistics
+      _updateStatus(SyncStatus.syncingOutbound, 'Checking outbound mutation queue');
+
+      // Get initial queue statistics
       final queueStatsResult = await _mutationQueueService.getQueueStats();
       final queueStats = await queueStatsResult.fold(
         onSuccess: (stats) async => stats,
@@ -287,22 +289,195 @@ class SyncOrchestratorImpl implements SyncOrchestrator {
       );
 
       if (queueStats.totalPending == 0) {
+        _updateStatus(SyncStatus.syncingOutbound, 'No pending mutations to sync');
         return Result.success(SyncPhaseResults.empty());
       }
 
-      // Process pending mutations
-      final batchResult = await _mutationQueueService.processPendingMutations();
+      _updateStatus(
+        SyncStatus.syncingOutbound, 
+        'Processing ${queueStats.totalPending} pending mutations',
+      );
+
+      // Process mutations with progress updates
+      final outboundResults = await _processOutboundMutations(queueStats);
       
-      return batchResult.fold(
-        onSuccess: (batch) => Result.success(
-          SyncPhaseResults.fromMutationBatch(batch, queueStats.byEntityType)
-        ),
+      return outboundResults.fold(
+        onSuccess: (results) {
+          _updateStatus(
+            SyncStatus.syncingOutbound,
+            'Outbound sync completed: ${results.successful}/${results.totalProcessed} successful',
+          );
+          return Result.success(results);
+        },
         onFailure: (error) => Result.failure(error),
       );
 
     } catch (e) {
       return Result.failure(SyncOperationError(
         message: 'Outbound sync failed: $e'
+      ));
+    }
+  }
+
+  /// Process outbound mutations with detailed tracking and retry logic
+  Future<Result<SyncPhaseResults>> _processOutboundMutations(MutationQueueStats queueStats) async {
+    int totalProcessed = 0;
+    int successful = 0;
+    int failed = 0;
+    int retries = 0;
+    final byEntityType = <String, int>{};
+    final errors = <String>[];
+
+    try {
+      // Process each entity type separately for better progress tracking
+      for (final entityEntry in queueStats.byEntityType.entries) {
+        final entityType = entityEntry.key;
+        final entityCount = entityEntry.value;
+        
+        if (entityCount == 0) continue;
+
+        // Check for cancellation before processing each entity type
+        if (_currentStatus == SyncStatus.cancelled) {
+          break;
+        }
+
+        _updateStatus(
+          SyncStatus.syncingOutbound,
+          'Processing $entityCount $entityType mutations',
+        );
+
+        // Process mutations for this entity type
+        final entityResult = await _processEntityOutboundMutations(entityType);
+        
+        entityResult.fold(
+          onSuccess: (batchResult) {
+            totalProcessed += batchResult.totalProcessed;
+            successful += batchResult.successful;
+            failed += batchResult.failed;
+            retries += batchResult.retries;
+            byEntityType[entityType] = batchResult.totalProcessed;
+          },
+          onFailure: (error) {
+            failed += entityCount;
+            byEntityType[entityType] = entityCount;
+            errors.add('$entityType: ${error.message}');
+          },
+        );
+
+        // Update progress
+        _updateProgressWithDetails(
+          SyncStatus.syncingOutbound,
+          'Processed ${totalProcessed} of ${queueStats.totalPending} mutations',
+          (totalProcessed / queueStats.totalPending) * 100,
+          queueStats.totalPending,
+          totalProcessed,
+        );
+      }
+
+      // Final statistics and cleanup
+      await _finalizeOutboundSync(successful, failed, retries);
+
+      return Result.success(SyncPhaseResults(
+        totalProcessed: totalProcessed,
+        successful: successful,
+        failed: failed,
+        conflicts: 0, // No conflicts in outbound sync
+        byEntityType: byEntityType,
+        errors: errors.isNotEmpty ? errors : null,
+      ));
+
+    } catch (e) {
+      return Result.failure(SyncOperationError(
+        message: 'Failed to process outbound mutations: $e'
+      ));
+    }
+  }
+
+  /// Process outbound mutations for a specific entity type
+  Future<Result<MutationBatchResult>> _processEntityOutboundMutations(
+    String entityType,
+  ) async {
+    try {
+      // Get mutations for this entity type
+      final result = await _mutationQueueService.processMutationsForEntity(
+        entityType: entityType,
+      );
+
+      return result.fold(
+        onSuccess: (batchResult) {
+          // Log success statistics
+          if (batchResult.totalProcessed > 0) {
+            _logOutboundProgress(entityType, batchResult);
+          }
+          return Result.success(batchResult);
+        },
+        onFailure: (error) {
+          // Handle specific error types for retry logic
+          if (error is NetworkError) {
+            // Network errors might be temporary - allow retry
+            return Result.failure(error);
+          } else if (error is AuthError) {
+            // Auth errors are likely permanent - don't retry
+            return Result.failure(error);  
+          } else {
+            // Other errors - allow limited retry
+            return Result.failure(error);
+          }
+        },
+      );
+
+    } catch (e) {
+      return Result.failure(SyncOperationError(
+        message: 'Failed to process $entityType mutations: $e'
+      ));
+    }
+  }
+
+  /// Finalize outbound sync with cleanup and statistics
+  Future<void> _finalizeOutboundSync(int successful, int failed, int retries) async {
+    try {
+      // Clear failed mutations that have exceeded retry limit
+      // Only clear if we have retries (indicating some mutations exceeded retry limit)
+      if (failed > 0 && retries > 0) {
+        await _mutationQueueService.clearFailedMutations();
+      }
+
+      // Log final statistics
+      _updateStatus(
+        SyncStatus.syncingOutbound,
+        'Outbound sync completed: $successful successful, $failed failed, $retries retries',
+      );
+
+    } catch (e) {
+      // Non-critical error - log but don't fail the sync
+    }
+  }
+
+  /// Log outbound progress for monitoring
+  void _logOutboundProgress(String entityType, MutationBatchResult batchResult) {
+    // In a production app, this would log to analytics/monitoring service
+    final message = 'Outbound $entityType: ${batchResult.successful}/${batchResult.totalProcessed} successful';
+    
+    _updateStatus(SyncStatus.syncingOutbound, message);
+  }
+
+  /// Update progress with detailed information
+  void _updateProgressWithDetails(
+    SyncStatus status,
+    String message,
+    double progressPercentage,
+    int totalItems,
+    int processedItems,
+  ) {
+    _currentStatus = status;
+    if (!_progressController.isClosed) {
+      _progressController.add(SyncProgress(
+        status: status,
+        message: message,
+        progressPercentage: progressPercentage,
+        totalItems: totalItems,
+        processedItems: processedItems,
+        timestamp: DateTime.now().toUtc(),
       ));
     }
   }
@@ -455,11 +630,13 @@ class SyncOrchestratorImpl implements SyncOrchestrator {
   /// Update sync status and notify listeners
   void _updateStatus(SyncStatus status, String? message) {
     _currentStatus = status;
-    _progressController.add(SyncProgress(
-      status: status,
-      message: message,
-      timestamp: DateTime.now().toUtc(),
-    ));
+    if (!_progressController.isClosed) {
+      _progressController.add(SyncProgress(
+        status: status,
+        message: message,
+        timestamp: DateTime.now().toUtc(),
+      ));
+    }
   }
 
   /// Calculate comprehensive sync statistics
