@@ -233,7 +233,7 @@ Testing:
 
 #### 6) Security & Policies
 **Steps:**
-- **T-SEC-01**: Ensure Edge Function secrets (SERVICE_ROLE_KEY, SUPABASE_URL) are set only in server env.
+- **T-SEC-01**: Ensure Edge Function secrets (SERVICE_ROLE_KEY, DATABASE_URL) are set only in server env.
 - **T-SEC-02**: Confirm client uses anon key only; verify RLS (select/insert/update) scoping by auth.uid().
 
 **Verification:**

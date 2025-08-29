@@ -6,7 +6,6 @@ import 'package:expense_tracker/presentation/startup/startup_gate.dart';
 import 'package:expense_tracker/core/config/environment_config.dart';
 import 'package:expense_tracker/core/config/config_provider.dart';
 import 'package:expense_tracker/core/initialization/legacy_data_initialization.dart';
-import 'package:expense_tracker/features/expense/presentation/views/home_screen.dart';
 
 void main() {
   group('Startup Integration Tests', () {

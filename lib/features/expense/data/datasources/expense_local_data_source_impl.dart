@@ -103,10 +103,10 @@ class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
 
   /// Seed comprehensive dummy data for thorough widget testing
   Future<void> seedComprehensiveDummyDataIfEmpty() async {
-    // Force reseed for testing - clear existing data first
+    // Only seed if box is actually empty - don't force reseed on every startup
     if (_box.isNotEmpty) {
-      debugPrint('Clearing existing expense data for fresh seeding...');
-      await _box.clear();
+      debugPrint('Box already contains ${_box.length} expenses - skipping seeding');
+      return;
     }
 
     debugPrint('Seeding comprehensive dummy data for widget testing...');

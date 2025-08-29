@@ -2,6 +2,7 @@
 // It initializes all dependencies, sets up the app configuration, and launches the UI.
 // This demonstrates proper app initialization following Flutter best practices.
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -20,6 +21,7 @@ import 'features/statistics/domain/entities/financial_goal.dart';
 import 'features/statistics/domain/entities/trend_analysis.dart';
 import 'core/data/entities/sync_metadata.dart';
 import 'core/data/entities/mutation_queue_item.dart';
+import 'core/services/hive_initialization_service.dart';
 
 import 'shared/widgets/platform_widgets.dart';
 import 'l10n/app_localizations.dart';
@@ -36,16 +38,17 @@ void main() async {
 
   // Register Hive adapters for data serialization
   // These adapters tell Hive how to convert our objects to/from binary format
-  // Use a more robust registration approach to prevent conflicts
   _registerHiveAdapters();
 
-  // Note: Notification service is now lightweight and doesn't need initialization
+  // Skip background Hive initialization to prevent main thread blocking
+  // Let providers initialize lazily as needed
+  // _initializeHiveBoxesInBackground().ignore();
 
   // Launch the app immediately with loading screen
   runApp(const ProviderScope(child: ExpenseTrackerApp()));
 }
 
-/// Register Hive adapters with conflict prevention
+/// Register Hive adapters with conflict prevention and performance optimization
 void _registerHiveAdapters() {
   // Check if adapters are already registered before attempting to register
   if (!Hive.isAdapterRegistered(0)) {
@@ -127,5 +130,17 @@ class ExpenseTrackerApp extends ConsumerWidget {
         supportedLocales: AppLocalizations.supportedLocales,
       );
     }
+  }
+}
+
+/// Initialize Hive boxes in background to prevent main thread blocking
+Future<void> _initializeHiveBoxesInBackground() async {
+  try {
+    // Use compute to run in isolate if needed, or just delay to let UI render first
+    await Future.delayed(const Duration(milliseconds: 100));
+    await HiveInitializationService.instance.initializeAllBoxes();
+  } catch (error) {
+    debugPrint('Background Hive initialization failed: $error');
+    // App can still work with lazy box initialization
   }
 }

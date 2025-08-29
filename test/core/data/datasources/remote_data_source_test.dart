@@ -91,7 +91,7 @@ void main() {
 
       test('should create failure result', () {
         const error = NetworkError(message: 'Test error');
-        final result = Result<List<ExpenseDto>>.failure(error);
+        const result = Result<List<ExpenseDto>>.failure(error);
         
         expect(result.isFailure, true);
         expect(result.isSuccess, false);

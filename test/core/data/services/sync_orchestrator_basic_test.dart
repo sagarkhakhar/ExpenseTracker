@@ -8,7 +8,6 @@ import 'package:expense_tracker/core/data/datasources/remote_data_source.dart';
 import 'package:expense_tracker/core/data/repositories/lww_conflict_resolver.dart';
 import 'package:expense_tracker/core/data/mappers/sync_mapper.dart';
 import 'package:expense_tracker/core/domain/sync_status.dart';
-import 'package:expense_tracker/core/domain/sync_result.dart';
 import 'package:expense_tracker/core/domain/result.dart';
 import 'package:expense_tracker/core/domain/errors/sync_errors.dart';
 import 'package:expense_tracker/core/data/entities/sync_metadata.dart';

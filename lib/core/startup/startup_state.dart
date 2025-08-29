@@ -7,6 +7,7 @@ enum StartupStatus {
   validatingConfig,
   probingAuth,
   bootstrapping,
+  initializing, // Added for legacy data initialization
   healthy,
   error,
 }
@@ -31,7 +32,8 @@ class StartupState extends Equatable {
 
   bool get isLoading => status == StartupStatus.validatingConfig ||
                        status == StartupStatus.probingAuth ||
-                       status == StartupStatus.bootstrapping;
+                       status == StartupStatus.bootstrapping ||
+                       status == StartupStatus.initializing;
 
   bool get canRetry => status == StartupStatus.error;
   bool get isHealthy => status == StartupStatus.healthy;
@@ -84,6 +86,11 @@ class StartupState extends Equatable {
   factory StartupState.bootstrapping() => const StartupState(
         status: StartupStatus.bootstrapping,
         message: 'Initializing database schema...',
+      );
+
+  factory StartupState.initializing() => const StartupState(
+        status: StartupStatus.initializing,
+        message: 'Initializing local data...',
       );
 
   factory StartupState.healthy({

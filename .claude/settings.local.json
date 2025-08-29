@@ -24,7 +24,14 @@
       "Bash(claude mcp:*)",
       "Bash(flutter packages pub run:*)",
       "mcp__context7__resolve-library-id",
-      "mcp__context7__get-library-docs"
+      "mcp__context7__get-library-docs",
+      "Bash(supabase functions:*)",
+      "Bash(supabase secrets:*)",
+      "Bash(curl:*)",
+      "Bash(supabase services restart:*)",
+      "Bash(supabase:*)",
+      "Bash(flutter:*)",
+      "Bash(git check-ignore:*)"
     ],
     "deny": [],
     "ask": []

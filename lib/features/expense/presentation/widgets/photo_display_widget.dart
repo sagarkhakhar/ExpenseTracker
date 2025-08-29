@@ -12,19 +12,39 @@ import '../../domain/entities/receipt_photo.dart';
 
 /// Widget for displaying photos attached to an expense.
 /// Shows a list of photos with options to view and delete them.
-class PhotoDisplayWidget extends ConsumerWidget {
+/// Uses lazy loading to avoid performance issues.
+class PhotoDisplayWidget extends ConsumerStatefulWidget {
   final String expenseId;
   final VoidCallback? onPhotoDeleted;
+  final bool loadImmediately;
 
   const PhotoDisplayWidget({
     super.key,
     required this.expenseId,
     this.onPhotoDeleted,
+    this.loadImmediately = false,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final photosAsync = ref.watch(photosForExpenseProvider(expenseId));
+  ConsumerState<PhotoDisplayWidget> createState() => _PhotoDisplayWidgetState();
+}
+
+class _PhotoDisplayWidgetState extends ConsumerState<PhotoDisplayWidget> {
+  bool _shouldLoadPhotos = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _shouldLoadPhotos = widget.loadImmediately;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_shouldLoadPhotos) {
+      return _buildLazyLoadPlaceholder(context);
+    }
+
+    final photosAsync = ref.watch(photosForExpenseProvider(widget.expenseId));
     final photoDeletionState = ref.watch(photoDeletionNotifierProvider);
 
     return photosAsync.when(
@@ -38,6 +58,36 @@ class PhotoDisplayWidget extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) =>
           _buildErrorSection(context, ref, error.toString()),
+    );
+  }
+
+  /// Build lazy loading placeholder to avoid initializing photos unnecessarily
+  Widget _buildLazyLoadPlaceholder(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _shouldLoadPhotos = true;
+          });
+        },
+        child: Row(
+          children: [
+            Icon(
+              Icons.photo_library_outlined,
+              size: 20,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Tap to load photos',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -297,7 +347,7 @@ class PhotoDisplayWidget extends ConsumerWidget {
           TextButton(
             onPressed: () {
               // Refresh the photos
-              ref.invalidate(photosForExpenseProvider(expenseId));
+              ref.invalidate(photosForExpenseProvider(widget.expenseId));
             },
             child: Text(AppLocalizations.of(context)!.retry),
           ),
@@ -388,7 +438,7 @@ class PhotoDisplayWidget extends ConsumerWidget {
                 backgroundColor: Theme.of(context).colorScheme.primary,
               ),
             );
-            onPhotoDeleted?.call();
+            widget.onPhotoDeleted?.call();
             // Reset the state after successful deletion
             Future.delayed(const Duration(seconds: 2), () {
               notifier.reset();

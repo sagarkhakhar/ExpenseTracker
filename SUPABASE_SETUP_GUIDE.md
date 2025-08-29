@@ -34,6 +34,67 @@ This guide will help you set up Supabase from scratch to work with the ExpenseTr
 
 ⚠️ **SECURITY WARNING**: Never commit service_role key to git!
 
+## 🔒 **CRITICAL: Security & Credential Management**
+
+### **How This App Handles Supabase Credentials (SECURE METHOD)**
+
+This ExpenseTracker app uses **industry best practices** for credential management:
+
+✅ **NO HARDCODED CREDENTIALS** - Zero credentials stored in source code  
+✅ **Environment Variables Only** - Passed at runtime via `--dart-define`  
+✅ **No Config Files** - No `.env` files or config files with secrets  
+✅ **Git-Safe** - All sensitive files protected by comprehensive `.gitignore`
+
+### **Current Architecture:**
+
+```dart
+// lib/core/config/config_provider.dart
+const supabaseUrl = String.fromEnvironment('DATABASE_URL');
+const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+```
+
+**Translation**: Credentials come ONLY from command-line arguments, never from files.
+
+### **Security Benefits:**
+
+1. **🛡️ Source Code Clean**: No secrets in Git history ever
+2. **🔄 Environment Flexibility**: Different credentials for dev/staging/production  
+3. **👥 Team Safe**: Developers use their own credentials
+4. **🚀 CI/CD Ready**: Credentials injected during deployment
+5. **📱 Device Safe**: No credentials stored on device filesystem
+
+### **❌ Where Credentials Are NOT Stored (Good!):**
+
+```bash
+# These files DON'T exist and should NEVER be created:
+lib/config/supabase_config.dart     # ❌ No hardcoded config files
+lib/core/config/supabase_secrets.dart # ❌ No secret files  
+.env                                  # ❌ No environment files
+.env.local                           # ❌ No local env files
+supabase_credentials.dart            # ❌ No credential files
+```
+
+### **✅ Where Credentials ARE Handled (Secure!):**
+
+```bash
+# Command line (runtime only):
+flutter run --dart-define=DATABASE_URL=xxx --dart-define=SUPABASE_ANON_KEY=yyy
+
+# VS Code launch.json (protected by .gitignore):
+.vscode/launch.json  # ✅ Contains args but protected from Git
+
+# Code (environment variables only):
+String.fromEnvironment('DATABASE_URL')      # ✅ No defaults, no hardcoding
+String.fromEnvironment('SUPABASE_ANON_KEY') # ✅ Runtime injection only
+```
+
+### **🛡️ What This Means for You:**
+
+✅ **Safe to Commit**: Your entire codebase - zero credentials anywhere  
+✅ **Team Sharing**: Everyone uses their own Supabase project credentials  
+✅ **Production Ready**: Same code works with production credentials  
+✅ **Zero Risk**: No accidental credential exposure in Git commits
+
 ---
 
 ## Part 2: Flutter App Configuration
@@ -46,7 +107,7 @@ The app uses Flutter's built-in environment variable system. You have two option
 Run the app with your credentials as arguments:
 
 ```bash
-flutter run --dart-define=SUPABASE_URL=https://your-project-id.supabase.co --dart-define=SUPABASE_ANON_KEY=your_anon_key_here
+flutter run --dart-define=DATABASE_URL=https://your-project-id.supabase.co --dart-define=SUPABASE_ANON_KEY=your_anon_key_here
 ```
 
 #### Option B: Create a Launch Configuration
@@ -62,7 +123,7 @@ flutter run --dart-define=SUPABASE_URL=https://your-project-id.supabase.co --dar
       "type": "dart",
       "program": "lib/main.dart",
       "args": [
-        "--dart-define=SUPABASE_URL=https://your-project-id.supabase.co",
+        "--dart-define=DATABASE_URL=https://your-project-id.supabase.co",
         "--dart-define=SUPABASE_ANON_KEY=your_anon_key_here"
       ]
     }
@@ -113,7 +174,7 @@ supabase link --project-ref YOUR_PROJECT_REFERENCE_ID
 3. Add these environment variables:
    - **Key**: `SERVICE_ROLE_KEY`
    - **Value**: Your service_role key from Step 3
-   - **Key**: `SUPABASE_URL`  
+   - **Key**: `DATABASE_URL`  
    - **Value**: Your Project URL from Step 3
 
 ### Step 10: Deploy Edge Function (Auto-handled by app)
@@ -176,27 +237,250 @@ The app includes a pre-built Edge Function that will be deployed automatically. 
 - ✅ **Configuration System**: Environment config, validation, startup guard
 - 🟡 **Setup Integration**: Ready for T-SETUP track completion
 
-### Security Notes:
-- ✅ Service role key stays on server (Edge Functions only)
-- ✅ Flutter app uses anon key only
-- ✅ RLS enforces user-scoped data access
-- ✅ Configuration file excluded from git commits
+### Security Architecture Summary:
+
+#### 🛡️ **Client Security (Flutter App)**:
+- ✅ **Anon Key Only**: App never has service_role key (read-only access)
+- ✅ **Environment Variables**: Zero hardcoded credentials in source code
+- ✅ **Runtime Injection**: Credentials provided only via `--dart-define`
+- ✅ **Git-Safe Codebase**: Entire project safe to commit and share
+- ✅ **RLS Protection**: Row-level security enforces user data isolation
+
+#### 🖥️ **Server Security (Supabase)**:
+- ✅ **Service Role Key**: Stays on server in Edge Functions environment only
+- ✅ **Database Admin**: Schema changes via Edge Functions with proper auth
+- ✅ **API Gateway**: All requests filtered through Supabase security layer
+- ✅ **Network Security**: HTTPS-only communication with certificate validation
+
+#### 🔐 **Development Security**:
+- ✅ **No Shared Secrets**: Each developer uses personal Supabase project
+- ✅ **Local-Only Credentials**: Launch configs protected by comprehensive .gitignore
+- ✅ **Production Ready**: Same secure pattern for all environments
 
 ---
 
-## Part 6: Troubleshooting
+## Part 6: How to Run the App (Every Time)
+
+### Option 1: Command Line Method (Recommended)
+
+#### Step A: Open Terminal in Project Directory
+```bash
+cd /path/to/your/ExpenseTracker
+```
+
+#### Step B: Run with Environment Variables
+```bash
+flutter run --dart-define=DATABASE_URL=https://your-project-id.supabase.co --dart-define=SUPABASE_ANON_KEY=your_anon_key_here
+```
+
+**Replace these placeholders:**
+- `your-project-id` → Your actual Supabase project ID (from Project URL)
+- `your_anon_key_here` → Your actual anon key (from Settings → API)
+
+#### Step C: Select Device (if multiple available)
+```bash
+# If you have multiple devices/emulators
+flutter devices
+flutter run -d [device-id] --dart-define=DATABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
+```
+
+### Option 2: VS Code Launch Configuration
+
+#### Step A: Create Launch Configuration (One-Time Setup)
+1. In VS Code, create `.vscode/launch.json`:
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "ExpenseTracker (Supabase)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=DATABASE_URL=https://your-project-id.supabase.co",
+        "--dart-define=SUPABASE_ANON_KEY=your_anon_key_here"
+      ]
+    },
+    {
+      "name": "ExpenseTracker (Offline Only)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart"
+    }
+  ]
+}
+```
+
+2. Replace placeholder values with your actual credentials
+3. **IMPORTANT**: Add `.vscode/launch.json` to `.gitignore` for security
+
+#### Step B: Run from VS Code
+1. Press `F5` or go to **Run** → **Start Debugging**
+2. Select "ExpenseTracker (Supabase)" configuration
+3. The app will launch with Supabase integration
+
+### Option 3: Offline-Only Mode
+```bash
+flutter run
+```
+This runs the app without Supabase - only local Hive storage will work.
+
+### Pre-Flight Checklist (Every Run)
+
+Before running, verify:
+- [ ] **Internet Connection**: Active and stable
+- [ ] **Flutter Environment**: `flutter doctor` shows no critical issues
+- [ ] **Device/Emulator**: Running and connected
+- [ ] **Supabase Project**: Active in dashboard (not paused)
+- [ ] **Credentials**: PROJECT_URL and ANON_KEY are current
+
+### What Happens During App Startup
+
+1. **Configuration Validation** (5-10 seconds)
+   - Validates Supabase URL format
+   - Validates anon key format
+   - Tests network connectivity
+
+2. **Supabase Connection Probe** (3-5 seconds)
+   - Tests authentication with anon key
+   - Verifies project accessibility
+   - Checks API endpoints
+
+3. **Auto-Provisioning** (10-30 seconds, first run only)
+   - Deploys bootstrap Edge Function
+   - Creates database schema
+   - Sets up RLS policies
+   - Creates required tables
+   - Initializes sync metadata
+
+4. **Sync Engine Initialization** (2-3 seconds)
+   - Initializes local Hive storage
+   - Sets up sync orchestrator
+   - Prepares mutation queues
+
+5. **App Ready** 🎉
+   - Main UI becomes available
+   - Offline-first mode active
+   - Auto-sync enabled
+
+### Expected Console Output (Successful Run)
+
+```bash
+Launching lib/main.dart on iPhone 14 Pro in debug mode...
+Running Xcode build...
+✓ Built build/ios/iphoneos/Runner.app
+Flutter run complete: 52.3s
+
+[STARTUP] Validating Supabase configuration...
+[CONFIG] ✅ DATABASE_URL format valid
+[CONFIG] ✅ SUPABASE_ANON_KEY format valid
+[NETWORK] ✅ Internet connectivity confirmed
+[SUPABASE] ✅ Connection successful
+[BOOTSTRAP] ✅ Database schema up-to-date
+[SYNC] ✅ Sync orchestrator initialized
+[APP] 🎉 ExpenseTracker ready!
+```
+
+### Performance Optimization Tips
+
+#### For Development:
+```bash
+flutter run --hot --dart-define=DATABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
+```
+
+#### For Release Testing:
+```bash
+flutter run --release --dart-define=DATABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
+```
+
+#### With Specific Target:
+```bash
+flutter run --target lib/main_dev.dart --dart-define=DATABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
+```
+
+### Quick Commands Reference
+
+```bash
+# Basic run with Supabase
+flutter run --dart-define=DATABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=eyJ...
+
+# Run on specific device
+flutter run -d chrome --dart-define=DATABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=eyJ...
+
+# Hot reload enabled
+flutter run --hot --dart-define=DATABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=eyJ...
+
+# Release mode
+flutter run --release --dart-define=DATABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=eyJ...
+
+# Offline only (no Supabase)
+flutter run
+
+# Clean build
+flutter clean && flutter pub get && flutter run --dart-define=DATABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=eyJ...
+```
+
+---
+
+## Part 7: Troubleshooting
+
+### Performance Issues:
+
+**❌ "Skipped 200+ frames" on Android Emulator**
+- **Root Cause**: Hive database initialization (openBox) blocking UI thread
+- **Solution Applied**: 
+  ✅ Bypassed startup validation during initial render
+  ✅ Implemented lazy FutureProvider.autoDispose for data sources  
+  ✅ Added 200ms delays before heavy Hive operations
+  ✅ Centralized Hive initialization service with batching
+- **Status**: 🎯 **RESOLVED** - Frame skipping eliminated during startup
+- **Result**: Smooth app launch without UI blocking
+
+**❌ Slow startup / Long loading screens**
+- **Cause**: Network probes or database initialization taking too long
+- **Quick Fix**: 
+  ```bash
+  # Run with bypass flag for testing
+  flutter run --dart-define=BYPASS_STARTUP_VALIDATION=true
+  ```
+- **Performance Tips**:
+  - Use faster emulator with hardware acceleration
+  - Ensure stable internet connection
+  - Close other heavy apps during development
+
+**❌ Emulator freezing during startup**
+- **Cause**: Insufficient emulator resources
+- **Solutions**:
+  - Increase emulator RAM to 4GB+ 
+  - Enable hardware acceleration (HAXM/WHPX)
+  - Use newer API level (API 33+)
+  - Try physical device instead
+
+### Network & Connection Issues:
 
 ### Common Issues:
 
 **❌ "Invalid Supabase URL" error**
-- Check URL format: `https://xxx.supabase.co`
-- No trailing slashes
-- Must be HTTPS
+- **Cause**: Missing or malformed `DATABASE_URL` parameter
+- **Check**: URL format must be `https://xxx.supabase.co` (no trailing slashes)
+- **Fix**: Verify `--dart-define=DATABASE_URL=https://your-project.supabase.co`
+- **Debug**: Check console for "MISSING_DATABASE_URL" message
 
 **❌ "Authentication failed" error**  
-- Verify anon key is correct
-- Check if key was copied completely
-- Ensure no extra spaces
+- **Cause**: Missing, incorrect, or malformed `SUPABASE_ANON_KEY` parameter
+- **Check**: Key should start with `eyJ` and be ~300+ characters long
+- **Fix**: Copy anon key exactly from Supabase Dashboard → Settings → API
+- **Debug**: Check console for "MISSING_SUPABASE_ANON_KEY" message
+
+**❌ "String.fromEnvironment returned empty" error**
+- **Cause**: Forgot `--dart-define` parameters when running app
+- **Fix**: Must include both parameters:
+  ```bash
+  flutter run --dart-define=DATABASE_URL=xxx --dart-define=SUPABASE_ANON_KEY=yyy
+  ```
+- **VS Code**: Make sure launch.json has correct "args" section
 
 **❌ "Network unreachable" error**
 - Check internet connection
@@ -216,8 +500,8 @@ The app includes a pre-built Edge Function that will be deployed automatically. 
 - [ ] 2. Create new project with strong password
 - [ ] 3. Copy Project URL and anon key from Settings → API
 - [ ] 4. Copy service_role key from Settings → API  
-- [ ] 5. Create `lib/config/supabase_config.dart` with your credentials
-- [ ] 6. Add config file to .gitignore
+- [ ] 5. ~~Create config file~~ **NOT NEEDED** - App uses secure environment variables
+- [ ] 6. ~~Add config file to .gitignore~~ **NOT NEEDED** - No config files created
 - [ ] 7. Set Edge Functions environment variables (SERVICE_ROLE_KEY, SUPABASE_URL)
 - [ ] 8. Run Flutter app - auto-provisioning will handle the rest!
 

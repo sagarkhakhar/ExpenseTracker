@@ -33,40 +33,67 @@ abstract class ReceiptPhotoLocalDataSource {
 /// Implementation of ReceiptPhotoLocalDataSource using Hive.
 class ReceiptPhotoLocalDataSourceImpl implements ReceiptPhotoLocalDataSource {
   static const String _boxName = 'receipt_photos';
-  Box<ReceiptPhotoModel>? _box;
+  static Box<ReceiptPhotoModel>? _box;
+  static ReceiptPhotoLocalDataSourceImpl? _instance;
+  static bool _isInitialized = false;
+  static Future<void>? _initializationFuture;
+  
+  /// Singleton pattern to prevent multiple instances opening the same box
+  factory ReceiptPhotoLocalDataSourceImpl() {
+    return _instance ??= ReceiptPhotoLocalDataSourceImpl._internal();
+  }
+  
+  ReceiptPhotoLocalDataSourceImpl._internal();
 
   /// Initialize the data source by opening the Hive box.
   @override
   Future<void> init() async {
+    if (_isInitialized) {
+      return; // Already initialized
+    }
+    
+    // If already initializing, wait for that to complete
+    if (_initializationFuture != null) {
+      return _initializationFuture;
+    }
+    
+    _initializationFuture = _performInitialization();
+    await _initializationFuture;
+  }
+  
+  Future<void> _performInitialization() async {
     try {
       if (_box == null || !_box!.isOpen) {
-        debugPrint(
-            'ReceiptPhotoLocalDataSourceImpl: Opening Hive box: $_boxName');
+        debugPrint('ReceiptPhotoLocalDataSourceImpl: Opening Hive box: $_boxName');
         _box = await Hive.openBox<ReceiptPhotoModel>(_boxName);
-        debugPrint(
-            'ReceiptPhotoLocalDataSourceImpl: Hive box opened successfully');
+        debugPrint('ReceiptPhotoLocalDataSourceImpl: Hive box opened successfully');
+        _isInitialized = true;
       }
     } catch (e) {
-      debugPrint(
-          'ReceiptPhotoLocalDataSourceImpl: Failed to open Hive box: $e');
+      debugPrint('ReceiptPhotoLocalDataSourceImpl: Failed to open Hive box: $e');
       // In test environment or when Hive is not available, create a mock box
       if (kDebugMode) {
-        debugPrint(
-            'ReceiptPhotoLocalDataSourceImpl: Using mock box for testing');
+        debugPrint('ReceiptPhotoLocalDataSourceImpl: Using mock box for testing');
         // Create a simple in-memory storage for testing
         _box = null;
+        _isInitialized = true;
       } else {
         rethrow;
       }
+    } finally {
+      _initializationFuture = null;
     }
   }
 
   /// Ensure the box is initialized before any operation
   Future<void> _ensureInitialized() async {
-    if (_box == null || !_box!.isOpen) {
+    if (!_isInitialized) {
       await init();
     }
   }
+  
+  /// Check if already initialized without triggering initialization
+  bool get isInitialized => _isInitialized;
 
   /// Seed comprehensive photo dummy data for widget testing
   Future<void> seedComprehensivePhotoData() async {

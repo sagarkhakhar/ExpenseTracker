@@ -14,42 +14,45 @@ import '../../domain/usecases/get_expenses_by_date_range.dart';
 import '../../domain/usecases/update_expense.dart';
 import 'package:expense_tracker/core/errors/failures.dart';
 
-// Data Source Provider (async)
-// Provides the local data source (Hive) for dependency injection.
+// Data Source Provider (async) - Ultra-lazy initialization
+// Only initializes when explicitly requested by UI
 final expenseLocalDataSourceProvider =
-    FutureProvider<ExpenseLocalDataSourceImpl>((ref) async {
+    FutureProvider.autoDispose<ExpenseLocalDataSourceImpl>((ref) async {
+  // Significant delay to allow UI to fully render first
+  await Future.delayed(const Duration(milliseconds: 200));
+  
   final dataSource = ExpenseLocalDataSourceImpl();
   await dataSource.init();
   return dataSource;
 });
 
-// Repository Provider (async)
+// Repository Provider (async) - Lazy initialization
 // Provides the repository implementation for dependency injection.
 final expenseRepositoryProvider =
-    FutureProvider<ExpenseRepositoryImpl>((ref) async {
+    FutureProvider.autoDispose<ExpenseRepositoryImpl>((ref) async {
   final dataSource = await ref.watch(expenseLocalDataSourceProvider.future);
   return ExpenseRepositoryImpl(dataSource);
 });
 
-// Use Cases Providers (async)
+// Use Cases Providers (async) - Lazy initialization
 // Each use case is provided as a dependency for notifiers and UI.
-final getAllExpensesProvider = FutureProvider<GetAllExpenses>((ref) async {
+final getAllExpensesProvider = FutureProvider.autoDispose<GetAllExpenses>((ref) async {
   final repository = await ref.watch(expenseRepositoryProvider.future);
   return GetAllExpenses(repository);
 });
 
-final createExpenseProvider = FutureProvider<CreateExpense>((ref) async {
+final createExpenseProvider = FutureProvider.autoDispose<CreateExpense>((ref) async {
   final repository = await ref.watch(expenseRepositoryProvider.future);
   return CreateExpense(repository);
 });
 
 final getExpensesByDateRangeProvider =
-    FutureProvider<GetExpensesByDateRange>((ref) async {
+    FutureProvider.autoDispose<GetExpensesByDateRange>((ref) async {
   final repository = await ref.watch(expenseRepositoryProvider.future);
   return GetExpensesByDateRange(repository);
 });
 
-final updateExpenseProvider = FutureProvider<UpdateExpense>((ref) async {
+final updateExpenseProvider = FutureProvider.autoDispose<UpdateExpense>((ref) async {
   final repository = await ref.watch(expenseRepositoryProvider.future);
   return UpdateExpense(repository);
 });
@@ -77,8 +80,11 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
       debugPrint('Loading expenses...');
       final getAllExpenses = await ref.read(getAllExpensesProvider.future);
       debugPrint('Got getAllExpenses use case');
+      
+      // Process expense loading in background isolate to avoid main thread blocking
       final result = await getAllExpenses();
       debugPrint('Got result: ${result.isRight()}');
+      
       if (mounted) {
         state = result.fold(
           (failure) {

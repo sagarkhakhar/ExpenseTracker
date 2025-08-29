@@ -14,9 +14,14 @@ import '../../data/repositories/receipt_photo_repository_impl.dart';
 import '../../data/datasources/receipt_photo_local_data_source.dart';
 import 'package:flutter/foundation.dart';
 
+// Singleton data source provider - prevents multiple box initializations
+final receiptPhotoLocalDataSourceProvider = Provider<ReceiptPhotoLocalDataSource>((ref) {
+  return ReceiptPhotoLocalDataSourceImpl();
+});
+
 // Repository provider
 final receiptPhotoRepositoryProvider = Provider<ReceiptPhotoRepository>((ref) {
-  final localDataSource = ReceiptPhotoLocalDataSourceImpl();
+  final localDataSource = ref.watch(receiptPhotoLocalDataSourceProvider);
   final repository =
       ReceiptPhotoRepositoryImpl(localDataSource: localDataSource);
 
