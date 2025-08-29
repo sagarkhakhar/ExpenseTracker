@@ -218,14 +218,25 @@ supabase/volumes/
 supabase/.branches/
 supabase/.temp/
 
-# Supabase local development
+# Supabase local development - ACTUAL files found in project
 .supabase/
 supabase/.supabase/
 **/supabase/.supabase/
 
-# Supabase CLI generated files
+# CRITICAL: Supabase CLI generated files with sensitive data
+supabase/.temp/
+supabase/.temp/*
 supabase/config.toml.bak
 supabase/config.local.toml
+
+# Supabase local project files (contain project identifiers)
+supabase/.temp/project-ref
+supabase/.temp/pooler-url  
+supabase/.temp/postgres-version
+supabase/.temp/gotrue-version
+supabase/.temp/rest-version
+supabase/.temp/storage-version
+supabase/.temp/cli-latest
 
 # Local Supabase credentials (if created manually)
 lib/config/supabase_config.dart
