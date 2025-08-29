@@ -203,4 +203,59 @@ lib/l10n/generated/
 
 # Test artifacts
 test_results/
-test_output/ 
+test_output/
+
+# ⚠️ SECURITY WARNING: Supabase sensitive files (NEVER commit these)
+# Contains sensitive credentials, API keys, and deployment configurations
+# Committing these files exposes your database and can lead to security breaches
+supabase/.env
+supabase/.env.local
+supabase/.env.production
+supabase/functions/.env
+supabase/functions/.env.local
+supabase/seed.sql.bak
+supabase/volumes/
+supabase/.branches/
+supabase/.temp/
+
+# Supabase local development
+.supabase/
+supabase/.supabase/
+**/supabase/.supabase/
+
+# Supabase CLI generated files
+supabase/config.toml.bak
+supabase/config.local.toml
+
+# Local Supabase credentials (if created manually)
+lib/config/supabase_config.dart
+lib/core/config/supabase_secrets.dart
+supabase_credentials.dart
+supabase_keys.dart
+
+# VS Code Supabase launch configurations (may contain credentials)
+.vscode/launch.json
+
+# Environment files with Supabase credentials
+.env.supabase
+.env.supabase.local
+supabase.env
+
+# Supabase database dumps and backups
+*.sql.backup
+supabase_backup_*.sql
+database_dump_*.sql
+
+# Supabase Edge Functions deployment artifacts
+supabase/functions/_shared/node_modules/
+supabase/functions/*/node_modules/
+supabase/functions/*/.env
+supabase/functions/*/dist/
+
+# Local Supabase Docker volumes
+supabase/volumes/db/
+supabase/volumes/storage/
+supabase/volumes/logs/
+
+# Claude Code local settings (may contain sensitive configurations)
+.claude/settings.local.json 
