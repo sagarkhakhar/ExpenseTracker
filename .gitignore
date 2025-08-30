@@ -514,3 +514,4 @@ auth.*
 !*.md
 !docs/**
 !assets/**
+.env.example
