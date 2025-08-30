@@ -81,19 +81,45 @@ class ExpenseLocalDataSourceImpl implements ExpenseLocalDataSource {
   /// Create a new expense or income record in local storage.
   @override
   Future<void> createExpense(ExpenseModel expense) async {
-    await _box.put(expense.id, expense);
+    try {
+      debugPrint('Creating expense in Hive: ${expense.id}');
+      await _box.put(expense.id, expense);
+      debugPrint('Successfully created expense in Hive: ${expense.id}');
+    } catch (e) {
+      debugPrint('Failed to create expense in Hive: ${expense.id}, error: $e');
+      throw Exception('Failed to create expense in local storage: $e');
+    }
   }
 
   /// Update an existing expense or income record in local storage.
   @override
   Future<void> updateExpense(ExpenseModel expense) async {
-    await _box.put(expense.id, expense);
+    try {
+      debugPrint('Updating expense in Hive: ${expense.id}');
+      await _box.put(expense.id, expense);
+      debugPrint('Successfully updated expense in Hive: ${expense.id}');
+    } catch (e) {
+      debugPrint('Failed to update expense in Hive: ${expense.id}, error: $e');
+      throw Exception('Failed to update expense in local storage: $e');
+    }
   }
 
   /// Delete an expense or income record by ID from local storage.
   @override
   Future<void> deleteExpense(String id) async {
-    await _box.delete(id);
+    try {
+      debugPrint('Deleting expense from Hive: $id');
+      final existingExpense = _box.get(id);
+      if (existingExpense == null) {
+        debugPrint('Expense not found in Hive for deletion: $id');
+        throw Exception('Expense not found: $id');
+      }
+      await _box.delete(id);
+      debugPrint('Successfully deleted expense from Hive: $id');
+    } catch (e) {
+      debugPrint('Failed to delete expense from Hive: $id, error: $e');
+      throw Exception('Failed to delete expense from local storage: $e');
+    }
   }
 
   @override

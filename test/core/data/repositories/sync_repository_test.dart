@@ -214,7 +214,9 @@ void main() {
         when(mockLocalDataSource.getExpenseById('test-1'))
             .thenAnswer((_) async => localExpense);
         when(mockLocalDataSource.insertOrUpdateExpense(any))
-            .thenAnswer((_) async {});
+            .thenAnswer((_) async {
+              return null;
+            });
 
         // Act
         final result = await syncRepository.pullExpenseChanges(lastSync: lastSync);
@@ -263,7 +265,9 @@ void main() {
 
         // Mock cursor update
         when(mockLocalDataSource.updateSyncCursor('expenses', any))
-            .thenAnswer((_) async {});
+            .thenAnswer((_) async {
+              return null;
+            });
 
         // Act
         final result = await syncRepository.syncExpenses(lastSync: lastSync);
@@ -327,7 +331,9 @@ void main() {
         final timestamp = DateTime.utc(2023, 1, 1);
         
         when(mockLocalDataSource.updateSyncCursor('_global', timestamp))
-            .thenAnswer((_) async {});
+            .thenAnswer((_) async {
+              return null;
+            });
 
         // Act
         await syncRepository.updateLastSyncTimestamp(timestamp);
@@ -452,7 +458,9 @@ extension SyncRepositoryTestHelpers on MockLocalDataSource {
   }
 
   void mockCursorUpdates() {
-    when(updateSyncCursor(any, any)).thenAnswer((_) async {});
+    when(updateSyncCursor(any, any)).thenAnswer((_) async {
+      return null;
+    });
     when(getSyncMetadata(any)).thenAnswer((_) async => null);
   }
 }

@@ -4,7 +4,7 @@ import 'environment_config.dart';
 /// Provider for environment configuration
 /// Loads configuration from environment variables only (no defaults)
 final environmentConfigProvider = Provider<EnvironmentConfig>((ref) {
-  const supabaseUrl = String.fromEnvironment('DATABASE_URL');
+  const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
   const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
   const bypassStartup = String.fromEnvironment('BYPASS_STARTUP_VALIDATION', defaultValue: 'false');
   
@@ -12,7 +12,7 @@ final environmentConfigProvider = Provider<EnvironmentConfig>((ref) {
   // This forces proper setup and prevents accidental use of hardcoded values
   if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
     return EnvironmentConfig.development(
-      supabaseUrl: supabaseUrl.isEmpty ? 'MISSING_DATABASE_URL' : supabaseUrl,
+      supabaseUrl: supabaseUrl.isEmpty ? 'MISSING_SUPABASE_URL' : supabaseUrl,
       supabaseAnonKey: supabaseAnonKey.isEmpty ? 'MISSING_SUPABASE_ANON_KEY' : supabaseAnonKey,
     );
   }

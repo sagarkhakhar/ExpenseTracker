@@ -45,7 +45,7 @@ class FilteredExpensesNotifier
     state = const AsyncValue.loading();
 
     try {
-      final applyFilters = await _ref.read(applyFiltersProvider.future);
+      final applyFilters = _ref.read(applyFiltersProvider);
       final result = await applyFilters(criteria);
 
       state = result.fold(
@@ -68,7 +68,7 @@ class FilteredExpensesNotifier
     state = const AsyncValue.loading();
 
     try {
-      final searchExpenses = await _ref.read(searchExpensesProvider.future);
+      final searchExpenses = _ref.read(searchExpensesProvider);
       final result = await searchExpenses(query);
 
       state = result.fold(
@@ -143,8 +143,8 @@ final filterServiceProvider = Provider<FilterService>((ref) {
 });
 
 // Provider for FilterRepository
-final filterRepositoryProvider = FutureProvider<FilterRepository>((ref) async {
-  final dataSource = await ref.read(expenseLocalDataSourceProvider.future);
+final filterRepositoryProvider = Provider<FilterRepository>((ref) {
+  final dataSource = ref.read(expenseLocalDataSourceProvider);
   final filterService = ref.read(filterServiceProvider);
   return FilterRepositoryImpl(
     localDataSource: dataSource,
@@ -153,13 +153,13 @@ final filterRepositoryProvider = FutureProvider<FilterRepository>((ref) async {
 });
 
 // Provider for ApplyFilters use case
-final applyFiltersProvider = FutureProvider<ApplyFilters>((ref) async {
-  final repository = await ref.read(filterRepositoryProvider.future);
+final applyFiltersProvider = Provider<ApplyFilters>((ref) {
+  final repository = ref.read(filterRepositoryProvider);
   return ApplyFilters(repository);
 });
 
 // Provider for SearchExpenses use case
-final searchExpensesProvider = FutureProvider<SearchExpenses>((ref) async {
-  final repository = await ref.read(filterRepositoryProvider.future);
+final searchExpensesProvider = Provider<SearchExpenses>((ref) {
+  final repository = ref.read(filterRepositoryProvider);
   return SearchExpenses(repository);
 });

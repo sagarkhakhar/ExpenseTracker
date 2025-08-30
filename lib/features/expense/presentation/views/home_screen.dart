@@ -19,6 +19,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../budget/presentation/providers/budget_providers.dart';
 import '../../../budget/presentation/widgets/budget_card.dart';
 import '../../../export/presentation/views/export_screen.dart';
+import '../../../sync/presentation/widgets/sync_status_indicator.dart';
 
 /// The main screen of the app that contains the bottom navigation and manages tabs.
 /// This screen acts as a container for the overview and statistics tabs.
@@ -111,6 +112,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 context: context,
                 title: localizations.appTitle,
                 actions: [
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: SyncStatusIndicator(),
+                  ),
                   PlatformWidgets.platformActionButton(
                     context: context,
                     icon: PlatformWidgets.isIOS

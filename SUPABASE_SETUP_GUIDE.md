@@ -49,7 +49,7 @@ This ExpenseTracker app uses **industry best practices** for credential manageme
 
 ```dart
 // lib/core/config/config_provider.dart
-const supabaseUrl = String.fromEnvironment('DATABASE_URL');
+const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
 const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 ```
 
@@ -78,13 +78,13 @@ supabase_credentials.dart            # ❌ No credential files
 
 ```bash
 # Command line (runtime only):
-flutter run --dart-define=DATABASE_URL=xxx --dart-define=SUPABASE_ANON_KEY=yyy
+flutter run --dart-define=SUPABASE_URL=xxx --dart-define=SUPABASE_ANON_KEY=yyy
 
 # VS Code launch.json (protected by .gitignore):
 .vscode/launch.json  # ✅ Contains args but protected from Git
 
 # Code (environment variables only):
-String.fromEnvironment('DATABASE_URL')      # ✅ No defaults, no hardcoding
+String.fromEnvironment('SUPABASE_URL')      # ✅ No defaults, no hardcoding
 String.fromEnvironment('SUPABASE_ANON_KEY') # ✅ Runtime injection only
 ```
 
@@ -107,7 +107,7 @@ The app uses Flutter's built-in environment variable system. You have two option
 Run the app with your credentials as arguments:
 
 ```bash
-flutter run --dart-define=DATABASE_URL=https://your-project-id.supabase.co --dart-define=SUPABASE_ANON_KEY=your_anon_key_here
+flutter run --dart-define=SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co --dart-define=SUPABASE_ANON_KEY=your_anon_key_here
 ```
 
 #### Option B: Create a Launch Configuration
@@ -123,7 +123,7 @@ flutter run --dart-define=DATABASE_URL=https://your-project-id.supabase.co --dar
       "type": "dart",
       "program": "lib/main.dart",
       "args": [
-        "--dart-define=DATABASE_URL=https://your-project-id.supabase.co",
+        "--dart-define=SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co",
         "--dart-define=SUPABASE_ANON_KEY=your_anon_key_here"
       ]
     }
@@ -174,7 +174,7 @@ supabase link --project-ref YOUR_PROJECT_REFERENCE_ID
 3. Add these environment variables:
    - **Key**: `SERVICE_ROLE_KEY`
    - **Value**: Your service_role key from Step 3
-   - **Key**: `DATABASE_URL`  
+   - **Key**: `SUPABASE_URL`  
    - **Value**: Your Project URL from Step 3
 
 ### Step 10: Deploy Edge Function (Auto-handled by app)
@@ -270,7 +270,7 @@ cd /path/to/your/ExpenseTracker
 
 #### Step B: Run with Environment Variables
 ```bash
-flutter run --dart-define=DATABASE_URL=https://your-project-id.supabase.co --dart-define=SUPABASE_ANON_KEY=your_anon_key_here
+flutter run --dart-define=SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co --dart-define=SUPABASE_ANON_KEY=your_anon_key_here
 ```
 
 **Replace these placeholders:**
@@ -281,7 +281,7 @@ flutter run --dart-define=DATABASE_URL=https://your-project-id.supabase.co --dar
 ```bash
 # If you have multiple devices/emulators
 flutter devices
-flutter run -d [device-id] --dart-define=DATABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
+flutter run -d [device-id] --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
 ```
 
 ### Option 2: VS Code Launch Configuration
@@ -299,7 +299,7 @@ flutter run -d [device-id] --dart-define=DATABASE_URL=... --dart-define=SUPABASE
       "type": "dart",
       "program": "lib/main.dart",
       "args": [
-        "--dart-define=DATABASE_URL=https://your-project-id.supabase.co",
+        "--dart-define=SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co",
         "--dart-define=SUPABASE_ANON_KEY=your_anon_key_here"
       ]
     },
@@ -374,7 +374,7 @@ Running Xcode build...
 Flutter run complete: 52.3s
 
 [STARTUP] Validating Supabase configuration...
-[CONFIG] ✅ DATABASE_URL format valid
+[CONFIG] ✅ SUPABASE_URL format valid
 [CONFIG] ✅ SUPABASE_ANON_KEY format valid
 [NETWORK] ✅ Internet connectivity confirmed
 [SUPABASE] ✅ Connection successful
@@ -387,39 +387,39 @@ Flutter run complete: 52.3s
 
 #### For Development:
 ```bash
-flutter run --hot --dart-define=DATABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
+flutter run --hot --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
 ```
 
 #### For Release Testing:
 ```bash
-flutter run --release --dart-define=DATABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
+flutter run --release --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
 ```
 
 #### With Specific Target:
 ```bash
-flutter run --target lib/main_dev.dart --dart-define=DATABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
+flutter run --target lib/main_dev.dart --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
 ```
 
 ### Quick Commands Reference
 
 ```bash
 # Basic run with Supabase
-flutter run --dart-define=DATABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=eyJ...
+flutter run --dart-define=SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co --dart-define=SUPABASE_ANON_KEY=YOUR_ANON_KEY
 
 # Run on specific device
-flutter run -d chrome --dart-define=DATABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=eyJ...
+flutter run -d chrome --dart-define=SUPABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=eyJ...
 
 # Hot reload enabled
-flutter run --hot --dart-define=DATABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=eyJ...
+flutter run --hot --dart-define=SUPABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=eyJ...
 
 # Release mode
-flutter run --release --dart-define=DATABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=eyJ...
+flutter run --release --dart-define=SUPABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=eyJ...
 
 # Offline only (no Supabase)
 flutter run
 
 # Clean build
-flutter clean && flutter pub get && flutter run --dart-define=DATABASE_URL=https://xxx.supabase.co --dart-define=SUPABASE_ANON_KEY=eyJ...
+flutter clean && flutter pub get && flutter run --dart-define=SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co --dart-define=SUPABASE_ANON_KEY=YOUR_ANON_KEY
 ```
 
 ---
@@ -463,10 +463,10 @@ flutter clean && flutter pub get && flutter run --dart-define=DATABASE_URL=https
 ### Common Issues:
 
 **❌ "Invalid Supabase URL" error**
-- **Cause**: Missing or malformed `DATABASE_URL` parameter
+- **Cause**: Missing or malformed `SUPABASE_URL` parameter
 - **Check**: URL format must be `https://xxx.supabase.co` (no trailing slashes)
-- **Fix**: Verify `--dart-define=DATABASE_URL=https://your-project.supabase.co`
-- **Debug**: Check console for "MISSING_DATABASE_URL" message
+- **Fix**: Verify `--dart-define=SUPABASE_URL=https://your-project.supabase.co`
+- **Debug**: Check console for "MISSING_SUPABASE_URL" message
 
 **❌ "Authentication failed" error**  
 - **Cause**: Missing, incorrect, or malformed `SUPABASE_ANON_KEY` parameter
@@ -478,7 +478,7 @@ flutter clean && flutter pub get && flutter run --dart-define=DATABASE_URL=https
 - **Cause**: Forgot `--dart-define` parameters when running app
 - **Fix**: Must include both parameters:
   ```bash
-  flutter run --dart-define=DATABASE_URL=xxx --dart-define=SUPABASE_ANON_KEY=yyy
+  flutter run --dart-define=SUPABASE_URL=xxx --dart-define=SUPABASE_ANON_KEY=yyy
   ```
 - **VS Code**: Make sure launch.json has correct "args" section
 

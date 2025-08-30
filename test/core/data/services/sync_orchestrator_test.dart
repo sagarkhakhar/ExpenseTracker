@@ -344,7 +344,9 @@ void main() {
     group('Full Resync', () {
       test('should perform full resync by clearing cursors', () async {
         // Setup mocks
-        when(mockLocalDataSource.clearAllSyncCursors()).thenAnswer((_) async {});
+        when(mockLocalDataSource.clearAllSyncCursors()).thenAnswer((_) async {
+          return null;
+        });
         when(mockMutationQueueService.getQueueStats())
             .thenAnswer((_) async => const Result.success(MutationQueueStats(
               totalPending: 0,

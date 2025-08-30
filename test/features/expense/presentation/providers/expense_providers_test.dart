@@ -46,18 +46,18 @@ void main() {
 
   group('Expense Providers', () {
     group('Repository Provider with Mocks', () {
-      test('should provide expense repository instance when mocked', () async {
+      test('should provide expense repository instance when mocked', () {
         final mockDataSource = MockExpenseLocalDataSourceImpl();
         when(() => mockDataSource.init()).thenAnswer((_) async {});
 
         final container = ProviderContainer(
           overrides: [
-            expenseLocalDataSourceProvider.overrideWith((ref) async => mockDataSource),
+            expenseLocalDataSourceProvider.overrideWith((ref) => mockDataSource),
           ],
         );
         addTearDown(container.dispose);
 
-        final repository = await container.read(expenseRepositoryProvider.future);
+        final repository = container.read(expenseRepositoryProvider);
         expect(repository, isA<ExpenseRepositoryImpl>());
       });
     });
@@ -72,187 +72,202 @@ void main() {
         when(() => mockDataSource.init()).thenAnswer((_) async {});
       });
 
-      test('should provide GetAllExpenses use case', () async {
+      test('should provide GetAllExpenses use case', () {
         final container = ProviderContainer(
           overrides: [
-            expenseLocalDataSourceProvider.overrideWith((ref) async => mockDataSource),
-            expenseRepositoryProvider.overrideWith((ref) async => mockRepository),
+            expenseLocalDataSourceProvider.overrideWith((ref) => mockDataSource),
+            expenseRepositoryProvider.overrideWith((ref) => mockRepository),
           ],
         );
         addTearDown(container.dispose);
 
-        final useCase = await container.read(getAllExpensesProvider.future);
+        final useCase = container.read(getAllExpensesProvider);
         expect(useCase, isA<GetAllExpenses>());
       });
 
-      test('should provide CreateExpense use case', () async {
+      test('should provide CreateExpense use case', () {
         final container = ProviderContainer(
           overrides: [
-            expenseLocalDataSourceProvider.overrideWith((ref) async => mockDataSource),
-            expenseRepositoryProvider.overrideWith((ref) async => mockRepository),
+            expenseLocalDataSourceProvider.overrideWith((ref) => mockDataSource),
+            expenseRepositoryProvider.overrideWith((ref) => mockRepository),
           ],
         );
         addTearDown(container.dispose);
 
-        final useCase = await container.read(createExpenseProvider.future);
+        final useCase = container.read(createExpenseProvider);
         expect(useCase, isA<CreateExpense>());
       });
 
-      test('should provide UpdateExpense use case', () async {
+      test('should provide UpdateExpense use case', () {
         final container = ProviderContainer(
           overrides: [
-            expenseLocalDataSourceProvider.overrideWith((ref) async => mockDataSource),
-            expenseRepositoryProvider.overrideWith((ref) async => mockRepository),
+            expenseLocalDataSourceProvider.overrideWith((ref) => mockDataSource),
+            expenseRepositoryProvider.overrideWith((ref) => mockRepository),
           ],
         );
         addTearDown(container.dispose);
 
-        final useCase = await container.read(updateExpenseProvider.future);
+        final useCase = container.read(updateExpenseProvider);
         expect(useCase, isA<UpdateExpense>());
       });
     });
 
-    group('ExpenseNotifier with Mocks', () {
+    group('ExpenseNotifier', () {
       late MockGetAllExpenses mockGetAllExpenses;
+      late MockCreateExpense mockCreateExpense;
+      late MockUpdateExpense mockUpdateExpense;
 
       setUp(() {
         mockGetAllExpenses = MockGetAllExpenses();
+        mockCreateExpense = MockCreateExpense();
+        mockUpdateExpense = MockUpdateExpense();
       });
 
-      test('should start with loading state', () {
+      test('should load expenses successfully', () async {
+        // Arrange
+        when(() => mockGetAllExpenses()).thenAnswer((_) async => Right(testExpenses));
+
         final container = ProviderContainer(
           overrides: [
-            getAllExpensesProvider.overrideWith((ref) async => mockGetAllExpenses),
+            getAllExpensesProvider.overrideWith((ref) => mockGetAllExpenses),
           ],
         );
         addTearDown(container.dispose);
 
-        final state = container.read(expenseNotifierProvider);
-        expect(state, isA<AsyncLoading>());
-      });
-
-      test('should load expenses on refresh success', () async {
-        when(() => mockGetAllExpenses.call()).thenAnswer((_) async => Right(testExpenses));
-
-        final container = ProviderContainer(
-          overrides: [
-            getAllExpensesProvider.overrideWith((ref) async => mockGetAllExpenses),
-          ],
-        );
-        addTearDown(container.dispose);
-
-        final notifier = container.read(expenseNotifierProvider.notifier);
-        await notifier.refresh();
-
-        final state = container.read(expenseNotifierProvider);
-        expect(state.hasValue, isTrue);
-        if (state.hasValue) {
-          expect(state.value, equals(testExpenses));
-        }
-      });
-
-      test('should handle error when loading expenses fails', () async {
-        when(() => mockGetAllExpenses.call()).thenAnswer((_) async => const Left(testFailure));
-
-        final container = ProviderContainer(
-          overrides: [
-            getAllExpensesProvider.overrideWith((ref) async => mockGetAllExpenses),
-          ],
-        );
-        addTearDown(container.dispose);
-
-        final notifier = container.read(expenseNotifierProvider.notifier);
-        await notifier.refresh();
-
-        final state = container.read(expenseNotifierProvider);
-        expect(state, isA<AsyncError>());
-      });
-
-      test('addExpense should create expense and refresh list', () async {
-        final mockCreateExpense = MockCreateExpense();
-        when(() => mockCreateExpense(any())).thenAnswer((_) async => Right(testExpense));
-        when(() => mockGetAllExpenses.call()).thenAnswer((_) async => Right(testExpenses));
-
-        final container = ProviderContainer(
-          overrides: [
-            getAllExpensesProvider.overrideWith((ref) async => mockGetAllExpenses),
-            createExpenseProvider.overrideWith((ref) async => mockCreateExpense),
-          ],
-        );
-        addTearDown(container.dispose);
-
+        // Act - read the notifier to trigger initial load
         final notifier = container.read(expenseNotifierProvider.notifier);
         
+        // Wait for state to update
+        await Future.delayed(const Duration(milliseconds: 100));
+        
+        // Assert
+        final state = container.read(expenseNotifierProvider);
+        expect(state.hasValue, true);
+        expect(state.value, testExpenses);
+        verify(() => mockGetAllExpenses()).called(1);
+      });
+
+      test('should handle load expenses error', () async {
+        // Arrange
+        when(() => mockGetAllExpenses()).thenAnswer((_) async => const Left(testFailure));
+
+        final container = ProviderContainer(
+          overrides: [
+            getAllExpensesProvider.overrideWith((ref) => mockGetAllExpenses),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        // Act - read the notifier to trigger initial load
+        final notifier = container.read(expenseNotifierProvider.notifier);
+        
+        // Wait for state to update
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        // Assert
+        final state = container.read(expenseNotifierProvider);
+        expect(state.hasError, true);
+        verify(() => mockGetAllExpenses()).called(1);
+      });
+
+      test('should create expense successfully', () async {
+        // Arrange
+        when(() => mockGetAllExpenses()).thenAnswer((_) async => Right(testExpenses));
+        when(() => mockCreateExpense(any())).thenAnswer((_) async => Right(testExpense));
+
+        final container = ProviderContainer(
+          overrides: [
+            getAllExpensesProvider.overrideWith((ref) => mockGetAllExpenses),
+            createExpenseProvider.overrideWith((ref) => mockCreateExpense),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        // Act
+        final notifier = container.read(expenseNotifierProvider.notifier);
         await notifier.addExpense(
-          title: 'New Expense',
-          description: 'Test expense',
-          amount: 50.0,
+          title: 'Test Expense',
+          description: 'A test expense',
+          amount: 100.0,
           category: 'Food',
           type: ExpenseType.expense,
-          date: DateTime.now(),
+          date: DateTime(2024, 1, 1),
         );
 
-        // Verify create expense was called
+        // Assert
         verify(() => mockCreateExpense(any())).called(1);
-        // Verify expenses were reloaded
-        verify(() => mockGetAllExpenses.call()).called(greaterThanOrEqualTo(1));
+        verify(() => mockGetAllExpenses()).called(greaterThanOrEqualTo(2)); // Initial load + reload after create
       });
 
-      test('updateExpense should update expense and refresh list', () async {
-        final mockUpdateExpense = MockUpdateExpense();
-        when(() => mockUpdateExpense(any())).thenAnswer((_) async => Right(testExpense));
-        when(() => mockGetAllExpenses.call()).thenAnswer((_) async => Right(testExpenses));
+      test('should handle create expense error', () async {
+        // Arrange
+        when(() => mockGetAllExpenses()).thenAnswer((_) async => Right(testExpenses));
+        when(() => mockCreateExpense(any())).thenAnswer((_) async => const Left(testFailure));
 
         final container = ProviderContainer(
           overrides: [
-            getAllExpensesProvider.overrideWith((ref) async => mockGetAllExpenses),
-            updateExpenseProvider.overrideWith((ref) async => mockUpdateExpense),
+            getAllExpensesProvider.overrideWith((ref) => mockGetAllExpenses),
+            createExpenseProvider.overrideWith((ref) => mockCreateExpense),
           ],
         );
         addTearDown(container.dispose);
 
+        // Act & Assert
         final notifier = container.read(expenseNotifierProvider.notifier);
-        
+        expect(
+          () => notifier.addExpense(
+            title: 'Test Expense',
+            description: 'A test expense',
+            amount: 100.0,
+            category: 'Food',
+            type: ExpenseType.expense,
+            date: DateTime(2024, 1, 1),
+          ),
+          throwsException,
+        );
+      });
+
+      test('should update expense successfully', () async {
+        // Arrange
+        when(() => mockGetAllExpenses()).thenAnswer((_) async => Right(testExpenses));
+        when(() => mockUpdateExpense(any())).thenAnswer((_) async => Right(testExpense));
+
+        final container = ProviderContainer(
+          overrides: [
+            getAllExpensesProvider.overrideWith((ref) => mockGetAllExpenses),
+            updateExpenseProvider.overrideWith((ref) => mockUpdateExpense),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        // Act
+        final notifier = container.read(expenseNotifierProvider.notifier);
         await notifier.updateExpense(testExpense);
 
-        // Verify update expense was called
+        // Assert
         verify(() => mockUpdateExpense(testExpense)).called(1);
-        // Verify expenses were reloaded
-        verify(() => mockGetAllExpenses.call()).called(greaterThanOrEqualTo(1));
+        verify(() => mockGetAllExpenses()).called(greaterThanOrEqualTo(2)); // Initial load + reload after update
       });
 
-      test('deleteExpense should delete expense and refresh list', () async {
-        when(() => mockGetAllExpenses.call()).thenAnswer((_) async => Right(testExpenses));
+      test('should handle update expense error', () async {
+        // Arrange
+        when(() => mockGetAllExpenses()).thenAnswer((_) async => Right(testExpenses));
+        when(() => mockUpdateExpense(any())).thenAnswer((_) async => const Left(testFailure));
 
         final container = ProviderContainer(
           overrides: [
-            getAllExpensesProvider.overrideWith((ref) async => mockGetAllExpenses),
+            getAllExpensesProvider.overrideWith((ref) => mockGetAllExpenses),
+            updateExpenseProvider.overrideWith((ref) => mockUpdateExpense),
           ],
         );
         addTearDown(container.dispose);
 
+        // Act & Assert
         final notifier = container.read(expenseNotifierProvider.notifier);
-        
-        await notifier.deleteExpense('expense-1');
-
-        // Verify expenses were reloaded
-        verify(() => mockGetAllExpenses.call()).called(greaterThanOrEqualTo(1));
-      });
-    });
-
-    group('Provider Types', () {
-      test('should have correct provider types', () {
-        final container = ProviderContainer();
-        addTearDown(container.dispose);
-
-        // Test that all providers return the correct types without calling them
-        expect(expenseLocalDataSourceProvider, isA<FutureProvider<ExpenseLocalDataSourceImpl>>());
-        expect(expenseRepositoryProvider, isA<FutureProvider<ExpenseRepositoryImpl>>());
-        expect(getAllExpensesProvider, isA<FutureProvider<GetAllExpenses>>());
-        expect(createExpenseProvider, isA<FutureProvider<CreateExpense>>());
-        expect(updateExpenseProvider, isA<FutureProvider<UpdateExpense>>());
-        expect(expenseNotifierProvider, isA<StateNotifierProvider>());
-        expect(expenseStatsNotifierProvider, isA<StateNotifierProvider>());
+        expect(
+          () => notifier.updateExpense(testExpense),
+          throwsException,
+        );
       });
     });
   });

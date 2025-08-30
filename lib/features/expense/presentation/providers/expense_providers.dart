@@ -7,53 +7,45 @@ import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/datasources/expense_local_data_source_impl.dart';
 import '../../data/repositories/expense_repository_impl.dart';
+import '../../data/models/expense_model.dart';
 import '../../domain/entities/expense.dart';
 import '../../domain/usecases/create_expense.dart';
 import '../../domain/usecases/get_all_expenses.dart';
 import '../../domain/usecases/get_expenses_by_date_range.dart';
 import '../../domain/usecases/update_expense.dart';
-import 'package:expense_tracker/core/errors/failures.dart';
+import '../../../../core/providers/simple_sync_provider.dart';
 
-// Data Source Provider (async) - Ultra-lazy initialization
-// Only initializes when explicitly requested by UI
-final expenseLocalDataSourceProvider =
-    FutureProvider.autoDispose<ExpenseLocalDataSourceImpl>((ref) async {
-  // Significant delay to allow UI to fully render first
-  await Future.delayed(const Duration(milliseconds: 200));
-  
+// Data Source Provider (sync initialization) - Fixed timing issues
+final expenseLocalDataSourceProvider = Provider<ExpenseLocalDataSourceImpl>((ref) {
   final dataSource = ExpenseLocalDataSourceImpl();
-  await dataSource.init();
+  // Remove async initialization - will be handled by lazy loading
   return dataSource;
 });
 
-// Repository Provider (async) - Lazy initialization
-// Provides the repository implementation for dependency injection.
-final expenseRepositoryProvider =
-    FutureProvider.autoDispose<ExpenseRepositoryImpl>((ref) async {
-  final dataSource = await ref.watch(expenseLocalDataSourceProvider.future);
+// Repository Provider (sync) - Direct initialization
+final expenseRepositoryProvider = Provider<ExpenseRepositoryImpl>((ref) {
+  final dataSource = ref.watch(expenseLocalDataSourceProvider);
   return ExpenseRepositoryImpl(dataSource);
 });
 
-// Use Cases Providers (async) - Lazy initialization
-// Each use case is provided as a dependency for notifiers and UI.
-final getAllExpensesProvider = FutureProvider.autoDispose<GetAllExpenses>((ref) async {
-  final repository = await ref.watch(expenseRepositoryProvider.future);
+// Use Cases Providers (sync) - Direct initialization
+final getAllExpensesProvider = Provider<GetAllExpenses>((ref) {
+  final repository = ref.watch(expenseRepositoryProvider);
   return GetAllExpenses(repository);
 });
 
-final createExpenseProvider = FutureProvider.autoDispose<CreateExpense>((ref) async {
-  final repository = await ref.watch(expenseRepositoryProvider.future);
+final createExpenseProvider = Provider<CreateExpense>((ref) {
+  final repository = ref.watch(expenseRepositoryProvider);
   return CreateExpense(repository);
 });
 
-final getExpensesByDateRangeProvider =
-    FutureProvider.autoDispose<GetExpensesByDateRange>((ref) async {
-  final repository = await ref.watch(expenseRepositoryProvider.future);
+final getExpensesByDateRangeProvider = Provider<GetExpensesByDateRange>((ref) {
+  final repository = ref.watch(expenseRepositoryProvider);
   return GetExpensesByDateRange(repository);
 });
 
-final updateExpenseProvider = FutureProvider.autoDispose<UpdateExpense>((ref) async {
-  final repository = await ref.watch(expenseRepositoryProvider.future);
+final updateExpenseProvider = Provider<UpdateExpense>((ref) {
+  final repository = ref.watch(expenseRepositoryProvider);
   return UpdateExpense(repository);
 });
 
@@ -64,13 +56,13 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
   bool _hasLoaded = false;
 
   ExpenseNotifier(this.ref) : super(const AsyncValue.loading()) {
-    // Immediate loading but with error handling
+    // Immediate loading with proper initialization
     _loadExpenses();
   }
 
   // Loads all expenses from the repository and updates state.
   Future<void> _loadExpenses() async {
-    if (_isLoading || _hasLoaded) return; // Prevent multiple simultaneous loads
+    if (_isLoading) return; // Prevent multiple simultaneous loads
     _isLoading = true;
     if (mounted) {
       state = const AsyncValue.loading();
@@ -78,10 +70,14 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
 
     try {
       debugPrint('Loading expenses...');
-      final getAllExpenses = await ref.read(getAllExpensesProvider.future);
+      
+      // Ensure data source is initialized before use
+      final dataSource = ref.read(expenseLocalDataSourceProvider);
+      await dataSource.init();
+      
+      final getAllExpenses = ref.read(getAllExpensesProvider);
       debugPrint('Got getAllExpenses use case');
       
-      // Process expense loading in background isolate to avoid main thread blocking
       final result = await getAllExpenses();
       debugPrint('Got result: ${result.isRight()}');
       
@@ -94,10 +90,10 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
           },
           (expenses) {
             debugPrint('Success: ${expenses.length} expenses loaded');
+            _hasLoaded = true;
             return AsyncValue.data(expenses);
           },
         );
-        _hasLoaded = true;
       }
     } catch (e, st) {
       debugPrint('Exception in _loadExpenses: $e');
@@ -128,71 +124,165 @@ class ExpenseNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
     DateTime? nextOccurrence,
     DateTime? endDate,
   }) async {
-    const uuid = Uuid();
-    final now = DateTime.now();
-    final expense = Expense(
-      id: uuid.v4(),
-      title: title,
-      description: description,
-      amount: amount,
-      category: category,
-      type: type,
-      date: date,
-      createdAt: now,
-      updatedAt: now,
-      isRecurring: isRecurring,
-      recurringFrequency: recurringFrequency,
-      nextOccurrence: nextOccurrence,
-      endDate: endDate,
-    );
-    final createExpense = await ref.read(createExpenseProvider.future);
-    final result = await createExpense(expense);
-    result.fold(
-      (failure) {
-        if (failure is ValidationFailure) {
+    try {
+      const uuid = Uuid();
+      final now = DateTime.now();
+      final expense = Expense(
+        id: uuid.v4(),
+        title: title.trim(),
+        description: description.trim(),
+        amount: amount,
+        category: category.trim(),
+        type: type,
+        date: date,
+        createdAt: now,
+        updatedAt: now,
+        isRecurring: isRecurring,
+        recurringFrequency: recurringFrequency,
+        nextOccurrence: nextOccurrence,
+        endDate: endDate,
+      );
+
+      debugPrint('Creating expense: ${expense.title} - \$${expense.amount}');
+      
+      // Ensure data source is initialized
+      final dataSource = ref.read(expenseLocalDataSourceProvider);
+      await dataSource.init();
+      
+      final createExpense = ref.read(createExpenseProvider);
+      final result = await createExpense(expense);
+      
+      result.fold(
+        (failure) {
+          debugPrint('Failed to create expense: ${failure.message}');
           throw Exception(failure.message);
-        } else {
-          throw Exception(failure.message);
-        }
-      },
-      (_) {
-        if (mounted) {
-          _loadExpenses();
-        }
-      },
-    );
+        },
+        (createdExpense) {
+          debugPrint('Successfully created expense: ${createdExpense.id}');
+          if (mounted) {
+            // Force reload to get latest data
+            _hasLoaded = false;
+            _loadExpenses();
+            
+            // Trigger outbound sync after successful creation
+            _triggerOutboundSync();
+          }
+        },
+      );
+    } catch (e) {
+      debugPrint('Exception in addExpense: $e');
+      rethrow;
+    }
   }
 
   // Updates an existing expense using the UpdateExpense use case.
   Future<void> updateExpense(Expense expense) async {
-    final updateExpense = await ref.read(updateExpenseProvider.future);
-    final result = await updateExpense(expense);
-    result.fold(
-      (failure) {
-        if (failure is ValidationFailure) {
+    try {
+      debugPrint('Updating expense: ${expense.id} - ${expense.title}');
+      
+      // Ensure data source is initialized
+      final dataSource = ref.read(expenseLocalDataSourceProvider);
+      await dataSource.init();
+      
+      final updateExpense = ref.read(updateExpenseProvider);
+      final result = await updateExpense(expense);
+      
+      result.fold(
+        (failure) {
+          debugPrint('Failed to update expense: ${failure.message}');
           throw Exception(failure.message);
-        } else {
-          throw Exception(failure.message);
-        }
-      },
-      (_) {
-        _loadExpenses();
-      },
-    );
+        },
+        (updatedExpense) {
+          debugPrint('Successfully updated expense: ${updatedExpense.id}');
+          if (mounted) {
+            // Force reload to get latest data
+            _hasLoaded = false;
+            _loadExpenses();
+            
+            // Trigger outbound sync after successful update
+            _triggerOutboundSync();
+          }
+        },
+      );
+    } catch (e) {
+      debugPrint('Exception in updateExpense: $e');
+      rethrow;
+    }
   }
 
   // Deletes an expense by ID using the repository.
   Future<void> deleteExpense(String id) async {
-    final repository = await ref.read(expenseRepositoryProvider.future);
-    final result = await repository.deleteExpense(id);
-    result.fold(
-      (failure) => throw Exception(failure.message),
-      (_) {
-        if (mounted) {
-          _loadExpenses();
+    try {
+      debugPrint('Deleting expense: $id');
+      
+      // Ensure data source is initialized
+      final dataSource = ref.read(expenseLocalDataSourceProvider);
+      await dataSource.init();
+      
+      final repository = ref.read(expenseRepositoryProvider);
+      final result = await repository.deleteExpense(id);
+      
+      result.fold(
+        (failure) {
+          debugPrint('Failed to delete expense: ${failure.message}');
+          throw Exception(failure.message);
+        },
+        (_) {
+          debugPrint('Successfully deleted expense: $id');
+          if (mounted) {
+            // Force reload to get latest data
+            _hasLoaded = false;
+            _loadExpenses();
+            
+            // Trigger outbound sync after successful deletion
+            _triggerOutboundSync();
+          }
+        },
+      );
+    } catch (e) {
+      debugPrint('Exception in deleteExpense: $e');
+      rethrow;
+    }
+  }
+
+  // Trigger background sync without blocking UI
+  void _triggerOutboundSync() {
+    // Use fire-and-forget pattern to avoid blocking UI
+    Future.microtask(() async {
+      try {
+        debugPrint('🔄 Triggering outbound sync for expense changes...');
+        
+        // Get simple sync service from provider
+        final syncService = ref.read(simpleSyncServiceProvider);
+        
+        // Get all expenses that need syncing (for simplicity, we'll sync all)
+        final expenses = await _loadExpensesFromDataSource();
+        
+        int syncedCount = 0;
+        for (final expense in expenses) {
+          final success = await syncService.syncExpenseToSupabase(expense);
+          if (success) syncedCount++;
         }
-      },
-    );
+        
+        debugPrint('✅ Sync completed: $syncedCount/${expenses.length} expenses synced');
+      } catch (e, stackTrace) {
+        debugPrint('❌ Sync trigger failed: $e');
+        debugPrint('Stack trace: $stackTrace');
+        // Don't throw - sync failures shouldn't break UI operations
+      }
+    });
+  }
+  
+  // Helper method to load expenses from data source
+  Future<List<ExpenseModel>> _loadExpensesFromDataSource() async {
+    try {
+      final dataSource = ref.read(expenseLocalDataSourceProvider);
+      await dataSource.init();
+      return await dataSource.getAllExpenses();
+    } catch (e) {
+      debugPrint('Failed to load expenses for sync: $e');
+      return [];
+    }
   }
 }
 
@@ -327,14 +417,22 @@ class FilteredExpensesNotifier
   }
 
   Future<void> filterByDateRange(DateTime start, DateTime end) async {
-    final getExpensesByDateRange =
-        await ref.read(getExpensesByDateRangeProvider.future);
-    final result = await getExpensesByDateRange(start, end);
-    result.fold(
-      (failure) => state =
-          AsyncValue.error(Exception(failure.message), StackTrace.current),
-      (expenses) => state = AsyncValue.data(expenses),
-    );
+    try {
+      // Ensure data source is initialized
+      final dataSource = ref.read(expenseLocalDataSourceProvider);
+      await dataSource.init();
+      
+      final getExpensesByDateRange = ref.read(getExpensesByDateRangeProvider);
+      final result = await getExpensesByDateRange(start, end);
+      
+      result.fold(
+        (failure) => state =
+            AsyncValue.error(Exception(failure.message), StackTrace.current),
+        (expenses) => state = AsyncValue.data(expenses),
+      );
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
   }
 
   void filterByCategory(String category) {

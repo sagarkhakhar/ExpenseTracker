@@ -201,6 +201,10 @@ class StartupGuardNotifier extends AutoDisposeAsyncNotifier<StartupState> {
     
     try {
       debugPrint('🚀 Starting database bootstrap...');
+      debugPrint('📊 Configuration Details:');
+      debugPrint('   URL: ${config.supabaseUrl.replaceFirst(RegExp(r'https?://'), '***://')}');
+      debugPrint('   Key: ${config.supabaseAnonKey.substring(0, 20)}...');
+      debugPrint('   Production: ${config.isProduction}');
       
       // Initialize Supabase client for bootstrap call
       await Supabase.initialize(

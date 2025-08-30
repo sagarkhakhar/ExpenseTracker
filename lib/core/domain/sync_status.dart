@@ -3,8 +3,14 @@ enum SyncStatus {
   /// No sync operation in progress
   idle,
   
+  /// Working offline - no network connection
+  offline,
+  
   /// Preparing for sync operation
   preparing,
+  
+  /// Currently syncing data
+  syncing,
   
   /// Processing outbound mutations (local → remote)
   syncingOutbound,
@@ -20,6 +26,9 @@ enum SyncStatus {
   
   /// Sync completed successfully
   completed,
+  
+  /// All data is synced and up to date
+  synced,
   
   /// Sync failed with recoverable error
   error,

@@ -40,7 +40,7 @@ serve(async (req) => {
     console.log('Bootstrap function called', { validate_only })
 
     // Create Supabase admin client using service role key
-    const supabaseUrl = Deno.env.get('DATABASE_URL')!
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     
     if (!supabaseUrl || !supabaseServiceKey) {
@@ -146,88 +146,17 @@ async function ensureAppMigrationsTable(supabase: any, details: BootstrapRespons
       return
     }
 
-    // Table doesn't exist or we can't access it, create everything
-    // Use raw SQL through the service role client
-    const createSQL = `
-    -- Function to check if table exists
-    CREATE OR REPLACE FUNCTION check_table_exists(table_name text)
-    RETURNS boolean AS $$
-    BEGIN
-      RETURN EXISTS (
-        SELECT 1 
-        FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name = $1
-      );
-    END;
-    $$ LANGUAGE plpgsql SECURITY DEFINER;
-
-    -- Function to execute SQL (for migrations)
-    CREATE OR REPLACE FUNCTION exec_sql(sql text)
-    RETURNS void AS $$
-    BEGIN
-      EXECUTE sql;
-    END;
-    $$ LANGUAGE plpgsql SECURITY DEFINER;
-
-    -- Create app_migrations table
-    CREATE TABLE IF NOT EXISTS app_migrations (
-      id SERIAL PRIMARY KEY,
-      version INTEGER NOT NULL UNIQUE,
-      name TEXT NOT NULL,
-      applied_at TIMESTAMPTZ DEFAULT NOW(),
-      checksum TEXT
-    );
-    `
-
-    // Create the app_migrations table using raw SQL since RPC functions don't exist by default
-    // First try to query the table to see if it exists
-    const { data: existingData, error: queryError } = await supabaseAdmin
-      .from('app_migrations')
-      .select('id')
-      .limit(1)
-
-    if (queryError && queryError.code === 'PGRST116') {
-      // Table doesn't exist, so create it directly via SQL
-      // Use supabase-js client's query method for raw SQL execution
-      const { error: createError } = await supabaseAdmin
-        .rpc('exec', { query: createSQL })
-        .catch(async () => {
-          // If exec RPC doesn't exist, create table manually using the HTTP client
-          const response = await fetch(`${supabaseUrl}/rest/v1/`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/vnd.pgrst.object+json',
-              'Authorization': `Bearer ${supabaseServiceKey}`,
-              'apikey': supabaseServiceKey,
-              'Prefer': 'return=minimal'
-            },
-            body: JSON.stringify({
-              query: `
-                CREATE TABLE IF NOT EXISTS app_migrations (
-                  id SERIAL PRIMARY KEY,
-                  version INTEGER NOT NULL UNIQUE,
-                  name TEXT NOT NULL,
-                  applied_at TIMESTAMPTZ DEFAULT NOW(),
-                  checksum TEXT
-                );
-              `
-            })
-          })
-          
-          if (!response.ok) {
-            throw new Error(`Failed to create app_migrations table via HTTP: ${response.status}`)
-          }
-        })
-      
-      if (createError) {
-        throw new Error(`Failed to create app_migrations table: ${createError.message}`)
-      }
+    // Table doesn't exist (error code PGRST116), this is expected for first run
+    if (accessError && accessError.code === 'PGRST116') {
+      details.warnings!.push('app_migrations table does not exist yet - will be created during migration')
+      return
     }
 
-    details.tables!.push('app_migrations (created)')
+    // Some other error accessing the table
+    details.warnings!.push(`app_migrations table access issue: ${accessError.message}`)
+    
   } catch (error) {
-    details.errors!.push(`Failed to ensure app_migrations table: ${error.message}`)
+    details.warnings!.push(`Failed to check app_migrations table: ${error.message}`)
   }
 }
 
@@ -256,89 +185,324 @@ async function getCurrentMigrationVersion(supabase: any): Promise<number> {
 
 /**
  * Apply Migration V1: Create main tables with sync support
- * Uses simpler approach that creates tables individually to avoid RPC issues
+ * Executes the complete migration SQL automatically
  */
 async function applyMigrationV1(supabase: any, details: BootstrapResponse['details']) {
   try {
     console.log('Applying Migration V1...')
 
-    // Create tables one by one using direct table creation
-    // This is more reliable than trying to execute arbitrary SQL
-    
-    // First, let's try to create the helper functions we need
-    const helperFunctions = `
-      CREATE OR REPLACE FUNCTION bump_version()
-      RETURNS TRIGGER AS $$
-      BEGIN
-        NEW.version = OLD.version + 1;
-        NEW.updated_at = NOW();
-        RETURN NEW;
-      END;
-      $$ LANGUAGE plpgsql;
-      
-      CREATE OR REPLACE FUNCTION check_table_exists(table_name text)
-      RETURNS boolean AS $$
-      BEGIN
-        RETURN EXISTS (
-          SELECT 1 FROM information_schema.tables 
-          WHERE table_schema = 'public' AND table_name = $1
-        );
-      END;
-      $$ LANGUAGE plpgsql SECURITY DEFINER;
+    // Get the migration SQL content
+    const migrationSQL = `
+-- Migration V1: Initial schema for offline-first expense tracker
+-- Create app_migrations table to track migration state (if not exists)
+CREATE TABLE IF NOT EXISTS app_migrations (
+  id SERIAL PRIMARY KEY,
+  version INTEGER NOT NULL UNIQUE,
+  name TEXT NOT NULL,
+  applied_at TIMESTAMPTZ DEFAULT NOW(),
+  checksum TEXT
+);
+
+-- Categories table
+CREATE TABLE IF NOT EXISTS categories (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  icon TEXT,
+  color TEXT DEFAULT '#2196F3',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  version INTEGER DEFAULT 1,
+  is_deleted BOOLEAN DEFAULT FALSE,
+  device_id TEXT,
+  last_editor TEXT
+);
+
+-- Accounts table  
+CREATE TABLE IF NOT EXISTS accounts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  type TEXT NOT NULL DEFAULT 'cash',
+  balance DECIMAL(12,2) DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  version INTEGER DEFAULT 1,
+  is_deleted BOOLEAN DEFAULT FALSE,
+  device_id TEXT,
+  last_editor TEXT
+);
+
+-- Expenses table
+CREATE TABLE IF NOT EXISTS expenses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  amount DECIMAL(12,2) NOT NULL,
+  category_id UUID REFERENCES categories(id),
+  account_id UUID REFERENCES accounts(id),
+  date DATE NOT NULL,
+  description TEXT,
+  receipt_photo_id UUID,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  version INTEGER DEFAULT 1,
+  is_deleted BOOLEAN DEFAULT FALSE,
+  device_id TEXT,
+  last_editor TEXT
+);
+
+-- Budgets table
+CREATE TABLE IF NOT EXISTS budgets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  amount DECIMAL(12,2) NOT NULL,
+  category_id UUID REFERENCES categories(id),
+  period TEXT NOT NULL DEFAULT 'monthly',
+  start_date DATE,
+  end_date DATE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  version INTEGER DEFAULT 1,
+  is_deleted BOOLEAN DEFAULT FALSE,
+  device_id TEXT,
+  last_editor TEXT
+);
+
+-- Create indexes for performance and sync
+CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(date);
+CREATE INDEX IF NOT EXISTS idx_expenses_category_id ON expenses(category_id);
+CREATE INDEX IF NOT EXISTS idx_expenses_updated_at ON expenses(updated_at);
+CREATE INDEX IF NOT EXISTS idx_categories_updated_at ON categories(updated_at);
+CREATE INDEX IF NOT EXISTS idx_accounts_updated_at ON accounts(updated_at);
+CREATE INDEX IF NOT EXISTS idx_budgets_updated_at ON budgets(updated_at);
+
+-- Sync-related indexes
+CREATE INDEX IF NOT EXISTS idx_expenses_version ON expenses(version);
+CREATE INDEX IF NOT EXISTS idx_categories_version ON categories(version);
+CREATE INDEX IF NOT EXISTS idx_accounts_version ON accounts(version);
+CREATE INDEX IF NOT EXISTS idx_budgets_version ON budgets(version);
+
+-- Version bump trigger function
+CREATE OR REPLACE FUNCTION bump_version()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.version = OLD.version + 1;
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create version bump triggers for all tables
+DROP TRIGGER IF EXISTS categories_version_trigger ON categories;
+CREATE TRIGGER categories_version_trigger
+  BEFORE UPDATE ON categories
+  FOR EACH ROW EXECUTE FUNCTION bump_version();
+
+DROP TRIGGER IF EXISTS accounts_version_trigger ON accounts;
+CREATE TRIGGER accounts_version_trigger
+  BEFORE UPDATE ON accounts
+  FOR EACH ROW EXECUTE FUNCTION bump_version();
+
+DROP TRIGGER IF EXISTS expenses_version_trigger ON expenses;
+CREATE TRIGGER expenses_version_trigger
+  BEFORE UPDATE ON expenses
+  FOR EACH ROW EXECUTE FUNCTION bump_version();
+
+DROP TRIGGER IF EXISTS budgets_version_trigger ON budgets;
+CREATE TRIGGER budgets_version_trigger
+  BEFORE UPDATE ON budgets
+  FOR EACH ROW EXECUTE FUNCTION bump_version();
+
+-- Enable Row Level Security
+ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE accounts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE expenses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE budgets ENABLE ROW LEVEL SECURITY;
+
+-- Basic RLS Policies (allow all for now - will be restricted per user in future)
+DROP POLICY IF EXISTS "Allow all access to categories" ON categories;
+CREATE POLICY "Allow all access to categories" ON categories FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Allow all access to accounts" ON accounts;
+CREATE POLICY "Allow all access to accounts" ON accounts FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Allow all access to expenses" ON expenses;
+CREATE POLICY "Allow all access to expenses" ON expenses FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Allow all access to budgets" ON budgets;
+CREATE POLICY "Allow all access to budgets" ON budgets FOR ALL USING (true);
+
+-- Helper functions for sync operations
+CREATE OR REPLACE FUNCTION check_table_exists(table_name text)
+RETURNS boolean AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 
+    FROM information_schema.tables 
+    WHERE table_schema = 'public' 
+    AND table_name = $1
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to execute SQL (used by Edge Functions for migrations)
+CREATE OR REPLACE FUNCTION exec_sql(sql text)
+RETURNS void AS $$
+BEGIN
+  EXECUTE sql;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Insert default categories
+INSERT INTO categories (name, icon, color) VALUES 
+  ('Food & Dining', '🍽️', '#FF6B6B'),
+  ('Transportation', '🚗', '#4ECDC4'),
+  ('Shopping', '🛍️', '#45B7D1'),
+  ('Entertainment', '🎬', '#96CEB4'),
+  ('Bills & Utilities', '⚡', '#FFEAA7'),
+  ('Health & Medical', '🏥', '#DDA0DD'),
+  ('Travel', '✈️', '#98D8C8'),
+  ('Education', '📚', '#F7DC6F'),
+  ('Other', '📦', '#BDC3C7')
+ON CONFLICT DO NOTHING;
+
+-- Insert default account
+INSERT INTO accounts (name, type, balance) VALUES 
+  ('Cash', 'cash', 0.00),
+  ('Bank Account', 'bank', 0.00)
+ON CONFLICT DO NOTHING;
+
+-- Record this migration
+INSERT INTO app_migrations (version, name, checksum) VALUES 
+  (1, 'Initial offline-first sync tables', 'v1-initial-schema')
+ON CONFLICT (version) DO NOTHING;
     `
+
+    // Execute migration via the Supabase Admin client
+    // Use the raw SQL execution capabilities of the service role
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     
-    // Try to create functions via the service role client
-    try {
-      // Instead of trying RPC calls that may not exist, let's create tables directly
-      // by attempting operations on them and handling errors gracefully
+    console.log('Executing migration SQL via Supabase service role...')
+    
+    // Use the raw SQL API endpoint to execute the migration
+    const response = await fetch(`${supabaseUrl}/rest/v1/rpc/exec_sql`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${supabaseServiceKey}`,
+        'apikey': supabaseServiceKey,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ sql: migrationSQL })
+    }).catch(async (error) => {
+      // If exec_sql doesn't exist yet, we need to create it first
+      console.log('exec_sql function not found, creating helper functions first...')
       
-      // Test if categories table exists by trying to query it
-      const { error: categoriesError } = await supabase.from('categories').select('id').limit(1)
-      if (categoriesError && categoriesError.code === 'PGRST116') {
-        // Table doesn't exist, skip creation attempt - it will be handled by database
-        details.warnings!.push('Tables need to be created manually via Supabase Dashboard')
+      // Create the helper function first using a direct SQL execution approach
+      const helperSQL = `
+        CREATE OR REPLACE FUNCTION exec_sql(sql text)
+        RETURNS void AS $$
+        BEGIN
+          EXECUTE sql;
+        END;
+        $$ LANGUAGE plpgsql SECURITY DEFINER;
+      `
+      
+      // Try to create the function using direct PostgREST API
+      const createHelperResponse = await fetch(`${supabaseUrl}/rest/v1/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/vnd.pgrst.object+json;columns=1',
+          'Authorization': `Bearer ${supabaseServiceKey}`,
+          'apikey': supabaseServiceKey,
+          'Prefer': 'return=minimal'
+        },
+        body: helperSQL
+      })
+      
+      if (!createHelperResponse.ok) {
+        console.log('Could not create helper function, trying alternative approach...')
+        // Alternative: execute migration in chunks
+        return await executeMigrationInChunks(supabase, migrationSQL, details)
       }
       
-      // Similarly for other tables
-      const tables = ['accounts', 'expenses', 'budgets']
-      let missingTables = []
-      
-      for (const table of tables) {
-        const { error } = await supabase.from(table).select('id').limit(1)
-        if (error && error.code === 'PGRST116') {
-          missingTables.push(table)
-        }
-      }
-      
-      if (missingTables.length > 0) {
-        details.warnings!.push(`Missing tables: ${missingTables.join(', ')} - please run SQL migration manually`)
-        details.errors!.push('Database schema not found - manual migration required')
-        return
-      }
-      
-      details.tables!.push('categories', 'accounts', 'expenses', 'budgets')
-      
-    } catch (error) {
-      details.errors!.push(`Table creation check failed: ${error.message}`)
-      return
+      // Now try the original request again
+      return await fetch(`${supabaseUrl}/rest/v1/rpc/exec_sql`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseServiceKey}`,
+          'apikey': supabaseServiceKey,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ sql: migrationSQL })
+      })
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`Migration execution failed: ${response.status} - ${errorText}`)
     }
 
-    // Record migration if we get here
-    await supabase
-      .from('app_migrations')
-      .insert({
-        version: 1,
-        name: 'Initial offline-first sync tables',
-        checksum: 'v1-initial-schema'
-      })
-
-    details.migrations!.push('Migration V1 validation completed')
+    details.migrations!.push('Migration V1 applied successfully')
+    details.tables!.push('categories', 'accounts', 'expenses', 'budgets', 'app_migrations')
+    details.triggers!.push('Version bump triggers created')
+    details.rls!.push('RLS policies enabled')
     
-    console.log('Migration V1 check completed')
+    console.log('Migration V1 completed successfully')
 
   } catch (error) {
     details.errors!.push(`Migration V1 failed: ${error.message}`)
     console.error('Migration V1 error:', error)
+    
+    // Try fallback approach
+    await executeMigrationInChunks(supabase, '', details)
+  }
+}
+
+/**
+ * Fallback method to execute migration using table-by-table operations
+ */
+async function executeMigrationInChunks(supabase: any, migrationSQL: string, details: BootstrapResponse['details']) {
+  try {
+    console.log('Using fallback chunked migration approach...')
+    
+    // Test if categories table exists by trying to query it
+    const { error: categoriesError } = await supabase.from('categories').select('id').limit(1)
+    
+    if (categoriesError && categoriesError.code === 'PGRST116') {
+      // Tables don't exist - this means we need manual setup
+      details.errors!.push('Database schema not found - manual migration required')
+      details.warnings!.push('Please run the SQL migration manually via Supabase Dashboard')
+      details.warnings!.push('Navigate to SQL Editor and execute: supabase/migrations/0001_initial_schema.sql')
+      return
+    }
+    
+    // Tables exist, validate them
+    const tables = ['categories', 'accounts', 'expenses', 'budgets']
+    for (const table of tables) {
+      const { error } = await supabase.from(table).select('id').limit(1)
+      if (error && error.code === 'PGRST116') {
+        details.errors!.push(`Table ${table} missing`)
+      } else {
+        details.tables!.push(`${table} (validated)`)
+      }
+    }
+    
+    // If we get here without major errors, record the migration as complete
+    if (details.errors!.length === 0) {
+      await supabase
+        .from('app_migrations')
+        .upsert({
+          version: 1,
+          name: 'Initial offline-first sync tables',
+          checksum: 'v1-initial-schema'
+        })
+        
+      details.migrations!.push('Migration V1 recorded as complete')
+    }
+    
+  } catch (error) {
+    details.errors!.push(`Chunked migration failed: ${error.message}`)
   }
 }
 
@@ -421,7 +585,7 @@ async function refreshPostgRESTCache(supabase: any, details: BootstrapResponse['
   try {
     // PostgREST automatically reloads schema every 10 seconds, but we can try to notify it
     // by making a request to a schema endpoint
-    const supabaseUrl = Deno.env.get('DATABASE_URL')!
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     
     // Try to notify PostgREST about schema changes using the reload endpoint
     const reloadResponse = await fetch(`${supabaseUrl}/rest/v1/`, {

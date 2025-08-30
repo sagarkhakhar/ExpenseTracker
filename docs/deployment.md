@@ -238,8 +238,8 @@ keytool -genkey -v -keystore upload-keystore.jks -keyalg RSA \
 
 # Create key.properties (add to android/ directory)
 cat > android/key.properties << EOF
-storePassword=yourStorePassword
-keyPassword=yourKeyPassword  
+storePassword=YOUR_STORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD  
 keyAlias=upload
 storeFile=../upload-keystore.jks
 EOF

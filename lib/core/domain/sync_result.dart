@@ -22,6 +22,9 @@ class SyncResult {
 
   Duration get duration => endTime.difference(startTime);
 
+  /// Convenience getter for success status
+  bool get isSuccess => success;
+
   /// Create a successful sync result
   factory SyncResult.success({
     required SyncPhaseResults outboundResults,

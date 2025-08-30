@@ -58,14 +58,14 @@ supabase functions deploy bootstrap
 ### For Local Development
 
 The Supabase CLI will automatically provide:
-- `DATABASE_URL` - Local API URL (http://localhost:54321)
+- `SUPABASE_URL` - Local API URL (http://localhost:54321)
 - `SUPABASE_ANON_KEY` - Anonymous key for client access
 - `SUPABASE_SERVICE_ROLE_KEY` - Service role key for admin operations
 
 ### For Production
 
 Set these in your Supabase project dashboard:
-- `DATABASE_URL` - Your project URL
+- `SUPABASE_URL` - Your project URL
 - `SUPABASE_ANON_KEY` - Project anonymous key
 - `SUPABASE_SERVICE_ROLE_KEY` - Project service role key (for Edge Functions only)
 

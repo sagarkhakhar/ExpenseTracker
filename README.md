@@ -1654,8 +1654,8 @@ flutter build apk --target-platform android-arm,android-arm64,android-x64
 keytool -genkey -v -keystore upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
 
 # Create key.properties file
-echo "storePassword=myStorePassword
-keyPassword=myKeyPassword
+echo "storePassword=YOUR_STORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
 keyAlias=upload
 storeFile=../upload-keystore.jks" > android/key.properties
 ```

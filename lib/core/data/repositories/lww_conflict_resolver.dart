@@ -134,3 +134,8 @@ class LWWConflictResolver {
     }
   }
 }
+
+/// Implementation of LWW conflict resolver
+class LWWConflictResolverImpl extends LWWConflictResolver {
+  // Inherits all functionality from LWWConflictResolver
+}

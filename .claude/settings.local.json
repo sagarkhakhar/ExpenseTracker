@@ -31,7 +31,11 @@
       "Bash(supabase services restart:*)",
       "Bash(supabase:*)",
       "Bash(flutter:*)",
-      "Bash(git check-ignore:*)"
+      "Bash(git check-ignore:*)",
+      "Bash(sed:*)",
+      "Bash(adb shell:*)",
+      "Bash(git grep:*)",
+      "Bash(./scripts/security_audit.sh:*)"
     ],
     "deny": [],
     "ask": []
