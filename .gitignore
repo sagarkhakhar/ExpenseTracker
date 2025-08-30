@@ -269,4 +269,248 @@ supabase/volumes/storage/
 supabase/volumes/logs/
 
 # Claude Code local settings (may contain sensitive configurations)
-.claude/settings.local.json 
+.claude/settings.local.json
+
+# ============================================================================
+# 🚨 MODERN SECURITY ADDITIONS - 2024/2025 AI DEVELOPMENT TOOLS
+# ============================================================================
+
+# AI Development Tools & Configuration Files
+.cursor/
+.cursor*
+.copilot*
+.anthropic*
+.openai*
+.ai/
+ai-config.json
+.clauderc
+.claude-config.json
+
+# AI API Keys and Configuration
+OPENAI_API_KEY
+ANTHROPIC_API_KEY
+CLAUDE_API_KEY
+GEMINI_API_KEY
+.ai-keys
+ai_credentials.json
+
+# Modern Development Tools
+.devcontainer/
+devcontainer.json
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Dependency Lock Files (additional patterns)
+bun.lockb
+deno.lock
+.pdm-python
+Pipfile.lock
+poetry.lock
+.cargo/
+
+# Modern Package Managers
+.pnpm/
+node_modules/
+bower_components/
+jspm_packages/
+
+# Development Database Files
+*.sqlite
+*.sqlite3
+*.db3
+*.s3db
+*.sl3
+*.realm
+*.mmdb
+
+# Performance and Profiling Files
+*.heapsnapshot
+*.prof
+*.profiles
+perf.data*
+*.speedscope
+
+# Modern Build Tools
+.parcel-cache/
+.vercel/
+.netlify/
+.nuxt/
+.next/
+out/
+dist/
+.output/
+.nitro/
+
+# Container and Virtualization
+Dockerfile.local
+docker-compose.dev.yml
+.vagrant/
+*.box
+.dockerignore.local
+
+# Certificate and Security Files
+*.crt
+*.cert
+*.cer
+*.p8
+*.mobileprovision
+*.certSigningRequest
+*.csr
+*.der
+
+# Modern Editor Configurations (may contain sensitive paths)
+.helix/
+.vim/
+.nvim/
+*.sublime-workspace
+*.code-workspace.local
+
+# Temporary Development Files
+.scratch/
+.playground/
+.sandbox/
+*.draft
+*.wip
+*.todo.md
+
+# Modern Testing and Coverage Tools
+.nyc_output/
+jest_*
+cypress/videos/
+cypress/screenshots/
+playwright-report/
+test-results/
+
+# Development Cache Directories
+.rollup.cache/
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# OS and Shell History (potential credential exposure)
+.bash_history
+.zsh_history
+.fish_history
+.python_history
+.node_repl_history
+
+# Backup Files from Various Tools
+*~
+.#*
+#*#
+*.orig
+*.rej
+*.patch
+*.diff
+*.conflict
+
+# Archive Files (often contain sensitive data)
+*.zip
+*.rar
+*.7z
+*.tar
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.gz
+*.bz2
+*.xz
+
+# Exceptions for legitimate archives in project
+!docs/**/*.zip
+!assets/**/*.zip
+
+# ============================================================================
+# 🔐 ENHANCED SECURITY PATTERNS FOR FLUTTER/DART PROJECTS
+# ============================================================================
+
+# Additional Flutter/Dart Secret Patterns
+lib/**/secrets/
+lib/**/credentials/
+lib/**/*_secret.dart
+lib/**/*_key.dart
+lib/**/*_token.dart
+lib/**/*_password.dart
+
+# Flutter Build Variants Configuration
+android/app/src/debug/
+android/app/src/release/
+android/app/src/profile/
+
+# Flutter Web Sensitive Files
+web/*.env
+web/firebase-messaging-sw.js.bak
+web/manifest.json.bak
+
+# Flutter Windows Sensitive Files
+windows/runner/Runner.rc.bak
+windows/runner/resources/
+
+# Flutter Linux Sensitive Files  
+linux/snap/
+linux/*.desktop.bak
+
+# Flutter macOS Sensitive Files
+macos/Runner/Configs/
+macos/Runner/*.entitlements.bak
+macos/Runner/Info.plist.bak
+
+# Additional Hive Database Protection
+*.hive_generator.dart
+data/
+storage/
+cache/
+user_data/
+
+# Sensitive Test Data
+test_data/
+fixtures/sensitive/
+test/fixtures/credentials/
+integration_test/sensitive/
+
+# Development Scripts That May Contain Secrets
+scripts/*_prod.sh
+scripts/*_deploy.sh
+scripts/setup_*.sh
+deploy.sh
+*.deploy.sh
+
+# ============================================================================
+# 🛡️ FINAL SECURITY VALIDATIONS
+# ============================================================================
+
+# Ensure VS Code settings don't leak credentials
+.vscode/settings.json.bak
+.vscode/tasks.json.bak
+.vscode/launch.json.bak
+
+# Protect any accidentally created credential files
+*_credentials.*
+*_secrets.*
+*_keys.*
+*_tokens.*
+*_password.*
+*_auth.*
+
+# Modern environment file variations
+.env.*
+!.env.example
+!.env.template
+!.env.sample
+
+# Generic sensitive file patterns
+secret.*
+credential.*
+password.*
+key.*
+token.*
+auth.*
+
+# But allow legitimate public files
+!README*
+!LICENSE*
+!CHANGELOG*
+!*.md
+!docs/**
+!assets/**
