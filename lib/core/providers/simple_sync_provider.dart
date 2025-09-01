@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 import '../../features/expense/data/models/expense_model.dart';
 import '../debug/supabase_diagnostic.dart';
 
@@ -21,9 +22,13 @@ class SimpleSyncService {
       await SupabaseDiagnostic.testConnection();
       await SupabaseDiagnostic.testExpenseTableAccess();
       
+      // Convert integer IDs to proper UUIDs for Supabase compatibility
+      final supabaseId = _ensureValidUUID(expense.id);
+      debugPrint('   Original ID: ${expense.id}, Supabase ID: $supabaseId');
+      
       // Convert expense to Supabase format
       final expenseData = {
-        'id': expense.id,
+        'id': supabaseId,
         'title': expense.title,
         'description': expense.description,
         'amount': expense.amount,
@@ -64,6 +69,37 @@ class SimpleSyncService {
       debugPrint('❌ Supabase connectivity test failed: $e');
       return false;
     }
+  }
+  
+  /// Convert legacy integer IDs to UUIDs for Supabase compatibility
+  /// If the ID is already a valid UUID, return it as-is
+  /// If it's an integer string, generate a deterministic UUID based on it
+  String _ensureValidUUID(String id) {
+    // Check if it's already a valid UUID format
+    final uuidRegex = RegExp(r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$');
+    
+    if (uuidRegex.hasMatch(id)) {
+      // Already a valid UUID, return as-is
+      return id;
+    }
+    
+    // For legacy integer IDs, create a deterministic UUID
+    // This ensures the same integer ID always maps to the same UUID
+    const uuid = Uuid();
+    
+    // Parse integer and create a deterministic seed
+    final intId = int.tryParse(id);
+    if (intId != null) {
+      // Create a namespace-based UUID using the integer
+      // This ensures consistency across syncs
+      final namespace = '6ba7b810-9dad-11d1-80b4-00c04fd430c8'; // Standard namespace UUID
+      final name = 'expense_$intId';
+      return uuid.v5(namespace, name);
+    }
+    
+    // If all else fails, generate a new random UUID
+    // This shouldn't happen but provides a fallback
+    return uuid.v4();
   }
 }
 
