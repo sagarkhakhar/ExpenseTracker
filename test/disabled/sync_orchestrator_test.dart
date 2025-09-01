@@ -10,7 +10,6 @@ import 'package:expense_tracker/core/data/datasources/remote_data_source.dart';
 import 'package:expense_tracker/core/data/repositories/lww_conflict_resolver.dart';
 import 'package:expense_tracker/core/data/mappers/sync_mapper.dart';
 import 'package:expense_tracker/core/domain/sync_status.dart';
-import 'package:expense_tracker/core/domain/sync_result.dart';
 import 'package:expense_tracker/core/domain/result.dart';
 import 'package:expense_tracker/core/domain/errors/sync_errors.dart';
 import 'package:expense_tracker/core/data/dtos/expense_dto.dart';
@@ -166,7 +165,7 @@ void main() {
             .thenAnswer((_) async => const Result.success([]));
 
         // Setup: Sync metadata
-        when(mockLocalDataSource.getSyncMetadata())
+        when(mockLocalDataSource.getSyncMetadata(any))
             .thenAnswer((_) async => null);
 
         final result = await syncOrchestrator.performInboundSync();
@@ -208,9 +207,9 @@ void main() {
         when(mockRemoteDataSource.pullBudgetDeltas(userId: anyNamed('userId'), lastSyncAt: any))
             .thenAnswer((_) async => const Result.success([]));
 
-        when(mockLocalDataSource.getSyncMetadata())
+        when(mockLocalDataSource.getSyncMetadata(any))
             .thenAnswer((_) async => null);
-        when(mockLocalDataSource.updateLastSuccessfulSync(any))
+        when(mockLocalDataSource.updateLastSuccessfulSync(any, any))
             .thenAnswer((_) async {});
 
         final result = await syncOrchestrator.performFullSync();
@@ -219,7 +218,7 @@ void main() {
         expect(syncOrchestrator.currentStatus, SyncStatus.completed);
         expect(syncOrchestrator.lastSyncResult, isNotNull);
         
-        verify(mockLocalDataSource.updateLastSuccessfulSync(any)).called(1);
+        verify(mockLocalDataSource.updateLastSuccessfulSync(any, any)).called(1);
       });
 
       test('should handle failure in outbound phase of full sync', () async {
@@ -270,8 +269,8 @@ void main() {
               ));
             });
 
-        when(mockLocalDataSource.getSyncMetadata()).thenAnswer((_) async => null);
-        when(mockLocalDataSource.updateLastSuccessfulSync(any)).thenAnswer((_) async {});
+        when(mockLocalDataSource.getSyncMetadata(any)).thenAnswer((_) async => null);
+        when(mockLocalDataSource.updateLastSuccessfulSync(any, any)).thenAnswer((_) async {});
 
         // Mock inbound calls
         when(mockRemoteDataSource.pullExpenseDeltas(userId: anyNamed('userId'), lastSyncAt: any))
@@ -324,8 +323,8 @@ void main() {
         when(mockRemoteDataSource.pullBudgetDeltas(userId: anyNamed('userId'), lastSyncAt: any))
             .thenAnswer((_) async => const Result.success([]));
 
-        when(mockLocalDataSource.getSyncMetadata()).thenAnswer((_) async => null);
-        when(mockLocalDataSource.updateLastSuccessfulSync(any)).thenAnswer((_) async {});
+        when(mockLocalDataSource.getSyncMetadata(any)).thenAnswer((_) async => null);
+        when(mockLocalDataSource.updateLastSuccessfulSync(any, any)).thenAnswer((_) async {});
 
         await syncOrchestrator.performFullSync();
         
@@ -344,8 +343,8 @@ void main() {
     group('Full Resync', () {
       test('should perform full resync by clearing cursors', () async {
         // Setup mocks
-        when(mockLocalDataSource.clearAllSyncCursors()).thenAnswer((_) async {
-          return null;
+        when(mockLocalDataSource.clearAllSyncMetadata()).thenAnswer((_) async {
+          return;
         });
         when(mockMutationQueueService.getQueueStats())
             .thenAnswer((_) async => const Result.success(MutationQueueStats(
@@ -363,13 +362,13 @@ void main() {
         when(mockRemoteDataSource.pullBudgetDeltas(userId: anyNamed('userId'), lastSyncAt: any))
             .thenAnswer((_) async => const Result.success([]));
 
-        when(mockLocalDataSource.getSyncMetadata()).thenAnswer((_) async => null);
-        when(mockLocalDataSource.updateLastSuccessfulSync(any)).thenAnswer((_) async {});
+        when(mockLocalDataSource.getSyncMetadata(any)).thenAnswer((_) async => null);
+        when(mockLocalDataSource.updateLastSuccessfulSync(any, any)).thenAnswer((_) async {});
 
         final result = await syncOrchestrator.performFullResync();
 
         expect(result.success, true);
-        verify(mockLocalDataSource.clearAllSyncCursors()).called(1);
+        verify(mockLocalDataSource.clearAllSyncMetadata()).called(1);
       });
     });
 

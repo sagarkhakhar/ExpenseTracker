@@ -35,7 +35,8 @@
       "Bash(sed:*)",
       "Bash(adb shell:*)",
       "Bash(git grep:*)",
-      "Bash(./scripts/security_audit.sh:*)"
+      "Bash(./scripts/security_audit.sh:*)",
+      "Bash(dart compile:*)"
     ],
     "deny": [],
     "ask": []

@@ -10,6 +10,7 @@ import '../data/datasources/local_data_source_impl.dart';
 import '../data/mappers/sync_mapper.dart';
 import '../domain/sync_result.dart';
 import '../domain/sync_status.dart';
+import '../services/authentication_service.dart';
 
 /// Provider for Supabase client instance
 final supabaseClientProvider = Provider<SupabaseClient>((ref) {
@@ -76,7 +77,11 @@ final syncOrchestratorProvider = Provider<SyncOrchestrator>((ref) {
 /// Provider to trigger outbound sync (fire and forget)
 final outboundSyncProvider = FutureProvider<SyncResult>((ref) async {
   final orchestrator = ref.read(syncOrchestratorProvider);
-  return orchestrator.performOutboundSync();
+  final authService = ref.read(authenticationServiceProvider);
+  
+  final userId = authService.currentUserId ?? 'anonymous';
+  
+  return orchestrator.performOutboundSync(userId: userId);
 });
 
 /// Provider to check sync connectivity
@@ -148,7 +153,11 @@ class ManualSyncNotifier extends StateNotifier<AsyncValue<SyncResult?>> {
 
     try {
       final orchestrator = _ref.read(syncOrchestratorProvider);
-      final result = await orchestrator.performFullSync();
+      final authService = _ref.read(authenticationServiceProvider);
+      
+      final userId = authService.currentUserId ?? 'anonymous';
+      
+      final result = await orchestrator.performFullSync(userId: userId);
       
       state = AsyncValue.data(result);
       

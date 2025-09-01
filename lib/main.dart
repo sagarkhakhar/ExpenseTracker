@@ -8,11 +8,13 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'shared/theme/app_theme.dart';
 import 'features/expense/presentation/views/home_screen.dart';
 import 'presentation/startup/startup_gate.dart';
+import 'presentation/auth/authentication_gate.dart';
+import 'core/routing/app_router.dart';
 import 'features/expense/data/models/expense_model.dart';
-import 'features/expense/presentation/views/add_expense_screen.dart';
 import 'features/expense/domain/entities/expense.dart';
 import 'features/budget/data/models/budget_model.dart';
 import 'features/expense/data/models/receipt_photo_model.dart';
@@ -32,6 +34,9 @@ void main() async {
   // Ensure Flutter bindings are initialized (required for async operations)
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize Supabase first (required before using any Supabase features)
+  await _initializeSupabase();
+
   // Initialize Hive for local database storage
   // Hive is a lightweight, fast NoSQL database for Flutter
   await Hive.initFlutter();
@@ -46,6 +51,39 @@ void main() async {
 
   // Launch the app immediately with loading screen
   runApp(const ProviderScope(child: ExpenseTrackerApp()));
+}
+
+/// Initialize Supabase client with environment configuration
+Future<void> _initializeSupabase() async {
+  // Get configuration from environment variables
+  const supabaseUrl = String.fromEnvironment('SUPABASE_URL',
+      defaultValue: 'http://127.0.0.1:54321'); // Local dev server default
+  const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY',
+      defaultValue:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'); // Default local anon key
+
+  try {
+    // Initialize Supabase client
+    await Supabase.initialize(
+      url: supabaseUrl,
+      anonKey: supabaseAnonKey,
+      authOptions: const FlutterAuthClientOptions(
+        authFlowType: AuthFlowType.pkce, // Use PKCE for secure auth
+      ),
+    );
+
+    // Debug log for successful initialization
+    debugPrint('🔗 Supabase initialized successfully');
+    debugPrint('🔗 URL: $supabaseUrl');
+    debugPrint('🔗 Client ready: ${Supabase.instance.client.auth}');
+  } catch (e, stackTrace) {
+    // Log initialization error but don't crash the app
+    debugPrint('❌ Supabase initialization failed: $e');
+    debugPrint('📍 Stack trace: $stackTrace');
+
+    // For development, we can still run the app in offline-only mode
+    debugPrint('⚠️ Running in offline-only mode');
+  }
 }
 
 /// Register Hive adapters with conflict prevention and performance optimization
@@ -110,9 +148,13 @@ class ExpenseTrackerApp extends ConsumerWidget {
       return CupertinoApp(
         title: AppLocalizations.of(context)?.appTitle ?? 'Expense Tracker',
         theme: AppTheme.getCupertinoTheme(Brightness.light),
-        home: const StartupGate(child: HomeScreen()),
+        home: const StartupGate(
+          child: AuthenticationGate(
+            child: HomeScreen(),
+          ),
+        ),
+        onGenerateRoute: AppRouter.onGenerateRoute,
         debugShowCheckedModeBanner: false,
-        routes: {'/add-expense': (context) => const AddExpenseScreen()},
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
       );
@@ -123,9 +165,13 @@ class ExpenseTrackerApp extends ConsumerWidget {
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: ThemeMode.system, // Automatically adapts to system theme
-        home: const StartupGate(child: HomeScreen()),
+        home: const StartupGate(
+          child: AuthenticationGate(
+            child: HomeScreen(),
+          ),
+        ),
+        onGenerateRoute: AppRouter.onGenerateRoute,
         debugShowCheckedModeBanner: false,
-        routes: {'/add-expense': (context) => const AddExpenseScreen()},
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
       );

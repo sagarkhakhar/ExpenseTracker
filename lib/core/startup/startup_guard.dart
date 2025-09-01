@@ -212,6 +212,9 @@ class StartupGuardNotifier extends AutoDisposeAsyncNotifier<StartupState> {
         anonKey: config.supabaseAnonKey,
       );
       
+      // Skip authentication - will be handled by auth flow
+      debugPrint('🔐 Skipping authentication - will be handled by auth flow...');
+      
       debugPrint('📡 Calling bootstrap Edge Function...');
       
       // Call bootstrap Edge Function
@@ -291,6 +294,7 @@ class StartupGuardNotifier extends AutoDisposeAsyncNotifier<StartupState> {
       );
     }
   }
+
 
   /// Get diagnostic information
   Map<String, dynamic> getDiagnostics() {
