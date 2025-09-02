@@ -120,11 +120,18 @@ show_containers() {
 test_connection() {
     print_status "Testing Supabase connection..."
     
-    if [[ -f "test_supabase_connection.dart" ]]; then
-        dart test_supabase_connection.dart
+    # Test the correct API endpoint, not /health which doesn't exist
+    if curl -s http://127.0.0.1:54321/rest/v1/ > /dev/null 2>&1; then
+        print_success "Supabase API is responding correctly"
+        print_status "Testing database connection..."
+        if psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -c "SELECT version();" > /dev/null 2>&1; then
+            print_success "Database connection successful"
+        else
+            print_warning "Database connection failed"
+        fi
     else
-        print_warning "Connection test script not found"
-        print_status "Manual test: Check if http://127.0.0.1:54321/health responds"
+        print_error "Supabase API not responding at http://127.0.0.1:54321/rest/v1/"
+        print_status "Manual test: Check if http://127.0.0.1:54321/rest/v1/ responds"
     fi
 }
 

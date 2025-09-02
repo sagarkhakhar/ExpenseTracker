@@ -613,7 +613,7 @@ If something isn't working automatically:
    ./scripts/supabase-docker.sh status
    
    # Test connectivity
-   curl http://127.0.0.1:54321/health
+   curl http://127.0.0.1:54321/rest/v1/
    ```
 
 3. **Reset and Retry**:
