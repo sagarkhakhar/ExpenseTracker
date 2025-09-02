@@ -276,9 +276,8 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Add constraints to ensure data integrity
-ALTER TABLE categories 
-ADD CONSTRAINT categories_user_or_shared_check 
-CHECK (user_id IS NOT NULL OR id IN (SELECT id FROM shared_categories));
+-- Note: Subquery check constraints not supported in PostgreSQL
+-- Data integrity will be enforced through RLS policies instead
 
 -- Update existing null user_id records to maintain referential integrity
 -- This is a temporary measure until full migration is complete

@@ -63,49 +63,49 @@ GROUP BY user_id, DATE_TRUNC('hour', created_at)
 ORDER BY hour DESC, total_queries DESC;
 
 -- Enhanced indexes for common query patterns
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_expenses_user_date_amount 
+CREATE INDEX IF NOT EXISTS idx_expenses_user_date_amount 
 ON expenses(user_id, date DESC, amount DESC) 
 WHERE NOT is_deleted;
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_expenses_user_category_date 
+CREATE INDEX IF NOT EXISTS idx_expenses_user_category_date 
 ON expenses(user_id, category_id, date DESC) 
 WHERE NOT is_deleted;
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_budgets_user_period 
+CREATE INDEX IF NOT EXISTS idx_budgets_user_period 
 ON budgets(user_id, period, start_date, end_date) 
 WHERE NOT is_deleted;
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_categories_user_name 
+CREATE INDEX IF NOT EXISTS idx_categories_user_name 
 ON categories(user_id, name) 
 WHERE NOT is_deleted;
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_financial_goals_user_target_date 
+CREATE INDEX IF NOT EXISTS idx_financial_goals_user_target_date 
 ON financial_goals(user_id, target_date, is_achieved) 
 WHERE NOT is_deleted;
 
 -- Partial indexes for soft-deleted records
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_expenses_deleted 
+CREATE INDEX IF NOT EXISTS idx_expenses_deleted 
 ON expenses(user_id, updated_at) 
 WHERE is_deleted = true;
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_categories_deleted 
+CREATE INDEX IF NOT EXISTS idx_categories_deleted 
 ON categories(user_id, updated_at) 
 WHERE is_deleted = true;
 
 -- Composite indexes for sync operations
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_expenses_sync 
+CREATE INDEX IF NOT EXISTS idx_expenses_sync 
 ON expenses(user_id, updated_at, version) 
 WHERE NOT is_deleted;
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_categories_sync 
+CREATE INDEX IF NOT EXISTS idx_categories_sync 
 ON categories(user_id, updated_at, version) 
 WHERE NOT is_deleted;
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_accounts_sync 
+CREATE INDEX IF NOT EXISTS idx_accounts_sync 
 ON accounts(user_id, updated_at, version) 
 WHERE NOT is_deleted;
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_budgets_sync 
+CREATE INDEX IF NOT EXISTS idx_budgets_sync 
 ON budgets(user_id, updated_at, version) 
 WHERE NOT is_deleted;
 

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/auth/presentation/views/login_screen.dart';
 import '../../features/auth/presentation/views/sign_up_screen.dart';
@@ -7,7 +6,6 @@ import '../../features/auth/presentation/views/password_reset_screen.dart';
 import '../../features/auth/presentation/views/email_verification_screen.dart';
 import '../../features/expense/presentation/views/home_screen.dart';
 import '../../features/expense/presentation/views/add_expense_screen.dart';
-import '../providers/auth_providers.dart';
 
 /// Simple app router that handles authentication-aware routing
 class AppRouter {

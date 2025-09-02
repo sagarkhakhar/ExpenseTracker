@@ -35,6 +35,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `supabase db reset` - Reset database to initial state
 - `supabase secrets list` - List environment secrets
 
+### Docker Supabase Management
+- `./scripts/supabase-docker.sh start` - Start Supabase with Docker
+- `./scripts/supabase-docker.sh stop` - Stop all Supabase services
+- `./scripts/supabase-docker.sh status` - Check service status
+- `./scripts/supabase-docker.sh info` - Show connection details
+- `./scripts/supabase-docker.sh reset` - Reset database to stable state
+- `./scripts/supabase-docker.sh setup` - Full setup from scratch
+
+### Environment Management & Deployment
+- `flutter run` - Run on local Docker Supabase (default)
+- `flutter run --dart-define-from-file=.env.production` - Run on remote Supabase
+- `./scripts/deploy_schema_updates.sh` - Deploy local schema to remote
+- `./scripts/deploy_schema_updates.sh --dry-run` - Preview schema changes
+- `supabase link --project-ref YOUR_ID` - Link to remote Supabase project
+- `supabase db push --linked` - Push migrations to remote
+
 ## Architecture Overview
 
 This is a production-grade Flutter expense tracker application built using **Clean Architecture** with **MVVM** pattern and **Riverpod** state management.

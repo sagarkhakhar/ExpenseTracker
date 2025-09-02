@@ -1,242 +1,113 @@
-# Expense Tracker Documentation
+# 📖 ExpenseTracker Documentation
 
-Welcome to the comprehensive documentation for the Expense Tracker Flutter application. This documentation covers all aspects of the application, from architecture and features to development guidelines and deployment.
+Centralized documentation hub for the ExpenseTracker Flutter application.
 
-## 📚 Documentation Structure
+## 📚 Documentation Index
 
-### 🏗️ Architecture & System Design
+### 🚀 **Getting Started**
+Start here for initial setup and development:
 
-- **[System Overview](architecture/system-overview.md)** - Complete system architecture and design patterns
-- **Clean Architecture** - Domain, Data, and Presentation layer organization
-- **State Management** - Riverpod implementation and patterns
-- **Database Design** - Hive database schema and operations
+| Document | Description | For |
+|----------|-------------|-----|
+| **[../README.md](../README.md)** | 🏠 Main project README with quick start | Everyone |
+| **[../CLAUDE.md](../CLAUDE.md)** | 💻 Complete development guide & all commands | Developers |
 
-### 🎯 Feature Documentation
+### 🐳 **Local Development & Docker**
+Set up your local development environment:
 
-- **[Budget Management System](features/budget-management-system.md)** - Complete budget tracking functionality
-- **[Receipt Photo System](features/receipt-photo-system.md)** - Photo capture and management features
-- **[Advanced Filtering & Search](features/advanced-filtering-search.md)** - Powerful filtering and search capabilities
+| Document | Description | For |
+|----------|-------------|-----|
+| **[DOCKER_SUPABASE_SETUP.md](DOCKER_SUPABASE_SETUP.md)** | 🐳 Complete Docker setup guide for Supabase | Developers |
+| **[DEPLOYMENT_WORKFLOW.md](DEPLOYMENT_WORKFLOW.md)** | 🚀 Local to production deployment workflow | DevOps/Developers |
+| **[SCHEMA_MIGRATION_GUIDE.md](SCHEMA_MIGRATION_GUIDE.md)** | 🗄️ Database schema management guide | Backend/Developers |
 
-### 🛠️ Development Resources
+## 🎯 Quick Reference
 
-- **[Development Guide](development/development-guide.md)** - Complete development workflow and guidelines
-- **Code Standards** - Coding conventions and best practices
-- **Testing Strategy** - Comprehensive testing approach
-- **Performance Optimization** - Performance guidelines and optimization techniques
+### **New Developer Setup:**
+1. Read [Main README](../README.md) for project overview
+2. Follow [Quick Start](../README.md#-quick-start) for installation  
+3. Set up [Docker Supabase](DOCKER_SUPABASE_SETUP.md) for local backend
+4. Check [CLAUDE.md](../CLAUDE.md) for all available commands
 
-## 🚀 Quick Start
+### **Local Development:**
+```bash
+# Start local backend
+./scripts/supabase-docker.sh start
 
-### Prerequisites
+# Run Flutter app  
+flutter run
 
-- Flutter SDK (latest stable)
-- Dart SDK (latest stable)
-- Android Studio / VS Code
-- Git
+# See all commands in CLAUDE.md
+```
 
-### Installation
+### **Production Deployment:**
+```bash
+# Deploy schema changes
+./scripts/deploy_schema_updates.sh
+
+# Build for production
+flutter build apk --dart-define-from-file=.env.production
+```
+
+## 📋 Documentation Overview
+
+### 🏠 **[Main README](../README.md)**
+- Project overview and features
+- Quick start instructions
+- Architecture overview
+- Basic commands and troubleshooting
+
+### 💻 **[CLAUDE.md](../CLAUDE.md)**  
+- **Complete development reference**
+- All Flutter, Docker, and Supabase commands
+- Architecture details
+- Testing and deployment instructions
+- Code generation and build processes
+
+### 🐳 **[Docker Supabase Setup](DOCKER_SUPABASE_SETUP.md)**
+- Local development environment setup
+- Docker container management
+- Supabase service configuration
+- Connection testing and troubleshooting
+
+### 🚀 **[Deployment Workflow](DEPLOYMENT_WORKFLOW.md)**
+- Environment management (local → remote)
+- Schema deployment process
+- Production build configurations
+- Multi-environment setup
+
+### 🗄️ **[Schema Migration Guide](SCHEMA_MIGRATION_GUIDE.md)**
+- Database migration best practices
+- Local to remote schema deployment
+- Migration troubleshooting
+- Schema versioning
+
+## 🛠️ Quick Commands
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd ExpenseTracker
+# Development
+flutter run                                    # Start app
+flutter test                                   # Run tests
+flutter analyze                                # Code analysis
 
-# Install dependencies
-flutter pub get
+# Docker Supabase
+./scripts/supabase-docker.sh start             # Start backend
+./scripts/supabase-docker.sh status            # Check status  
 
-# Run tests to verify setup
-flutter test
-
-# Run the application
-flutter run
+# Deployment
+./scripts/deploy_schema_updates.sh             # Deploy schema
+flutter run --dart-define-from-file=.env.production  # Test production
 ```
 
-## 📊 Project Status
+## 📞 Need Help?
 
-### ✅ Completed Features
-
-- **Epic 1: Core Expense Management** - 100% Complete
-  - ✅ Story 1.1: Budget Management System
-  - ✅ Story 1.2: Enhanced Add Expense with Receipt Photos
-  - ✅ Story 1.3: Advanced Filtering and Search
-
-### 🎯 Test Coverage
-
-- **145/145 tests passing** (100% success rate)
-- **Unit Tests**: Business logic and data operations
-- **Widget Tests**: UI components and interactions
-- **Integration Tests**: End-to-end workflows
-
-### 🏗️ Architecture Compliance
-
-- **Clean Architecture**: 100% compliance
-- **State Management**: Riverpod implementation
-- **Database**: Hive local storage
-- **Platform Support**: iOS & Android
-
-## 🎨 Features Overview
-
-### 💰 Budget Management
-
-- Create and manage budgets by category
-- Real-time spending tracking
-- Visual progress indicators
-- Budget alerts and notifications
-
-### 📸 Receipt Photos
-
-- Camera integration for photo capture
-- Gallery photo selection
-- Photo management and organization
-- Secure local storage
-
-### 🔍 Advanced Filtering & Search
-
-- Multi-criteria filtering (date, category, amount, type)
-- Real-time text search
-- Filter state persistence
-- Results visualization
-
-## 🏗️ Technical Architecture
-
-### Clean Architecture Layers
-
-```
-Presentation Layer (UI/State)
-         ↓
-   Domain Layer (Business Logic)
-         ↓
-    Data Layer (Storage/Network)
-```
-
-### Key Technologies
-
-- **Framework**: Flutter
-- **State Management**: Riverpod
-- **Database**: Hive (NoSQL)
-- **Architecture**: Clean Architecture
-- **Testing**: Flutter Test + Mocktail
-
-## 📱 Platform Support
-
-### Mobile Platforms
-
-- **Android**: Material Design implementation
-- **iOS**: Cupertino Design implementation
-- **Responsive Design**: Adaptive UI for different screen sizes
-
-### Future Platforms
-
-- **Web**: Progressive Web App (planned)
-- **Desktop**: Desktop application (planned)
-
-## 🔧 Development Workflow
-
-### Feature Development Process
-
-1. **Domain Layer**: Define entities, use cases, and repositories
-2. **Data Layer**: Implement data models and repositories
-3. **Presentation Layer**: Create UI components and state management
-4. **Testing**: Add comprehensive tests for all layers
-5. **Documentation**: Update feature documentation
-
-### Code Quality Standards
-
-- **Linting**: Dart/Flutter linting rules
-- **Formatting**: Consistent code formatting
-- **Documentation**: Comprehensive API documentation
-- **Testing**: 80%+ test coverage requirement
-
-## 🧪 Testing Strategy
-
-### Test Pyramid
-
-- **Unit Tests (70%)**: Business logic and data operations
-- **Widget Tests (20%)**: UI components and interactions
-- **Integration Tests (10%)**: End-to-end workflows
-
-### Testing Tools
-
-- **Flutter Test**: Core testing framework
-- **Mocktail**: Mocking and stubbing
-- **Widget Tester**: UI component testing
-- **Integration Test**: End-to-end testing
-
-## 📈 Performance Considerations
-
-### Optimization Areas
-
-- **Database**: Efficient queries and indexing
-- **UI**: Widget optimization and caching
-- **Memory**: Proper resource management
-- **Images**: Photo compression and caching
-
-### Monitoring
-
-- **Performance Overlay**: Real-time performance monitoring
-- **Memory Profiling**: Memory usage analysis
-- **Database Profiling**: Query performance analysis
-
-## 🔒 Security & Privacy
-
-### Data Protection
-
-- **Local Storage**: Private app directory
-- **Encryption**: Sensitive data encryption
-- **Permissions**: Minimal permission requirements
-- **Privacy**: GDPR compliance considerations
-
-### Security Features
-
-- **Input Validation**: Comprehensive input sanitization
-- **Error Handling**: Secure error messages
-- **File Security**: Secure file operations
-- **Access Control**: Permission-based access
-
-## 🚀 Deployment
-
-### Build Configurations
-
-- **Debug**: Development with hot reload
-- **Release**: Optimized production build
-- **Profile**: Performance profiling
-- **Test**: Automated testing
-
-### Platform Deployment
-
-- **Android**: Google Play Store deployment
-- **iOS**: App Store deployment
-- **Web**: Progressive Web App deployment
-- **Desktop**: Desktop application distribution
-
-## 📞 Support & Contributing
-
-### Getting Help
-
-- **Documentation**: Comprehensive feature documentation
-- **Code Examples**: Practical implementation examples
-- **Architecture Guide**: System design and patterns
-- **Development Guide**: Development workflow and best practices
-
-### Contributing
-
-- **Code Review**: All changes require review
-- **Testing**: Comprehensive test coverage
-- **Documentation**: Updated documentation
-- **Standards**: Follow coding standards
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🤝 Acknowledgments
-
-- **Flutter Team**: For the amazing Flutter framework
-- **Riverpod**: For excellent state management
-- **Hive**: For efficient local database
-- **Community**: For contributions and feedback
+1. **Getting Started**: Read [Main README](../README.md)
+2. **Development Issues**: Check [CLAUDE.md](../CLAUDE.md) 
+3. **Docker Problems**: See [Docker Setup Guide](DOCKER_SUPABASE_SETUP.md)
+4. **Deployment Issues**: Check [Deployment Workflow](DEPLOYMENT_WORKFLOW.md)
 
 ---
 
 **Last Updated**: December 2024  
-**Version**: 1.0.0  
-**Status**: Production Ready
+**Documentation Version**: 2.0  
+**Project Status**: Production Ready ✅

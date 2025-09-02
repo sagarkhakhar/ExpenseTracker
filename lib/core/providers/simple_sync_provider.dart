@@ -92,7 +92,7 @@ class SimpleSyncService {
     if (intId != null) {
       // Create a namespace-based UUID using the integer
       // This ensures consistency across syncs
-      final namespace = '6ba7b810-9dad-11d1-80b4-00c04fd430c8'; // Standard namespace UUID
+      const namespace = '6ba7b810-9dad-11d1-80b4-00c04fd430c8'; // Standard namespace UUID
       final name = 'expense_$intId';
       return uuid.v5(namespace, name);
     }

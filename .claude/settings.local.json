@@ -36,7 +36,16 @@
       "Bash(adb shell:*)",
       "Bash(git grep:*)",
       "Bash(./scripts/security_audit.sh:*)",
-      "Bash(dart compile:*)"
+      "Bash(dart compile:*)",
+      "Bash(./scripts/deploy_schema_updates.sh:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(psql:*)",
+      "Bash(docker:*)",
+      "Bash(dart:*)",
+      "Bash(./scripts/supabase-docker.sh:*)",
+      "Bash(tree:*)",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": []

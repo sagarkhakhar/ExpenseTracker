@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:expense_tracker/core/providers/auth_providers.dart';
 import 'package:expense_tracker/core/services/authentication_service.dart';

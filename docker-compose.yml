@@ -1,0 +1,35 @@
+# Docker Compose file for ExpenseTracker development
+# This provides an alternative way to run Supabase services
+
+version: '3.8'
+
+services:
+  # Use Supabase CLI instead of manual Docker Compose
+  # This file is for reference and future customization
+  
+  # To start Supabase: supabase start
+  # To stop Supabase: supabase stop
+  # To check status: supabase status
+  
+  # The Supabase CLI manages these services automatically:
+  # - PostgreSQL Database (port 54322)
+  # - PostgREST API (port 54321) 
+  # - GoTrue Auth (via Kong)
+  # - Realtime (WebSocket)
+  # - Storage API
+  # - Kong Gateway (port 54321)
+  # - Studio Dashboard (port 54323)
+  # - Inbucket (email testing, port 54324)
+
+  # Custom services can be added here if needed
+  # For example, a custom analytics service, etc.
+  
+  placeholder:
+    image: hello-world
+    profiles:
+      - disabled # This prevents the service from starting by default
+    
+networks:
+  default:
+    name: supabase_network_ExpenseTracker
+    external: true
