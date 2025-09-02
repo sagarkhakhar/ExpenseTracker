@@ -1,18 +1,110 @@
-# Local to Remote Supabase Deployment Workflow
+# Remote Supabase Setup Guide (Production/Hosted)
 
-This guide covers the complete workflow for developing locally with Supabase and deploying to production.
+This comprehensive guide provides step-by-step instructions for setting up a remote Supabase instance for production deployment of the ExpenseTracker Flutter application.
 
 ## Overview
 
-**The Development Flow:**
-1. **Local Development** → Develop on local Supabase Docker instance
-2. **Schema Sync** → Push database changes to remote Supabase
-3. **App Deployment** → Deploy Flutter app pointing to remote Supabase
-4. **Data Migration** (optional) → Migrate existing data if needed
+This guide is designed for users who have completed local development and want to deploy their ExpenseTracker app to production using hosted Supabase. You'll learn how to:
 
----
+- Create and configure a remote Supabase project
+- Deploy your local database schema to production  
+- Set up authentication, storage, and security
+- Configure your Flutter app for remote deployment
+- Implement proper environment management
+- Monitor and maintain your production setup
 
-## Part 1: Running Flutter App on Different Environments
+## Prerequisites
+
+### Account Requirements
+- **Supabase Account**: Free account at https://supabase.com
+- **GitHub Account**: For repository hosting (recommended)
+- **Domain/App Store Account**: For production deployment (optional)
+
+### Technical Prerequisites
+- Completed local development setup (see [DOCKER_SUPABASE_SETUP.md](./DOCKER_SUPABASE_SETUP.md))
+- Working Flutter app with local Supabase integration
+- Supabase CLI installed and configured
+- Basic understanding of environment variables and deployment
+
+## Step 1: Create Remote Supabase Project
+
+### 1.1 Sign Up for Supabase
+
+```bash
+# Visit https://supabase.com and create account
+# OR sign in with GitHub for easier integration
+```
+
+### 1.2 Create New Project
+
+1. **In Supabase Dashboard**:
+   - Click "New Project"
+   - Choose organization (personal or team)
+   - Enter project details:
+     - **Name**: ExpenseTracker (or your preferred name)
+     - **Database Password**: Generate a strong password (save this!)
+     - **Region**: Choose closest to your users
+     - **Pricing Plan**: Start with Free tier (upgrade later if needed)
+
+2. **Wait for Project Initialization** (~2-3 minutes):
+   - Database setup
+   - API endpoint configuration
+   - Authentication service setup
+   - Storage bucket creation
+
+### 1.3 Get Project Credentials
+
+Once created, note these important values from your project settings:
+
+```bash
+# From Project Settings > API
+Project URL: https://your-project-id.supabase.co
+Anon Key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Service Role Key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+# From Project Settings > General  
+Project Reference ID: your-project-id
+Database Password: [password you set]
+```
+
+**⚠️ IMPORTANT**: Store these credentials securely. Never commit them to version control!
+
+## Step 2: Link Local Project to Remote
+
+### 2.1 Authenticate with Supabase CLI
+
+```bash
+# Login to your Supabase account
+supabase login
+
+# This will open browser for authentication
+# Follow the prompts to complete login
+```
+
+### 2.2 Link Your Project
+
+```bash
+# Navigate to your project directory
+cd /path/to/ExpenseTracker
+
+# Link to your remote project
+supabase link --project-ref your-project-id
+
+# You'll be prompted for your database password
+# Enter the password you created in Step 1.2
+```
+
+### 2.3 Verify Connection
+
+```bash
+# Check project status
+supabase status
+
+# Should show both local and remote configurations
+# Remote should show your production URL
+```
+
+## Step 3: Deploy Database Schema
 
 ### 🏠 **Local Development (Default)**
 

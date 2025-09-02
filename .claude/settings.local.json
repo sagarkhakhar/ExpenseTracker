@@ -45,7 +45,8 @@
       "Bash(dart:*)",
       "Bash(./scripts/supabase-docker.sh:*)",
       "Bash(tree:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(lsof:*)"
     ],
     "deny": [],
     "ask": []
