@@ -67,8 +67,10 @@ flutter pub get
 dart run build_runner build --delete-conflicting-outputs
 flutter gen-l10n
 
-# Start local Supabase (optional - app works offline-first)
-./scripts/supabase-docker.sh start
+# Set up Supabase database (choose one):
+./scripts/setup_supabase.sh fresh-local    # Local development database
+# OR
+./scripts/setup_supabase.sh fresh-remote   # Remote production database
 
 # Run the app
 flutter run
@@ -102,18 +104,16 @@ flutter doctor
 
 ### 📚 Key Guides
 
-#### For **Local Development**:
-1. **[Docker Supabase Setup](docs/DOCKER_SUPABASE_SETUP.md)** - Complete local setup with Docker
-2. **[CLAUDE.md](CLAUDE.md)** - All development commands and workflows
+#### For **Getting Started** (NEW - SIMPLIFIED):
+1. **[Supabase Setup Guide](docs/SUPABASE_SETUP.md)** - ⭐ **SINGLE SETUP GUIDE** (replaces all complex setup docs)
+2. **[CLAUDE.md](CLAUDE.md)** - Complete development commands and workflows
+3. Follow [Quick Start](#-quick-start) above
 
-#### For **Production Deployment**:
-1. **[Deployment Workflow](docs/DEPLOYMENT_WORKFLOW.md)** - Local to remote deployment guide
-2. **[Schema Migration Guide](docs/SCHEMA_MIGRATION_GUIDE.md)** - Database schema management
+#### For **Legacy/Advanced Users**:
+1. **[Docker Supabase Setup](docs/DOCKER_SUPABASE_SETUP.md)** - Docker-based local development
+2. **[Deployment Workflow](docs/DEPLOYMENT_WORKFLOW.md)** - Complex deployment workflows
 
-#### For **Getting Started**:
-1. Follow [Quick Start](#-quick-start) above
-2. Check [CLAUDE.md](CLAUDE.md) for detailed commands
-3. See [Architecture](#️-architecture) section below
+**⚡ QUICK TIP**: New users should start with the **[Supabase Setup Guide](docs/SUPABASE_SETUP.md)** - it's much simpler!
 
 ---
 

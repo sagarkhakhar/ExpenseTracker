@@ -162,18 +162,56 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Insert default categories
-INSERT INTO categories (name, icon, color) VALUES 
-  ('Food & Dining', '🍽️', '#FF6B6B'),
-  ('Transportation', '🚗', '#4ECDC4'),
-  ('Shopping', '🛍️', '#45B7D1'),
-  ('Entertainment', '🎬', '#96CEB4'),
-  ('Bills & Utilities', '⚡', '#FFEAA7'),
-  ('Health & Medical', '🏥', '#DDA0DD'),
-  ('Travel', '✈️', '#98D8C8'),
-  ('Education', '📚', '#F7DC6F'),
-  ('Other', '📦', '#BDC3C7')
-ON CONFLICT DO NOTHING;
+-- First check if display_name column exists and add it if missing
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'categories' 
+        AND column_name = 'display_name'
+        AND table_schema = 'public'
+    ) THEN
+        ALTER TABLE categories ADD COLUMN display_name TEXT;
+    END IF;
+END $$;
+
+-- Insert default categories with display_name handling
+DO $$
+BEGIN
+    -- Check if display_name column exists
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'categories' 
+        AND column_name = 'display_name'
+        AND table_schema = 'public'
+    ) THEN
+        -- Insert with display_name
+        INSERT INTO categories (name, display_name, icon, color) VALUES 
+          ('Food & Dining', 'Food & Dining', '🍽️', '#FF6B6B'),
+          ('Transportation', 'Transportation', '🚗', '#4ECDC4'),
+          ('Shopping', 'Shopping', '🛍️', '#45B7D1'),
+          ('Entertainment', 'Entertainment', '🎬', '#96CEB4'),
+          ('Bills & Utilities', 'Bills & Utilities', '⚡', '#FFEAA7'),
+          ('Health & Medical', 'Health & Medical', '🏥', '#DDA0DD'),
+          ('Travel', 'Travel', '✈️', '#98D8C8'),
+          ('Education', 'Education', '📚', '#F7DC6F'),
+          ('Other', 'Other', '📦', '#BDC3C7')
+        ON CONFLICT DO NOTHING;
+    ELSE
+        -- Insert without display_name
+        INSERT INTO categories (name, icon, color) VALUES 
+          ('Food & Dining', '🍽️', '#FF6B6B'),
+          ('Transportation', '🚗', '#4ECDC4'),
+          ('Shopping', '🛍️', '#45B7D1'),
+          ('Entertainment', '🎬', '#96CEB4'),
+          ('Bills & Utilities', '⚡', '#FFEAA7'),
+          ('Health & Medical', '🏥', '#DDA0DD'),
+          ('Travel', '✈️', '#98D8C8'),
+          ('Education', '📚', '#F7DC6F'),
+          ('Other', '📦', '#BDC3C7')
+        ON CONFLICT DO NOTHING;
+    END IF;
+END $$;
 
 -- Insert default account
 INSERT INTO accounts (name, type, balance) VALUES 

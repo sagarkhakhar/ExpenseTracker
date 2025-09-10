@@ -29,27 +29,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `flutter build apk --release` - Build release APK
 - `flutter build web --release` - Build web version
 
-### Supabase (Backend)
-- `supabase start` - Start local Supabase instance
-- `supabase functions serve` - Serve edge functions locally
-- `supabase db reset` - Reset database to initial state
-- `supabase secrets list` - List environment secrets
-
-### Docker Supabase Management
-- `./scripts/supabase-docker.sh start` - Start Supabase with Docker
-- `./scripts/supabase-docker.sh stop` - Stop all Supabase services
-- `./scripts/supabase-docker.sh status` - Check service status
-- `./scripts/supabase-docker.sh info` - Show connection details
-- `./scripts/supabase-docker.sh reset` - Reset database to stable state
-- `./scripts/supabase-docker.sh setup` - Full setup from scratch
-
-### Environment Management & Deployment
-- `flutter run` - Run on local Docker Supabase (default)
-- `flutter run --dart-define-from-file=.env.production` - Run on remote Supabase
-- `./scripts/deploy_schema_updates.sh` - Deploy local schema to remote
-- `./scripts/deploy_schema_updates.sh --dry-run` - Preview schema changes
+### Supabase Setup & Management (SIMPLIFIED)
+- `./scripts/setup_supabase.sh fresh-local` - Fresh local database setup
+- `./scripts/setup_supabase.sh fresh-remote` - Fresh remote database setup
+- `./scripts/setup_supabase.sh reset-local` - Reset local database
+- `./scripts/setup_supabase.sh reset-remote` - Reset remote database (⚠️ destroys data)
+- `./scripts/setup_supabase.sh verify` - Verify database setup
 - `supabase link --project-ref YOUR_ID` - Link to remote Supabase project
-- `supabase db push --linked` - Push migrations to remote
+
+### Legacy Supabase Commands (for manual usage)
+- `supabase start` - Start local Supabase instance
+- `supabase db push --linked` - Push single migration to remote
+- `supabase db reset --linked` - Reset remote database
+- `supabase status` - Check local services status
 
 ## Architecture Overview
 

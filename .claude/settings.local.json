@@ -46,7 +46,9 @@
       "Bash(./scripts/supabase-docker.sh:*)",
       "Bash(tree:*)",
       "Bash(git log:*)",
-      "Bash(lsof:*)"
+      "Bash(lsof:*)",
+      "Bash(./scripts/apply_security_fixes.sh:*)",
+      "Bash(./scripts/validate_security_migration.sh:*)"
     ],
     "deny": [],
     "ask": []
